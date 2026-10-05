@@ -12,14 +12,17 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDA3QUZGIi8+PHBhdGggZD0iTTUwIDYwaDgwdjEwaC04MHoiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MCIgY3k9IjExMCIgcj0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PC9zdmc+" />
 <title>سرویس الکتا</title>
 <style>
+/* ═══════════════════════════════════════
+   Design Tokens — Apple HIG
+   ═══════════════════════════════════════ */
 :root{
   --blue:#007AFF;--green:#34C759;--orange:#FF9500;--red:#FF3B30;
   --purple:#AF52DE;--teal:#5AC8FA;--indigo:#5856D6;--pink:#FF2D55;
-  --yellow:#FFCC00;
+  --yellow:#FFCC00;--mint:#00C7BE;
   --bg:#F2F2F7;--card:#FFF;
   --label:#000;--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.3);
   --sep:rgba(60,60,67,.18);--fill:rgba(120,120,128,.12);
-  --pad:16px;--nav-h:44px;--tab-h:49px;
+  --pad:16px;--nav-h:44px;
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
 }
@@ -40,7 +43,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 input{font:inherit;color:inherit}
 #app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--safe-t)}
 main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding-bottom:calc(var(--tab-h) + var(--safe-b) + 24px)}
+  padding-bottom:calc(110px + var(--safe-b))}
+
+/* ═══════ Nav Bar ═══════ */
 .nav{position:sticky;top:0;z-index:20;padding:6px var(--pad) 10px;
   background:rgba(242,242,247,.82);
   backdrop-filter:saturate(180%) blur(20px);
@@ -54,15 +59,18 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .nav.scrolled .nav-title-sm{opacity:1;transform:none}
 .nav-large{font-size:34px;font-weight:700;letter-spacing:-.02em;transition:all .2s;transform-origin:right}
 .nav.scrolled .nav-large{font-size:0;opacity:0;height:0;margin:0}
+
+/* ═══════ Search ═══════ */
 .search{padding:0 var(--pad) 8px}
 .search-inner{display:flex;align-items:center;gap:8px;
   background:var(--fill);border-radius:10px;padding:8px 12px;height:36px}
 .search-inner svg{width:16px;height:16px;color:var(--label2);flex-shrink:0}
 .search-inner input{flex:1;background:none;border:0;outline:none;font-size:17px}
+
+/* ═══════ Sections ═══════ */
 .section{padding:0 var(--pad);margin-top:22px}
 .section-h{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 10px}
 .section-t{font-size:13px;font-weight:600;color:var(--label2);letter-spacing:.02em}
-.section-a{font-size:15px;color:var(--blue);font-weight:500}
 .card{background:var(--card);border-radius:12px;overflow:hidden;
   box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .row{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:52px;
@@ -76,15 +84,22 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .row-title{font-size:16px;font-weight:500}
 .row-sub{font-size:13px;color:var(--label2);margin-top:2px}
 .row-chev{color:var(--label3);flex-shrink:0}
+.row-chev svg{width:8px;height:14px;transform:scaleX(-1)}
+
+/* ═══════ Chips ═══════ */
 .chips{display:flex;gap:8px;overflow-x:auto;padding:4px var(--pad) 8px;
   scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex-shrink:0;padding:7px 14px;border-radius:100px;background:var(--fill);
   font-size:14px;font-weight:500;transition:all .15s;white-space:nowrap}
 .chip.on{background:var(--blue);color:#fff}
+
+/* ═══════ Manual Card ═══════ */
 .manual{background:var(--card);border-radius:16px;padding:14px 16px;
   display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;
-  transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.04);
+  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .manual:active{transform:scale(.985)}
 .manual-ic{width:44px;height:44px;border-radius:12px;flex-shrink:0;
   display:grid;place-items:center;color:#fff}
@@ -101,26 +116,136 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .manual-fav{color:var(--label3);flex-shrink:0;padding:4px}
 .manual-fav.on{color:var(--yellow)}
 .manual-fav svg{width:18px;height:18px}
+
+/* ═══════ Categories Grid ═══════ */
 .cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .cat{background:var(--card);border-radius:16px;padding:16px;
   display:flex;flex-direction:column;gap:10px;
-  box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s}
+  box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s;
+  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
 .cat:active{transform:scale(.97)}
 .cat-ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff}
 .cat-ic svg{width:22px;height:22px}
 .cat-n{font-size:15px;font-weight:600}
 .cat-c{font-size:12px;color:var(--label2)}
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding-bottom:var(--safe-b);
-  background:rgba(242,242,247,.78);
-  backdrop-filter:saturate(180%) blur(24px);
-  -webkit-backdrop-filter:saturate(180%) blur(24px);
-  border-top:.5px solid var(--sep)}
-@media (prefers-color-scheme: dark){.tabbar{background:rgba(0,0,0,.72)}}
-.tabbar-inner{display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab-h)}
+
+/* ═══════════════════════════════════════════
+   Liquid Glass Tab Bar — iOS 26/27
+   ═══════════════════════════════════════════ */
+.tabbar{
+  position:fixed;
+  bottom:calc(14px + var(--safe-b));
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+  width:calc(100% - 24px);
+  max-width:440px;
+  border-radius:32px;
+  overflow:hidden;
+  isolation:isolate;
+  background:rgba(255,255,255,.42);
+  backdrop-filter:blur(34px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter:blur(34px) saturate(200%) brightness(1.06);
+  border:.5px solid rgba(255,255,255,.55);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.10),
+    0 4px 12px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.85),
+    inset 0 -1px 0 rgba(0,0,0,.04),
+    inset 0 0 20px rgba(255,255,255,.15);
+  animation:tabbarEnter .7s cubic-bezier(.34,1.4,.64,1) backwards;
+  animation-delay:.15s;
+}
+@keyframes tabbarEnter{
+  from{opacity:0;transform:translateX(-50%) translateY(80px) scale(.9)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+.tabbar::before{
+  content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent 0%,
+    rgba(255,255,255,.9) 30%,rgba(255,255,255,.95) 50%,
+    rgba(255,255,255,.9) 70%,transparent 100%);
+  border-radius:50%;pointer-events:none;z-index:2;
+}
+.tabbar::after{
+  content:"";position:absolute;inset:0;border-radius:32px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,
+    rgba(255,255,255,.35) 0%,transparent 70%);
+  pointer-events:none;z-index:1;
+}
+@media (prefers-color-scheme: dark){
+  .tabbar{
+    background:rgba(28,28,30,.48);
+    backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+    -webkit-backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+    border:.5px solid rgba(255,255,255,.10);
+    box-shadow:
+      0 12px 40px rgba(0,0,0,.55),
+      0 4px 12px rgba(0,0,0,.35),
+      inset 0 1px 0 rgba(255,255,255,.12),
+      inset 0 -1px 0 rgba(0,0,0,.3),
+      inset 0 0 20px rgba(0,0,0,.2);
+  }
+  .tabbar::before{
+    background:linear-gradient(90deg,transparent 0%,
+      rgba(255,255,255,.25) 30%,rgba(255,255,255,.35) 50%,
+      rgba(255,255,255,.25) 70%,transparent 100%);
+  }
+  .tabbar::after{
+    background:radial-gradient(ellipse 80% 60% at 50% 0%,
+      rgba(255,255,255,.08) 0%,transparent 70%);
+  }
+}
+.tabbar-inner{display:grid;grid-template-columns:repeat(5,1fr);height:66px;
+  padding:6px;position:relative;z-index:3}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;color:var(--label3);font-size:10px;font-weight:500;transition:color .15s}
-.tab svg{width:24px;height:24px}
-.tab.active{color:var(--blue)}
+  gap:3px;color:var(--label2);font-size:10px;font-weight:500;
+  letter-spacing:-.01em;border-radius:24px;position:relative;
+  transition:color .25s cubic-bezier(.32,.72,0,1),
+    transform .2s cubic-bezier(.32,.72,0,1),
+    background .3s cubic-bezier(.32,.72,0,1);
+  -webkit-tap-highlight-color:transparent;overflow:hidden}
+.tab svg{width:24px;height:24px;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  position:relative;z-index:2;stroke-width:2}
+.tab.active{color:var(--blue);
+  background:linear-gradient(180deg,
+    rgba(0,122,255,.14) 0%,rgba(0,122,255,.10) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -1px 0 rgba(0,122,255,.08),
+    0 1px 4px rgba(0,122,255,.15)}
+.tab.active svg{transform:scale(1.12);
+  filter:drop-shadow(0 2px 4px rgba(0,122,255,.3))
+    drop-shadow(0 0 8px rgba(0,122,255,.2));
+  animation:tabPop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tabPop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.22)}
+  70%{transform:scale(1.05)}
+  100%{transform:scale(1.12)}
+}
+.tab.active span{font-weight:600;letter-spacing:-.02em}
+@media (prefers-color-scheme: dark){
+  .tab.active{background:linear-gradient(180deg,
+    rgba(10,132,255,.22) 0%,rgba(10,132,255,.16) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
+      inset 0 -1px 0 rgba(10,132,255,.15),
+      0 1px 4px rgba(10,132,255,.25)}
+}
+.tab:active{transform:scale(.92)}
+.tab:active svg{transform:scale(.95)}
+.tab .ripple{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,122,255,.35) 0%,rgba(0,122,255,.15) 40%,transparent 70%);
+  transform:scale(0);animation:rippleExpand .6s cubic-bezier(.32,.72,0,1);
+  pointer-events:none;z-index:1}
+@keyframes rippleExpand{to{transform:scale(2.5);opacity:0}}
+@media (min-width:600px){
+  .tabbar{bottom:calc(20px + var(--safe-b));max-width:420px}
+}
+
+/* ═══════ Sheet ═══════ */
 .sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;
   opacity:0;pointer-events:none;transition:opacity .28s}
 .sheet-backdrop.show{opacity:1;pointer-events:auto}
@@ -130,16 +255,20 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   max-height:92vh;display:flex;flex-direction:column;
   box-shadow:0 -8px 40px rgba(0,0,0,.15)}
 .sheet.show{transform:translateY(0)}
-.sheet-grab{width:36px;height:5px;border-radius:100px;background:var(--label3);margin:8px auto 4px}
+.sheet-grab{width:36px;height:5px;border-radius:100px;background:var(--label3);
+  margin:8px auto 4px}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;
   padding:8px 16px 12px;gap:8px}
 .sheet-title{font-size:17px;font-weight:600;flex:1;text-align:center}
 .sheet-act{color:var(--blue);font-size:17px;padding:4px 8px}
 .sheet-body{overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
+
+/* ═══════ Detail ═══════ */
 .detail-hero{background:linear-gradient(145deg,var(--blue),var(--indigo));
   border-radius:22px;padding:22px 20px;color:#fff;margin-bottom:18px}
 .detail-cat{font-size:12px;opacity:.85;font-weight:600;letter-spacing:.05em}
-.detail-title{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:6px 0 10px;line-height:1.25}
+.detail-title{font-size:24px;font-weight:700;letter-spacing:-.02em;
+  margin:6px 0 10px;line-height:1.25}
 .detail-sum{font-size:14px;opacity:.92;line-height:1.5}
 .detail-meta{display:flex;gap:12px;margin-top:16px;padding-top:16px;
   border-top:1px solid rgba(255,255,255,.2);flex-wrap:wrap}
@@ -148,8 +277,9 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .step{display:flex;gap:14px;padding:14px 0;position:relative}
 .step+.step::before{content:"";position:absolute;top:0;right:35px;left:0;
   height:.5px;background:var(--sep)}
-.step-n{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:var(--blue);
-  color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:2px}
+.step-n{width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:var(--blue);color:#fff;font-size:13px;font-weight:700;
+  display:grid;place-items:center;margin-top:2px}
 .step-body{flex:1}
 .step-t{font-size:15px;font-weight:500;line-height:1.5}
 .step-note{font-size:13px;color:var(--label2);margin-top:6px;padding:8px 10px;
@@ -166,6 +296,8 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tag{padding:5px 10px;background:var(--fill);border-radius:100px;
   font-size:12px;color:var(--label2)}
+
+/* ═══════ Error Code Row ═══════ */
 .ecode{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative}
 .ecode+.ecode::before{content:"";position:absolute;top:0;right:16px;left:0;
   height:.5px;background:var(--sep)}
@@ -178,6 +310,8 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .ecode-body{flex:1;min-width:0}
 .ecode-t{font-size:14px;font-weight:500}
 .ecode-s{font-size:12px;color:var(--label2);margin-top:2px}
+
+/* ═══════ Misc ═══════ */
 .empty{text-align:center;padding:60px 20px;color:var(--label2)}
 .empty svg{width:56px;height:56px;opacity:.35;margin-bottom:12px}
 .empty-t{font-size:16px;font-weight:600;color:var(--label);margin-bottom:4px}
@@ -185,10 +319,11 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .page.on{display:block;animation:fade .25s}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:var(--card);border-radius:12px;padding:14px 8px;text-align:center}
+.stat{background:var(--card);border-radius:12px;padding:14px 8px;text-align:center;
+  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
 .stat-v{font-size:22px;font-weight:700;letter-spacing:-.02em}
 .stat-l{font-size:11px;color:var(--label2);margin-top:2px}
-.toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 20px);
+.toast{position:fixed;bottom:calc(100px + var(--safe-b));
   left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--label);color:var(--bg);padding:10px 20px;border-radius:100px;
   font-size:14px;font-weight:500;z-index:100;opacity:0;transition:all .3s;
@@ -200,6 +335,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 
 <div id="app">
   <main id="main">
+
     <!-- HOME -->
     <section id="page-home" class="page on">
       <header class="nav" data-nav>
@@ -218,10 +354,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
         <div class="cat-grid" id="catGrid"></div>
       </div>
       <div class="section">
-        <div class="section-h">
-          <div class="section-t">پرکاربردترین‌ها</div>
-          <button class="section-a" onclick="go('lib')">همه</button>
-        </div>
+        <div class="section-h"><div class="section-t">پرکاربردترین‌ها</div></div>
         <div id="homePop"></div>
       </div>
     </section>
@@ -274,11 +407,10 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
         <div class="nav-large">بیشتر</div>
       </header>
       <div class="section" style="margin-top:6px">
-        <div class="section-h"><div class="section-t">درباره</div></div>
         <div class="card">
           <div class="row"><div class="row-body"><div class="row-title">نسخه</div></div><div style="color:var(--label2)">۱.۰</div></div>
           <div class="row"><div class="row-body"><div class="row-title">تعداد منوال</div></div><div style="color:var(--label2)" id="abM">—</div></div>
-          <div class="row"><div class="row-body"><div class="row-title">وضعیت آفلاین</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">فعال ✓</div></div>
+          <div class="row"><div class="row-body"><div class="row-title">وضعیت</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div></div>
         </div>
       </div>
       <div class="section">
@@ -289,8 +421,8 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
         سرویس الکتا — نسخه ۱.۰<br>ساخته‌شده برای iOS
       </div>
     </section>
-  </main>
 
+  </main>
   <nav class="tabbar"><div class="tabbar-inner" id="tabbar"></div></nav>
 </div>
 
@@ -308,18 +440,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============ DATA ============ */
-const CATS = [
-  {id:"daily",  name:"QA روزانه",     color:"var(--green)",  icon:"check"},
-  {id:"weekly", name:"QA هفتگی",      color:"var(--teal)",   icon:"cal"},
-  {id:"monthly",name:"QA ماهانه",     color:"var(--blue)",   icon:"clock"},
-  {id:"mlc",    name:"MLC و کولیما",  color:"var(--purple)", icon:"grid"},
-  {id:"calib",  name:"کالیبراسیون",   color:"var(--orange)", icon:"target"},
-  {id:"imaging",name:"تصویربرداری",   color:"var(--indigo)", icon:"cam"},
-  {id:"replace",name:"تعویض قطعات",   color:"var(--pink)",   icon:"wrench"},
-  {id:"trouble",name:"عیب‌یابی",      color:"var(--red)",    icon:"warn"}
-];
-
+/* ═══════════ ICONS ═══════════ */
 const ICONS = {
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
   cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
@@ -336,6 +457,18 @@ const ICONS = {
   more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>',
   chev:'<svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)"><polyline points="2 2 6 7 2 12"/></svg>'
 };
+
+/* ═══════════ DATA ═══════════ */
+const CATS = [
+  {id:"daily",  name:"QA روزانه",     color:"var(--green)",  icon:"check"},
+  {id:"weekly", name:"QA هفتگی",      color:"var(--teal)",   icon:"cal"},
+  {id:"monthly",name:"QA ماهانه",     color:"var(--blue)",   icon:"clock"},
+  {id:"mlc",    name:"MLC و کولیما",  color:"var(--purple)", icon:"grid"},
+  {id:"calib",  name:"کالیبراسیون",   color:"var(--orange)", icon:"target"},
+  {id:"imaging",name:"تصویربرداری",   color:"var(--indigo)", icon:"cam"},
+  {id:"replace",name:"تعویض قطعات",   color:"var(--pink)",   icon:"wrench"},
+  {id:"trouble",name:"عیب‌یابی",      color:"var(--red)",    icon:"warn"}
+];
 
 const MANUALS = [
   {id:"m1",title:"چک‌لیست QA روزانه دستگاه خطی",cat:"daily",machines:["Versa HD","Infinity","Synergy"],code:"QA-D-100",duration:"۱۵ دقیقه",level:"پایه",
@@ -406,11 +539,12 @@ const MANUALS = [
    ]},
   {id:"m6",title:"کالیبراسیون ماهانه Imaging kV",cat:"imaging",machines:["Versa HD","Infinity","Axesse"],code:"QA-M-310",duration:"۶۰ دقیقه",level:"پیشرفته",
    summary:"کالیبراسیون kVp، mA، زمان تابش و یکنواختی تصویر.",
-   tools:["مولتی‌متر kV","فانتوم هم‌ترازی"],
+   tools:["مولتی‌.",
+متر kV","فانتوم هم‌تر  ازی"],
    steps:[
-     {t:"ورود به Service → Imaging → Calibration"},
-     {t:"اندازه‌گیری kVp",note:"انحراف مجاز ± ۲٪"},
-     {t:"کالیبراسیون Dark و Gain"},
+     { warnt:"ورود به Service → Imaging:" → Calibration"},
+     {t:"اندازه‌گیری kVبp",note:"انحراف مجاز ± اید۲٪"},
+     توسط {t:"کالیبراسیون Dark و Gain"},
      {t:"بررسی یکنواختی Flat Field"},
      {t:"کالیبراسیون مرکز تصویر"},
      {t:"تست Offset",note:"زیر ۱mm"},
@@ -499,8 +633,7 @@ const MANUALS = [
      {t:"اجرای Picket Fence"}
    ]},
   {id:"m13",title:"کالیبراسیون هندسی CBCT",cat:"imaging",machines:["Versa HD","Infinity","Unity","Axesse"],code:"IMG-700",duration:"۹۰ دقیقه",level:"پیشرفته",
-   summary:"کالیبراسیون کامل CBCT شامل Isocenter و موقعیت‌یابی سه‌بعدی.",
-   warn:"باید توسط تیم Elekta Service انجام شود.",
+   summary:"کالیبراسیون کامل CBCT شامل Isocenter و موقعیت‌یابی سه‌بعدی تیم Elekta Service انجام شود.",
    tools:["فانتوم CatPhan","ابزار کالیبراسیون"],
    steps:[
      {t:"قرارگیری فانتوم در Isocenter"},
@@ -551,14 +684,14 @@ const ERRORS = [
 
 const MACHINES = ["Versa HD","Infinity","Synergy","Unity","Axesse","Precise","Compact"];
 
-/* ============ STATE ============ */
+/* ═══════════ STATE ═══════════ */
 const fa = n => String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
 const $ = s => document.querySelector(s);
 let libFilter = "all", libQ = "", codeFilter = "all", codeQ = "";
 let favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]"));
 let curSheetManual = null;
 
-/* ============ RENDER ============ */
+/* ═══════════ RENDER ═══════════ */
 function renderStats(){
   $("#stM").textContent = fa(MANUALS.length);
   $("#stE").textContent = fa(ERRORS.length);
@@ -566,9 +699,9 @@ function renderStats(){
   $("#abM").textContent = fa(MANUALS.length) + " مورد";
 }
 function renderCats(){
-  $("#catGrid").innerHTML = CATS.map(c => {
+  $("#catGrid").innerHTML = CATS.map((c,i) => {
     const cnt = MANUALS.filter(m => m.cat === c.id).length;
-    return `<button class="cat" onclick="goCat('${c.id}')">
+    return `<button class="cat" style="animation-delay:${i*.05}s" onclick="goCat('${c.id}')">
       <div class="cat-ic" style="background:${c.color}">${ICONS[c.icon]}</div>
       <div><div class="cat-n">${c.name}</div><div class="cat-c">${fa(cnt)} منوال</div></div>
     </button>`;
@@ -577,12 +710,12 @@ function renderCats(){
 function renderHomePop(){
   const ids = ["m1","m5","m7","m11"];
   $("#homePop").innerHTML = ids.map(id => MANUALS.find(m => m.id === id)).filter(Boolean)
-    .map(m => manualCard(m, true)).join("");
+    .map((m,i) => manualCard(m, true, i*.06)).join("");
 }
-function manualCard(m, compact=false){
+function manualCard(m, compact=false, delay=0){
   const cat = CATS.find(c => c.id === m.cat);
   const isFav = favs.has(m.id);
-  return `<div class="manual" onclick="openManual('${m.id}')">
+  return `<div class="manual" style="animation-delay:${delay}s" onclick="openManual('${m.id}')">
     <div class="manual-ic" style="background:${cat.color}">${ICONS[cat.icon]}</div>
     <div class="manual-body">
       <div class="manual-title">${m.title}</div>
@@ -612,7 +745,7 @@ function renderLib(){
   }
   const el = $("#libList");
   if(!list.length){ el.innerHTML = emptyState("منوالی یافت نشد","فیلتر را تغییر دهید"); return; }
-  el.innerHTML = list.map(m => manualCard(m)).join("");
+  el.innerHTML = list.map((m,i) => manualCard(m, false, i*.04)).join("");
 }
 function renderCodeChips(){
   const sevs = [{id:"all",n:"همه"},{id:"red",n:"بحرانی"},{id:"orange",n:"هشدار"},{id:"blue",n:"اطلاع"}];
@@ -666,7 +799,7 @@ function emptyState(t, s){
   </div>`;
 }
 
-/* ============ DETAIL ============ */
+/* ═══════════ DETAIL ═══════════ */
 function openManual(id){
   const m = MANUALS.find(x => x.id === id);
   if(!m) return;
@@ -730,7 +863,7 @@ function goCat(id){
   libFilter = id; renderLibChips(); renderLib(); go("lib");
 }
 
-/* ============ TABS ============ */
+/* ═══════════ TABS ═══════════ */
 const TABS = [
   {id:"home",label:"خانه",icon:ICONS.home},
   {id:"lib",label:"کتابخانه",icon:ICONS.book},
@@ -755,7 +888,7 @@ function go(id){
   if(id === "codes") renderCodes();
 }
 
-/* ============ MISC ============ */
+/* ═══════════ MISC ═══════════ */
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1800);
@@ -768,6 +901,7 @@ function updateOnline(){
 }
 window.addEventListener("online", updateOnline);
 window.addEventListener("offline", updateOnline);
+
 document.getElementById("main").addEventListener("scroll", e => {
   const top = e.target.scrollTop;
   const nav = document.querySelector(".page.on [data-nav]");
@@ -775,12 +909,28 @@ document.getElementById("main").addEventListener("scroll", e => {
   nav.classList.toggle("scrolled", top > 24);
 });
 
-/* Service Worker */
+/* ═══════ Ripple on tab tap ═══════ */
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if(!tab) return;
+  const rect = tab.getBoundingClientRect();
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + "px";
+  ripple.style.left = (e.clientX - rect.left - size/2) + "px";
+  ripple.style.top  = (e.clientY - rect.top  - size/2) + "px";
+  tab.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+  if(navigator.vibrate) navigator.vibrate(8);
+}, { passive:true });
+
+/* ═══════ Service Worker ═══════ */
 if("serviceWorker" in navigator){
   window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
 
-/* INIT */
+/* ═══════════ INIT ═══════════ */
 renderTabbar();
 renderStats();
 renderCats();

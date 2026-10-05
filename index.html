@@ -6,33 +6,26 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="سرویس الکتا" />
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#000000" />
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDA3QUZGIi8+PHBhdGggZD0iTTUwIDYwaDgwdjEwaC04MHoiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MCIgY3k9IjExMCIgcj0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PC9zdmc+" />
 <title>سرویس الکتا</title>
 <style>
 /* ═══════════════════════════════════════
-   Design Tokens — Apple HIG
+   Design Tokens — Apple Health Style
    ═══════════════════════════════════════ */
 :root{
-  --blue:#007AFF;--green:#34C759;--orange:#FF9500;--red:#FF3B30;
-  --purple:#AF52DE;--teal:#5AC8FA;--indigo:#5856D6;--pink:#FF2D55;
-  --yellow:#FFCC00;--mint:#00C7BE;
-  --bg:#F2F2F7;--card:#FFF;
-  --label:#000;--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.3);
-  --sep:rgba(60,60,67,.18);--fill:rgba(120,120,128,.12);
+  --blue:#0A84FF;--green:#32D74B;--orange:#FF9F0A;--red:#FF453A;
+  --purple:#BF5AF2;--teal:#5AC8FA;--indigo:#5856D6;--pink:#FF375F;
+  --yellow:#FFD60A;--mint:#00C7BE;
+  --bg:#000;--card:#1C1C1E;--card-2:#2C2C2E;
+  --label:#FFF;--label2:rgba(235,235,245,.6);--label3:rgba(235,235,245,.3);
+  --sep:rgba(84,84,88,.65);--fill:rgba(120,120,128,.36);
   --pad:16px;--nav-h:44px;
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#000;--card:#1C1C1E;
-    --label:#FFF;--label2:rgba(235,235,245,.6);--label3:rgba(235,235,245,.3);
-    --sep:rgba(84,84,88,.65);--fill:rgba(120,120,128,.36);
-  }
-}
+
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--label);
@@ -45,34 +38,35 @@ input{font:inherit;color:inherit}
 main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding-bottom:calc(110px + var(--safe-b))}
 
-/* ═══════ Nav Bar ═══════ */
+/* ═══════ Nav Bar — Health Style ═══════ */
 .nav{position:sticky;top:0;z-index:20;padding:6px var(--pad) 10px;
-  background:rgba(242,242,247,.82);
+  background:rgba(0,0,0,.75);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px)}
-@media (prefers-color-scheme: dark){.nav{background:rgba(0,0,0,.75)}}
 .nav::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.5px;
   background:var(--sep);opacity:0;transition:opacity .18s}
 .nav.scrolled::after{opacity:1}
 .nav-top{display:flex;align-items:center;justify-content:space-between;height:var(--nav-h)}
 .nav-title-sm{font-size:17px;font-weight:600;opacity:0;transform:translateY(4px);transition:all .2s}
 .nav.scrolled .nav-title-sm{opacity:1;transform:none}
-.nav-large{font-size:34px;font-weight:700;letter-spacing:-.02em;transition:all .2s;transform-origin:right}
+.nav-large{font-size:34px;font-weight:700;letter-spacing:-.025em;
+  transition:all .2s;transform-origin:right}
 .nav.scrolled .nav-large{font-size:0;opacity:0;height:0;margin:0}
 
 /* ═══════ Search ═══════ */
 .search{padding:0 var(--pad) 8px}
 .search-inner{display:flex;align-items:center;gap:8px;
-  background:var(--fill);border-radius:10px;padding:8px 12px;height:36px}
+  background:var(--fill);border-radius:12px;padding:9px 12px;height:38px}
 .search-inner svg{width:16px;height:16px;color:var(--label2);flex-shrink:0}
 .search-inner input{flex:1;background:none;border:0;outline:none;font-size:17px}
+.search-inner input::placeholder{color:var(--label2)}
 
 /* ═══════ Sections ═══════ */
-.section{padding:0 var(--pad);margin-top:22px}
-.section-h{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 10px}
-.section-t{font-size:13px;font-weight:600;color:var(--label2);letter-spacing:.02em}
-.card{background:var(--card);border-radius:12px;overflow:hidden;
-  box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.section{padding:0 var(--pad);margin-top:26px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 12px}
+.section-t{font-size:22px;font-weight:700;color:var(--label);letter-spacing:-.02em}
+.section-a{font-size:15px;color:var(--blue);font-weight:500}
+.card{background:var(--card);border-radius:14px;overflow:hidden}
 .row{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:52px;
   position:relative;width:100%}
 .row+.row::before{content:"";position:absolute;top:0;right:16px;left:0;
@@ -94,15 +88,78 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   font-size:14px;font-weight:500;transition:all .15s;white-space:nowrap}
 .chip.on{background:var(--blue);color:#fff}
 
+/* ═══ Apple Health Style Category Cards ═══ */
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:11px;
+}
+.cat{
+  border-radius:22px;
+  padding:18px;
+  min-height:132px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:flex-start;
+  text-align:right;
+  color:rgba(0,0,0,.85);
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.10),
+    0 1px 3px rgba(0,0,0,.06);
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1);
+  animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) backwards;
+  overflow:hidden;
+  position:relative;
+}
+.cat::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:22px;
+  background:linear-gradient(180deg,
+    rgba(255,255,255,.18) 0%,
+    transparent 40%);
+  pointer-events:none;
+}
+.cat:active{
+  transform:scale(.95);
+}
+.cat-ic{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  color:rgba(0,0,0,.78);
+  position:relative;
+  z-index:2;
+}
+.cat-ic svg{
+  width:30px;
+  height:30px;
+  stroke-width:1.9;
+}
+.cat-n{
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-.025em;
+  line-height:1.15;
+  color:rgba(0,0,0,.88);
+  position:relative;
+  z-index:2;
+}
+.cat-c{display:none}
+
 /* ═══════ Manual Card ═══════ */
 .manual{background:var(--card);border-radius:16px;padding:14px 16px;
   display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;
-  transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.04);
+  transition:transform .15s;
   animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .manual:active{transform:scale(.985)}
 .manual-ic{width:44px;height:44px;border-radius:12px;flex-shrink:0;
-  display:grid;place-items:center;color:#fff}
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.2)}
 .manual-ic svg{width:22px;height:22px}
 .manual-body{flex:1;min-width:0}
 .manual-title{font-size:16px;font-weight:600;margin-bottom:3px}
@@ -116,18 +173,6 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .manual-fav{color:var(--label3);flex-shrink:0;padding:4px}
 .manual-fav.on{color:var(--yellow)}
 .manual-fav svg{width:18px;height:18px}
-
-/* ═══════ Categories Grid ═══════ */
-.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cat{background:var(--card);border-radius:16px;padding:16px;
-  display:flex;flex-direction:column;gap:10px;
-  box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s;
-  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
-.cat:active{transform:scale(.97)}
-.cat-ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff}
-.cat-ic svg{width:22px;height:22px}
-.cat-n{font-size:15px;font-weight:600}
-.cat-c{font-size:12px;color:var(--label2)}
 
 /* ═══════════════════════════════════════════
    Liquid Glass Tab Bar — iOS 26/27
@@ -143,16 +188,16 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   border-radius:32px;
   overflow:hidden;
   isolation:isolate;
-  background:rgba(255,255,255,.42);
-  backdrop-filter:blur(34px) saturate(200%) brightness(1.06);
-  -webkit-backdrop-filter:blur(34px) saturate(200%) brightness(1.06);
-  border:.5px solid rgba(255,255,255,.55);
+  background:rgba(28,28,30,.48);
+  backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+  -webkit-backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+  border:.5px solid rgba(255,255,255,.10);
   box-shadow:
-    0 12px 40px rgba(0,0,0,.10),
-    0 4px 12px rgba(0,0,0,.06),
-    inset 0 1px 0 rgba(255,255,255,.85),
-    inset 0 -1px 0 rgba(0,0,0,.04),
-    inset 0 0 20px rgba(255,255,255,.15);
+    0 12px 40px rgba(0,0,0,.55),
+    0 4px 12px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(0,0,0,.3),
+    inset 0 0 20px rgba(0,0,0,.2);
   animation:tabbarEnter .7s cubic-bezier(.34,1.4,.64,1) backwards;
   animation-delay:.15s;
 }
@@ -163,38 +208,15 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .tabbar::before{
   content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
   background:linear-gradient(90deg,transparent 0%,
-    rgba(255,255,255,.9) 30%,rgba(255,255,255,.95) 50%,
-    rgba(255,255,255,.9) 70%,transparent 100%);
+    rgba(255,255,255,.25) 30%,rgba(255,255,255,.35) 50%,
+    rgba(255,255,255,.25) 70%,transparent 100%);
   border-radius:50%;pointer-events:none;z-index:2;
 }
 .tabbar::after{
   content:"";position:absolute;inset:0;border-radius:32px;
   background:radial-gradient(ellipse 80% 60% at 50% 0%,
-    rgba(255,255,255,.35) 0%,transparent 70%);
+    rgba(255,255,255,.08) 0%,transparent 70%);
   pointer-events:none;z-index:1;
-}
-@media (prefers-color-scheme: dark){
-  .tabbar{
-    background:rgba(28,28,30,.48);
-    backdrop-filter:blur(34px) saturate(180%) brightness(.9);
-    -webkit-backdrop-filter:blur(34px) saturate(180%) brightness(.9);
-    border:.5px solid rgba(255,255,255,.10);
-    box-shadow:
-      0 12px 40px rgba(0,0,0,.55),
-      0 4px 12px rgba(0,0,0,.35),
-      inset 0 1px 0 rgba(255,255,255,.12),
-      inset 0 -1px 0 rgba(0,0,0,.3),
-      inset 0 0 20px rgba(0,0,0,.2);
-  }
-  .tabbar::before{
-    background:linear-gradient(90deg,transparent 0%,
-      rgba(255,255,255,.25) 30%,rgba(255,255,255,.35) 50%,
-      rgba(255,255,255,.25) 70%,transparent 100%);
-  }
-  .tabbar::after{
-    background:radial-gradient(ellipse 80% 60% at 50% 0%,
-      rgba(255,255,255,.08) 0%,transparent 70%);
-  }
 }
 .tabbar-inner{display:grid;grid-template-columns:repeat(5,1fr);height:66px;
   padding:6px;position:relative;z-index:3}
@@ -210,14 +232,14 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   position:relative;z-index:2;stroke-width:2}
 .tab.active{color:var(--blue);
   background:linear-gradient(180deg,
-    rgba(0,122,255,.14) 0%,rgba(0,122,255,.10) 100%);
+    rgba(10,132,255,.22) 0%,rgba(10,132,255,.16) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.5),
-    inset 0 -1px 0 rgba(0,122,255,.08),
-    0 1px 4px rgba(0,122,255,.15)}
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -1px 0 rgba(10,132,255,.15),
+    0 1px 4px rgba(10,132,255,.25)}
 .tab.active svg{transform:scale(1.12);
-  filter:drop-shadow(0 2px 4px rgba(0,122,255,.3))
-    drop-shadow(0 0 8px rgba(0,122,255,.2));
+  filter:drop-shadow(0 2px 4px rgba(10,132,255,.4))
+    drop-shadow(0 0 8px rgba(10,132,255,.3));
   animation:tabPop .45s cubic-bezier(.34,1.56,.64,1)}
 @keyframes tabPop{
   0%{transform:scale(1)}
@@ -226,18 +248,11 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   100%{transform:scale(1.12)}
 }
 .tab.active span{font-weight:600;letter-spacing:-.02em}
-@media (prefers-color-scheme: dark){
-  .tab.active{background:linear-gradient(180deg,
-    rgba(10,132,255,.22) 0%,rgba(10,132,255,.16) 100%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
-      inset 0 -1px 0 rgba(10,132,255,.15),
-      0 1px 4px rgba(10,132,255,.25)}
-}
 .tab:active{transform:scale(.92)}
 .tab:active svg{transform:scale(.95)}
 .tab .ripple{position:absolute;border-radius:50%;
   background:radial-gradient(circle,
-    rgba(0,122,255,.35) 0%,rgba(0,122,255,.15) 40%,transparent 70%);
+    rgba(10,132,255,.4) 0%,rgba(10,132,255,.15) 40%,transparent 70%);
   transform:scale(0);animation:rippleExpand .6s cubic-bezier(.32,.72,0,1);
   pointer-events:none;z-index:1}
 @keyframes rippleExpand{to{transform:scale(2.5);opacity:0}}
@@ -246,14 +261,14 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
 
 /* ═══════ Sheet ═══════ */
-.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;
+.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;
   opacity:0;pointer-events:none;transition:opacity .28s}
 .sheet-backdrop.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--bg);
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:#1C1C1E;
   border-radius:22px 22px 0 0;padding-bottom:var(--safe-b);
   transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1);
   max-height:92vh;display:flex;flex-direction:column;
-  box-shadow:0 -8px 40px rgba(0,0,0,.15)}
+  box-shadow:0 -8px 40px rgba(0,0,0,.5)}
 .sheet.show{transform:translateY(0)}
 .sheet-grab{width:36px;height:5px;border-radius:100px;background:var(--label3);
   margin:8px auto 4px}
@@ -265,9 +280,10 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 
 /* ═══════ Detail ═══════ */
 .detail-hero{background:linear-gradient(145deg,var(--blue),var(--indigo));
-  border-radius:22px;padding:22px 20px;color:#fff;margin-bottom:18px}
+  border-radius:22px;padding:22px 20px;color:#fff;margin-bottom:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .detail-cat{font-size:12px;opacity:.85;font-weight:600;letter-spacing:.05em}
-.detail-title{font-size:24px;font-weight:700;letter-spacing:-.02em;
+.detail-title{font-size:24px;font-weight:700;letter-spacing:-.025em;
   margin:6px 0 10px;line-height:1.25}
 .detail-sum{font-size:14px;opacity:.92;line-height:1.5}
 .detail-meta{display:flex;gap:12px;margin-top:16px;padding-top:16px;
@@ -289,7 +305,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .step.danger .step-n{background:var(--red)}
 .step.danger .step-note{border-right-color:var(--red)}
 .alert-box{display:flex;gap:12px;padding:14px;border-radius:12px;margin-bottom:14px;
-  background:rgba(255,149,0,.12);border:.5px solid rgba(255,149,0,.3)}
+  background:rgba(255,159,10,.12);border:.5px solid rgba(255,159,10,.3)}
 .alert-box svg{width:22px;height:22px;flex-shrink:0;color:var(--orange)}
 .alert-box .txt{font-size:14px;line-height:1.5}
 .alert-box .t{font-weight:600;margin-bottom:3px}
@@ -304,9 +320,9 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .ecode-code{font-family:ui-monospace,monospace;font-size:15px;font-weight:700;
   padding:5px 10px;border-radius:8px;min-width:70px;text-align:center;
   background:var(--fill);direction:ltr}
-.ecode-code.red{background:rgba(255,59,48,.15);color:var(--red)}
-.ecode-code.orange{background:rgba(255,149,0,.15);color:var(--orange)}
-.ecode-code.blue{background:rgba(0,122,255,.15);color:var(--blue)}
+.ecode-code.red{background:rgba(255,69,58,.15);color:var(--red)}
+.ecode-code.orange{background:rgba(255,159,10,.15);color:var(--orange)}
+.ecode-code.blue{background:rgba(10,132,255,.15);color:var(--blue)}
 .ecode-body{flex:1;min-width:0}
 .ecode-t{font-size:14px;font-weight:500}
 .ecode-s{font-size:12px;color:var(--label2);margin-top:2px}
@@ -318,17 +334,23 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .page{display:none}
 .page.on{display:block;animation:fade .25s}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:var(--card);border-radius:12px;padding:14px 8px;text-align:center;
+.stat{background:var(--card);border-radius:16px;padding:16px 8px;text-align:center;
   animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
-.stat-v{font-size:22px;font-weight:700;letter-spacing:-.02em}
-.stat-l{font-size:11px;color:var(--label2);margin-top:2px}
+.stat-v{font-size:24px;font-weight:700;letter-spacing:-.025em}
+.stat-l{font-size:11px;color:var(--label2);margin-top:3px}
+
 .toast{position:fixed;bottom:calc(100px + var(--safe-b));
   left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--label);color:var(--bg);padding:10px 20px;border-radius:100px;
   font-size:14px;font-weight:500;z-index:100;opacity:0;transition:all .3s;
-  pointer-events:none;white-space:nowrap}
+  pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════ Header Subtitle ═══════ */
+.health-sub{font-size:13px;color:var(--label2);padding:0 var(--pad) 6px;margin-top:-8px}
 </style>
 </head>
 <body>
@@ -340,19 +362,32 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
     <section id="page-home" class="page on">
       <header class="nav" data-nav>
         <div class="nav-top"><div class="nav-title-sm">سرویس الکتا</div></div>
-        <div class="nav-large">سرویس الکتا</div>
+        <div class="nav-large">Browse</div>
       </header>
-      <div class="section" style="margin-top:0">
+      <div class="health-sub">دسته‌بندی‌های سرویس و نگهداری</div>
+
+      <div class="section" style="margin-top:14px">
         <div class="stat-row">
-          <div class="stat"><div class="stat-v" id="stM">۰</div><div class="stat-l">منوال</div></div>
-          <div class="stat"><div class="stat-v" id="stE">۰</div><div class="stat-l">کد خطا</div></div>
-          <div class="stat"><div class="stat-v" id="stF">۰</div><div class="stat-l">ذخیره</div></div>
+          <div class="stat" style="animation-delay:.02s">
+            <div class="stat-v" style="color:var(--blue)" id="stM">۰</div>
+            <div class="stat-l">منوال</div>
+          </div>
+          <div class="stat" style="animation-delay:.06s">
+            <div class="stat-v" style="color:var(--orange)" id="stE">۰</div>
+            <div class="stat-l">کد خطا</div>
+          </div>
+          <div class="stat" style="animation-delay:.10s">
+            <div class="stat-v" style="color:var(--yellow)" id="stF">۰</div>
+            <div class="stat-l">ذخیره</div>
+          </div>
         </div>
       </div>
+
       <div class="section">
         <div class="section-h"><div class="section-t">دسته‌بندی‌ها</div></div>
         <div class="cat-grid" id="catGrid"></div>
       </div>
+
       <div class="section">
         <div class="section-h"><div class="section-t">پرکاربردترین‌ها</div></div>
         <div id="homePop"></div>
@@ -460,14 +495,14 @@ const ICONS = {
 
 /* ═══════════ DATA ═══════════ */
 const CATS = [
-  {id:"daily",  name:"QA روزانه",     color:"var(--green)",  icon:"check"},
-  {id:"weekly", name:"QA هفتگی",      color:"var(--teal)",   icon:"cal"},
-  {id:"monthly",name:"QA ماهانه",     color:"var(--blue)",   icon:"clock"},
-  {id:"mlc",    name:"MLC و کولیما",  color:"var(--purple)", icon:"grid"},
-  {id:"calib",  name:"کالیبراسیون",   color:"var(--orange)", icon:"target"},
-  {id:"imaging",name:"تصویربرداری",   color:"var(--indigo)", icon:"cam"},
-  {id:"replace",name:"تعویض قطعات",   color:"var(--pink)",   icon:"wrench"},
-  {id:"trouble",name:"عیب‌یابی",      color:"var(--red)",    icon:"warn"}
+  {id:"daily",  name:"QA روزانه",     c1:"#FF9F0A", c2:"#FF6B00", icon:"check"},
+  {id:"weekly", name:"QA هفتگی",      c1:"#5AC8FA", c2:"#0A84FF", icon:"cal"},
+  {id:"monthly",name:"QA ماهانه",     c1:"#BF5AF2", c2:"#5856D6", icon:"clock"},
+  {id:"mlc",    name:"MLC و کولیما",  c1:"#FF375F", c2:"#AF52DE", icon:"grid"},
+  {id:"calib",  name:"کالیبراسیون",   c1:"#FFD60A", c2:"#FF9500", icon:"target"},
+  {id:"imaging",name:"تصویربرداری",   c1:"#00C7BE", c2:"#30B0C7", icon:"cam"},
+  {id:"replace",name:"تعویض قطعات",   c1:"#32D74B", c2:"#28A745", icon:"wrench"},
+  {id:"trouble",name:"عیب‌یابی",      c1:"#FF453A", c2:"#D70015", icon:"warn"}
 ];
 
 const MANUALS = [
@@ -539,12 +574,11 @@ const MANUALS = [
    ]},
   {id:"m6",title:"کالیبراسیون ماهانه Imaging kV",cat:"imaging",machines:["Versa HD","Infinity","Axesse"],code:"QA-M-310",duration:"۶۰ دقیقه",level:"پیشرفته",
    summary:"کالیبراسیون kVp، mA، زمان تابش و یکنواختی تصویر.",
-   tools:["مولتی‌.",
-متر kV","فانتوم هم‌تر  ازی"],
+   tools:["مولتی‌متر kV","فانتوم هم‌ترازی"],
    steps:[
-     { warnt:"ورود به Service → Imaging:" → Calibration"},
-     {t:"اندازه‌گیری kVبp",note:"انحراف مجاز ± اید۲٪"},
-     توسط {t:"کالیبراسیون Dark و Gain"},
+     {t:"ورود به Service → Imaging → Calibration"},
+     {t:"اندازه‌گیری kVp",note:"انحراف مجاز ± ۲٪"},
+     {t:"کالیبراسیون Dark و Gain"},
      {t:"بررسی یکنواختی Flat Field"},
      {t:"کالیبراسیون مرکز تصویر"},
      {t:"تست Offset",note:"زیر ۱mm"},
@@ -633,7 +667,8 @@ const MANUALS = [
      {t:"اجرای Picket Fence"}
    ]},
   {id:"m13",title:"کالیبراسیون هندسی CBCT",cat:"imaging",machines:["Versa HD","Infinity","Unity","Axesse"],code:"IMG-700",duration:"۹۰ دقیقه",level:"پیشرفته",
-   summary:"کالیبراسیون کامل CBCT شامل Isocenter و موقعیت‌یابی سه‌بعدی تیم Elekta Service انجام شود.",
+   summary:"کالیبراسیون کامل CBCT شامل Isocenter و موقعیت‌یابی سه‌بعدی.",
+   warn:"باید توسط تیم Elekta Service انجام شود.",
    tools:["فانتوم CatPhan","ابزار کالیبراسیون"],
    steps:[
      {t:"قرارگیری فانتوم در Isocenter"},
@@ -700,10 +735,11 @@ function renderStats(){
 }
 function renderCats(){
   $("#catGrid").innerHTML = CATS.map((c,i) => {
-    const cnt = MANUALS.filter(m => m.cat === c.id).length;
-    return `<button class="cat" style="animation-delay:${i*.05}s" onclick="goCat('${c.id}')">
-      <div class="cat-ic" style="background:${c.color}">${ICONS[c.icon]}</div>
-      <div><div class="cat-n">${c.name}</div><div class="cat-c">${fa(cnt)} منوال</div></div>
+    return `<button class="cat"
+      style="background:linear-gradient(145deg,${c.c1} 0%,${c.c2} 100%);animation-delay:${i*.04}s"
+      onclick="goCat('${c.id}')">
+      <div class="cat-ic">${ICONS[c.icon]}</div>
+      <div class="cat-n">${c.name}</div>
     </button>`;
   }).join("");
 }
@@ -715,8 +751,9 @@ function renderHomePop(){
 function manualCard(m, compact=false, delay=0){
   const cat = CATS.find(c => c.id === m.cat);
   const isFav = favs.has(m.id);
+  const grad = `linear-gradient(145deg,${cat.c1} 0%,${cat.c2} 100%)`;
   return `<div class="manual" style="animation-delay:${delay}s" onclick="openManual('${m.id}')">
-    <div class="manual-ic" style="background:${cat.color}">${ICONS[cat.icon]}</div>
+    <div class="manual-ic" style="background:${grad}">${ICONS[cat.icon]}</div>
     <div class="manual-body">
       <div class="manual-title">${m.title}</div>
       ${!compact ? `<div class="manual-sub">${m.summary}</div>` : ""}
@@ -812,8 +849,9 @@ function openManual(id){
   fb.style.opacity = 1;
   fb.onclick = () => { toggleFav(m.id); openManual(m.id); };
   $("#sheetTitle").textContent = m.code;
+  const grad = `linear-gradient(145deg,${cat.c1} 0%,${cat.c2} 100%)`;
   $("#sheetBody").innerHTML = `
-    <div class="detail-hero" style="background:linear-gradient(145deg,${cat.color},var(--indigo))">
+    <div class="detail-hero" style="background:${grad}">
       <div class="detail-cat">${cat.name}</div>
       <div class="detail-title">${m.title}</div>
       <div class="detail-sum">${m.summary}</div>
@@ -823,11 +861,11 @@ function openManual(id){
       </div>
     </div>
     ${m.warn ? `<div class="alert-box">${ICONS.warn}<div class="txt"><div class="t">هشدار ایمنی</div>${m.warn}</div></div>` : ""}
-    <div class="section-h" style="padding-right:0"><div class="section-t">دستگاه‌های مرتبط</div></div>
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">دستگاه‌های مرتبط</div></div>
     <div class="tags" style="margin-bottom:16px">${m.machines.map(x => `<span class="tag">${x}</span>`).join("")}</div>
-    <div class="section-h" style="padding-right:0"><div class="section-t">ابزار مورد نیاز</div></div>
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">ابزار مورد نیاز</div></div>
     <div class="tags" style="margin-bottom:20px">${m.tools.map(x => `<span class="tag">${x}</span>`).join("")}</div>
-    <div class="section-h" style="padding-right:0"><div class="section-t">مراحل (${fa(m.steps.length)})</div></div>
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">مراحل (${fa(m.steps.length)})</div></div>
     <div style="background:var(--card);border-radius:14px;padding:4px 16px;margin-bottom:16px">
       ${m.steps.map((s,i) => `<div class="step ${s.level||''}">
         <div class="step-n">${fa(i+1)}</div>

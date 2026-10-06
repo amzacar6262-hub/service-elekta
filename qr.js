@@ -23,7 +23,7 @@ var QR_MACHINES = {
   "CMP":"Compact",
   "FLX":"Flexitron"
 };
-
+const ASSETS = ["./", "./index.html", "./manifest.json", "./style.css", "./data.js", "./data2.js", "./app.js", "./qr.js"];
 var __scanStream = null;
 var __scanDetector = null;
 var __scanRAF = null;

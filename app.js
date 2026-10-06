@@ -217,10 +217,19 @@ const TABS = [
   {id:"more",label:"بیشتر",icon:ICONS.more}
 ];
 function renderTabbar(){
-  const cur = document.querySelector(".page.on").id.replace("page-","");
-  $("#tabbar").innerHTML = TABS.map(t =>
-    '<button class="tab '+(t.id===cur?'active':'')+'" onclick="go(\''+t.id+'\')">'+t.icon+'<span>'+t.label+'</span></button>'
-  ).join("");
+  var cur = document.querySelector(".page.on").id.replace("page-","");
+  var tabs = [
+    { id:"home",    label:"خانه",     icon:ICONS.home },
+    { id:"lib",     label:"کتابخانه", icon:ICONS.book },
+    { id:"gallery", label:"گالری",    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>' },
+    { id:"codes",   label:"کد خطا",   icon:ICONS.warn },
+    { id:"fav",     label:"ذخیره",    icon:ICONS.star }
+  ];
+  document.getElementById("tabbar").innerHTML = tabs.map(function(t){
+    return '<button class="tab ' + (t.id === cur ? 'active' : '') + '" onclick="go(\'' + t.id + '\')">' +
+      t.icon + '<span>' + t.label + '</span>' +
+    '</button>';
+  }).join("");
 }
 function go(id){
   document.querySelectorAll(".page").forEach(p => p.classList.remove("on"));
@@ -231,6 +240,10 @@ function go(id){
   if(id === "fav") renderFavs();
   if(id === "lib") renderLib();
   if(id === "codes") renderCodes();
+  if(id === "gallery"){
+  if(typeof renderGalleryChips === "function") renderGalleryChips();
+  if(typeof renderGallery === "function") renderGallery();
+}
   if(id === "ref") renderRef();
 }
 
@@ -364,6 +377,8 @@ renderCodeChips();
 renderCodes();
 renderFavs();
 renderMachineList();
+if(typeof renderGalleryChips === "function") renderGalleryChips();
+if(typeof renderGallery === "function") renderGallery();
 updateOnline();
 /* ═══════════════════════════════════════
    FIX: Sheet Close Improvements

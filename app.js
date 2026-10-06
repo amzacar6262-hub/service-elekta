@@ -222,6 +222,77 @@ function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1800);
 }
+/* ═══════════════════════════════════════
+   Reference Tables
+   ═══════════════════════════════════════ */
+var refQ = "";
+
+function renderRef(){
+  var el = document.getElementById("refList");
+  if(!el) return;
+  var tables = window.REF_TABLES || [];
+  if(!tables.length){
+    el.innerHTML = '<div class="empty"><div class="empty-t">جداولی نیست</div></div>';
+    return;
+  }
+  var q = (refQ || "").trim().toLowerCase();
+  var filtered = tables;
+
+  if(q){
+    filtered = tables.map(function(t){
+      var rows = t.rows.filter(function(r){
+        return (r.k + " " + r.v + " " + (r.cat||"")).toLowerCase().indexOf(q) !== -1;
+      });
+      if(rows.length || t.title.toLowerCase().indexOf(q) !== -1){
+        return Object.assign({}, t, { rows: rows.length ? rows : t.rows });
+      }
+      return null;
+    }).filter(Boolean);
+  }
+
+  if(!filtered.length){
+    el.innerHTML = emptyState("چیزی پیدا نشد","عبارت دیگری را امتحان کنید");
+    return;
+  }
+
+  el.innerHTML = filtered.map(function(t, i){
+    var grad = "linear-gradient(145deg," + t.color[0] + "," + t.color[1] + ")";
+    var rowsHTML = t.rows.map(function(r){
+      return '<div class="ref-row">' +
+        '<div class="ref-k">' +
+          (r.cat ? '<span class="ref-cat">' + r.cat + '</span>' : '') +
+          r.k +
+        '</div>' +
+        '<div class="ref-v">' + r.v + '</div>' +
+      '</div>';
+    }).join("");
+
+    return '<div class="ref-card" data-ref-id="' + t.id + '" style="animation-delay:' + (i*.06) + 's">' +
+      '<div class="ref-head" onclick="toggleRef(\'' + t.id + '\')">' +
+        '<div class="ref-icon" style="background:' + grad + '">' + ICONS[t.icon] + '</div>' +
+        '<div class="ref-head-info">' +
+          '<div class="ref-title">' + t.title + '</div>' +
+          '<div class="ref-desc">' + t.desc + '</div>' +
+        '</div>' +
+        '<div class="ref-count">' + fa(t.rows.length) + '</div>' +
+        '<div class="ref-chev">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ref-body">' +
+        (t.warn ? '<div class="ref-warn">' + ICONS.warn + '<div>' + t.warn + '</div></div>' : '') +
+        '<div class="ref-table">' + rowsHTML + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function toggleRef(id){
+  var card = document.querySelector('[data-ref-id="' + id + '"]');
+  if(!card) return;
+  card.classList.toggle("open");
+  if(navigator.vibrate) navigator.vibrate(5);
+}
 function updateOnline(){
   const el = $("#onlineStatus");
   if(!el) return;

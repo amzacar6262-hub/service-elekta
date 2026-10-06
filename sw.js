@@ -1,4 +1,4 @@
-const CACHE = "elekta-service-v14";
+const CACHE = "elekta-service-v15";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,7 +10,8 @@ const ASSETS = [
   "./data2.js",
   "./data3.js",
   "./app.js",
-  "./qr.js"
+  "./qr.js",
+  "./gallery.js"
 ];
 
 self.addEventListener("install", e => {

@@ -1,5 +1,5 @@
-const CACHE = "elekta-service-v9";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./style.css", "./data.js", "./data2.js", "./app.js"];
+const CACHE = "elekta-service-v10";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./style.css", "./data.js", "./data2.js", "./data3.js", "./app.js", "./qr.js"];
 
 self.addEventListener("install", e => {
   e.waitUntil(

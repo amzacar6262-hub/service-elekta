@@ -277,3 +277,64 @@ renderCodes();
 renderFavs();
 renderMachineList();
 updateOnline();
+/* ═══════════════════════════════════════
+   FIX: Sheet Close Improvements
+   - دکمه بستن در پایین
+   - Swipe-down برای بستن
+   ═══════════════════════════════════════ */
+(function(){
+  const sheetBody = document.getElementById('sheetBody');
+  const sheet = document.getElementById('sheet');
+
+  /* ── ۱) افزودن دکمه بستن به پایین شیت ── */
+  if(sheetBody){
+    const obs = new MutationObserver(function(){
+      if(sheetBody.children.length > 0 &&
+         !sheetBody.querySelector('.sheet-close-bottom')){
+        const btn = document.createElement('button');
+        btn.className = 'sheet-close-bottom';
+        btn.textContent = 'بستن';
+        btn.onclick = function(){ closeSheet(); };
+        sheetBody.appendChild(btn);
+      }
+    });
+    obs.observe(sheetBody, {childList:true});
+  }
+
+  /* ── ۲) Swipe-down روی دستگیره ── */
+  const grab = sheet ? sheet.querySelector('.sheet-grab') : null;
+  if(sheet && grab){
+    let startY = 0, startT = 0, drag = false, dy = 0;
+
+    const onStart = (e) => {
+      drag = true;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      startT = Date.now();
+      dy = 0;
+      sheet.style.transition = 'none';
+    };
+    const onMove = (e) => {
+      if(!drag) return;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      dy = Math.max(0, y - startY);
+      if(dy > 0) sheet.style.transform = 'translateY(' + dy + 'px)';
+    };
+    const onEnd = () => {
+      if(!drag) return;
+      drag = false;
+      sheet.style.transition = '';
+      const v = dy / Math.max(Date.now() - startT, 1);
+      if(dy > 100 || v > 0.4){
+        sheet.style.transform = '';
+        closeSheet();
+      } else {
+        sheet.style.transform = 'translateY(0)';
+      }
+    };
+
+    grab.addEventListener('touchstart', onStart, {passive:true});
+    grab.addEventListener('touchmove', onMove, {passive:true});
+    grab.addEventListener('touchend', onEnd);
+    grab.addEventListener('touchcancel', onEnd);
+  }
+})();

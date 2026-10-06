@@ -241,8 +241,15 @@ function go(id){
   if(id === "lib") renderLib();
   if(id === "codes") renderCodes();
   if(id === "gallery"){
-  if(typeof renderGalleryChips === "function") renderGalleryChips();
-  if(typeof renderGallery === "function") renderGallery();
+  if(typeof loadLocalPhotos === "function"){
+    loadLocalPhotos().then(function(){
+      if(typeof renderGalleryChips === "function") renderGalleryChips();
+      if(typeof renderGallery === "function") renderGallery();
+    });
+  } else {
+    if(typeof renderGalleryChips === "function") renderGalleryChips();
+    if(typeof renderGallery === "function") renderGallery();
+  }
 }
   if(id === "ref") renderRef();
 }

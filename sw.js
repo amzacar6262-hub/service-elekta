@@ -14,7 +14,6 @@ self.addEventListener("activate", e => {
     ).then(() => self.clients.claim())
   );
 });
-
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);

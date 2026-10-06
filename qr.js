@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   qr.js — QR Scanner (Global Scope)
+   qr.js — QR Scanner (Global Scope) 
    کاملاً مستقل از app.js
    ═══════════════════════════════════════ */
 

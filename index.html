@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="سرویس الکتا" />
+<meta name="theme-color" content="#000000" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDA3QUZGIi8+PHBhdGggZD0iTTUwIDYwaDgwdjEwaC04MHoiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MCIgY3k9IjExMCIgcj0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PC9zdmc+" />
+<title>سرویس الکتا</title>
+<style>
+/* ═══════════════════════════════════════
+   Design Tokens — Apple Health Style
+   ═══════════════════════════════════════ */
+:root{
+  --blue:#0A84FF;--green:#32D74B;--orange:#FF9F0A;--red:#FF453A;
+  --purple:#BF5AF2;--teal:#5AC8FA;--indigo:#5856D6;--pink:#FF375F;
+  --yellow:#FFD60A;--mint:#00C7BE;
+  --bg:#000;--card:#1C1C1E;--card-2:#2C2C2E;
+  --label:#FFF;--label2:rgba(235,235,245,.6);--label3:rgba(235,235,245,.3);
+  --sep:rgba(84,84,88,.65);--fill:rgba(120,120,128,.36);
+  --pad:16px;--nav-h:44px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--label);
+  font-family:-apple-system,"SF Pro Text","Vazirmatn",Tahoma,sans-serif;
+  font-size:17px;line-height:1.4;letter-spacing:-0.01em;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+input{font:inherit;color:inherit}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--safe-t)}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:calc(110px + var(--safe-b))}
+
+/* ═══════ Nav Bar — Health Style ═══════ */
+.nav{position:sticky;top:0;z-index:20;padding:6px var(--pad) 10px;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px)}
+.nav::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.5px;
+  background:var(--sep);opacity:0;transition:opacity .18s}
+.nav.scrolled::after{opacity:1}
+.nav-top{display:flex;align-items:center;justify-content:space-between;height:var(--nav-h)}
+.nav-title-sm{font-size:17px;font-weight:600;opacity:0;transform:translateY(4px);transition:all .2s}
+.nav.scrolled .nav-title-sm{opacity:1;transform:none}
+.nav-large{font-size:34px;font-weight:700;letter-spacing:-.025em;
+  transition:all .2s;transform-origin:right}
+.nav.scrolled .nav-large{font-size:0;opacity:0;height:0;margin:0}
+
+/* ═══════ Search ═══════ */
+.search{padding:0 var(--pad) 8px}
+.search-inner{display:flex;align-items:center;gap:8px;
+  background:var(--fill);border-radius:12px;padding:9px 12px;height:38px}
+.search-inner svg{width:16px;height:16px;color:var(--label2);flex-shrink:0}
+.search-inner input{flex:1;background:none;border:0;outline:none;font-size:17px}
+.search-inner input::placeholder{color:var(--label2)}
+
+/* ═══════ Sections ═══════ */
+.section{padding:0 var(--pad);margin-top:26px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 12px}
+.section-t{font-size:22px;font-weight:700;color:var(--label);letter-spacing:-.02em}
+.section-a{font-size:15px;color:var(--blue);font-weight:500}
+.card{background:var(--card);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:52px;
+  position:relative;width:100%}
+.row+.row::before{content:"";position:absolute;top:0;right:16px;left:0;
+  height:.5px;background:var(--sep)}
+.row-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+  flex-shrink:0;color:#fff}
+.row-icon svg{width:17px;height:17px}
+.row-body{flex:1;min-width:0}
+.row-title{font-size:16px;font-weight:500}
+.row-sub{font-size:13px;color:var(--label2);margin-top:2px}
+.row-chev{color:var(--label3);flex-shrink:0}
+.row-chev svg{width:8px;height:14px;transform:scaleX(-1)}
+
+/* ═══════ Chips ═══════ */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px var(--pad) 8px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:7px 14px;border-radius:100px;background:var(--fill);
+  font-size:14px;font-weight:500;transition:all .15s;white-space:nowrap}
+.chip.on{background:var(--blue);color:#fff}
+
+/* ═══ Apple Health Style Category Cards ═══ */
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:11px;
+}
+.cat{
+  border-radius:22px;
+  padding:18px;
+  min-height:132px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:flex-start;
+  text-align:right;
+  color:rgba(0,0,0,.85);
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.10),
+    0 1px 3px rgba(0,0,0,.06);
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1);
+  animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) backwards;
+  overflow:hidden;
+  position:relative;
+}
+.cat::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:22px;
+  background:linear-gradient(180deg,
+    rgba(255,255,255,.18) 0%,
+    transparent 40%);
+  pointer-events:none;
+}
+.cat:active{
+  transform:scale(.95);
+}
+.cat-ic{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  color:rgba(0,0,0,.78);
+  position:relative;
+  z-index:2;
+}
+.cat-ic svg{
+  width:30px;
+  height:30px;
+  stroke-width:1.9;
+}
+.cat-n{
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-.025em;
+  line-height:1.15;
+  color:rgba(0,0,0,.88);
+  position:relative;
+  z-index:2;
+}
+.cat-c{display:none}
+
+/* ═══════ Manual Card ═══════ */
+.manual{background:var(--card);border-radius:16px;padding:14px 16px;
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;
+  transition:transform .15s;
+  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.manual:active{transform:scale(.985)}
+.manual-ic{width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.manual-ic svg{width:22px;height:22px}
+.manual-body{flex:1;min-width:0}
+.manual-title{font-size:16px;font-weight:600;margin-bottom:3px}
+.manual-sub{font-size:13px;color:var(--label2);line-height:1.35;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.manual-meta{display:flex;gap:10px;margin-top:8px;font-size:11px;
+  color:var(--label2);align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+  border-radius:100px;font-size:11px;font-weight:600;
+  background:var(--fill);color:var(--label2)}
+.manual-fav{color:var(--label3);flex-shrink:0;padding:4px}
+.manual-fav.on{color:var(--yellow)}
+.manual-fav svg{width:18px;height:18px}
+
+/* ═══════════════════════════════════════════
+   Liquid Glass Tab Bar — iOS 26/27
+   ═══════════════════════════════════════════ */
+.tabbar{
+  position:fixed;
+  bottom:calc(14px + var(--safe-b));
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+  width:calc(100% - 24px);
+  max-width:440px;
+  border-radius:32px;
+  overflow:hidden;
+  isolation:isolate;
+  background:rgba(28,28,30,.48);
+  backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+  -webkit-backdrop-filter:blur(34px) saturate(180%) brightness(.9);
+  border:.5px solid rgba(255,255,255,.10);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.55),
+    0 4px 12px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(0,0,0,.3),
+    inset 0 0 20px rgba(0,0,0,.2);
+  animation:tabbarEnter .7s cubic-bezier(.34,1.4,.64,1) backwards;
+  animation-delay:.15s;
+}
+@keyframes tabbarEnter{
+  from{opacity:0;transform:translateX(-50%) translateY(80px) scale(.9)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+.tabbar::before{
+  content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent 0%,
+    rgba(255,255,255,.25) 30%,rgba(255,255,255,.35) 50%,
+    rgba(255,255,255,.25) 70%,transparent 100%);
+  border-radius:50%;pointer-events:none;z-index:2;
+}
+.tabbar::after{
+  content:"";position:absolute;inset:0;border-radius:32px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,
+    rgba(255,255,255,.08) 0%,transparent 70%);
+  pointer-events:none;z-index:1;
+}
+.tabbar-inner{display:grid;grid-template-columns:repeat(5,1fr);height:66px;
+  padding:6px;position:relative;z-index:3}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;color:var(--label2);font-size:10px;font-weight:500;
+  letter-spacing:-.01em;border-radius:24px;position:relative;
+  transition:color .25s cubic-bezier(.32,.72,0,1),
+    transform .2s cubic-bezier(.32,.72,0,1),
+    background .3s cubic-bezier(.32,.72,0,1);
+  -webkit-tap-highlight-color:transparent;overflow:hidden}
+.tab svg{width:24px;height:24px;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  position:relative;z-index:2;stroke-width:2}
+.tab.active{color:var(--blue);
+  background:linear-gradient(180deg,
+    rgba(10,132,255,.22) 0%,rgba(10,132,255,.16) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -1px 0 rgba(10,132,255,.15),
+    0 1px 4px rgba(10,132,255,.25)}
+.tab.active svg{transform:scale(1.12);
+  filter:drop-shadow(0 2px 4px rgba(10,132,255,.4))
+    drop-shadow(0 0 8px rgba(10,132,255,.3));
+  animation:tabPop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tabPop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.22)}
+  70%{transform:scale(1.05)}
+  100%{transform:scale(1.12)}
+}
+.tab.active span{font-weight:600;letter-spacing:-.02em}
+.tab:active{transform:scale(.92)}
+.tab:active svg{transform:scale(.95)}
+.tab .ripple{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(10,132,255,.4) 0%,rgba(10,132,255,.15) 40%,transparent 70%);
+  transform:scale(0);animation:rippleExpand .6s cubic-bezier(.32,.72,0,1);
+  pointer-events:none;z-index:1}
+@keyframes rippleExpand{to{transform:scale(2.5);opacity:0}}
+@media (min-width:600px){
+  .tabbar{bottom:calc(20px + var(--safe-b));max-width:420px}
+}
+
+/* ═══════ Sheet ═══════ */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .28s}
+.sheet-backdrop.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:#1C1C1E;
+  border-radius:22px 22px 0 0;padding-bottom:var(--safe-b);
+  transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1);
+  max-height:92vh;display:flex;flex-direction:column;
+  box-shadow:0 -8px 40px rgba(0,0,0,.5)}
+.sheet.show{transform:translateY(0)}
+.sheet-grab{width:36px;height:5px;border-radius:100px;background:var(--label3);
+  margin:8px auto 4px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px 12px;gap:8px}
+.sheet-title{font-size:17px;font-weight:600;flex:1;text-align:center}
+.sheet-act{color:var(--blue);font-size:17px;padding:4px 8px}
+.sheet-body{overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
+
+/* ═══════ Detail ═══════ */
+.detail-hero{background:linear-gradient(145deg,var(--blue),var(--indigo));
+  border-radius:22px;padding:22px 20px;color:#fff;margin-bottom:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.detail-cat{font-size:12px;opacity:.85;font-weight:600;letter-spacing:.05em}
+.detail-title{font-size:24px;font-weight:700;letter-spacing:-.025em;
+  margin:6px 0 10px;line-height:1.25}
+.detail-sum{font-size:14px;opacity:.92;line-height:1.5}
+.detail-meta{display:flex;gap:12px;margin-top:16px;padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.2);flex-wrap:wrap}
+.detail-meta-item{display:flex;align-items:center;gap:6px;font-size:12px}
+.detail-meta-item svg{width:14px;height:14px}
+.step{display:flex;gap:14px;padding:14px 0;position:relative}
+.step+.step::before{content:"";position:absolute;top:0;right:35px;left:0;
+  height:.5px;background:var(--sep)}
+.step-n{width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:var(--blue);color:#fff;font-size:13px;font-weight:700;
+  display:grid;place-items:center;margin-top:2px}
+.step-body{flex:1}
+.step-t{font-size:15px;font-weight:500;line-height:1.5}
+.step-note{font-size:13px;color:var(--label2);margin-top:6px;padding:8px 10px;
+  background:var(--fill);border-radius:8px;border-right:3px solid var(--blue)}
+.step.warn .step-n{background:var(--orange)}
+.step.warn .step-note{border-right-color:var(--orange)}
+.step.danger .step-n{background:var(--red)}
+.step.danger .step-note{border-right-color:var(--red)}
+.alert-box{display:flex;gap:12px;padding:14px;border-radius:12px;margin-bottom:14px;
+  background:rgba(255,159,10,.12);border:.5px solid rgba(255,159,10,.3)}
+.alert-box svg{width:22px;height:22px;flex-shrink:0;color:var(--orange)}
+.alert-box .txt{font-size:14px;line-height:1.5}
+.alert-box .t{font-weight:600;margin-bottom:3px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{padding:5px 10px;background:var(--fill);border-radius:100px;
+  font-size:12px;color:var(--label2)}
+
+/* ═══════ Error Code Row ═══════ */
+.ecode{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative}
+.ecode+.ecode::before{content:"";position:absolute;top:0;right:16px;left:0;
+  height:.5px;background:var(--sep)}
+.ecode-code{font-family:ui-monospace,monospace;font-size:15px;font-weight:700;
+  padding:5px 10px;border-radius:8px;min-width:70px;text-align:center;
+  background:var(--fill);direction:ltr}
+.ecode-code.red{background:rgba(255,69,58,.15);color:var(--red)}
+.ecode-code.orange{background:rgba(255,159,10,.15);color:var(--orange)}
+.ecode-code.blue{background:rgba(10,132,255,.15);color:var(--blue)}
+.ecode-body{flex:1;min-width:0}
+.ecode-t{font-size:14px;font-weight:500}
+.ecode-s{font-size:12px;color:var(--label2);margin-top:2px}
+
+/* ═══════ Misc ═══════ */
+.empty{text-align:center;padding:60px 20px;color:var(--label2)}
+.empty svg{width:56px;height:56px;opacity:.35;margin-bottom:12px}
+.empty-t{font-size:16px;font-weight:600;color:var(--label);margin-bottom:4px}
+.page{display:none}
+.page.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border-radius:16px;padding:16px 8px;text-align:center;
+  animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) backwards}
+.stat-v{font-size:24px;font-weight:700;letter-spacing:-.025em}
+.stat-l{font-size:11px;color:var(--label2);margin-top:3px}
+
+.toast{position:fixed;bottom:calc(100px + var(--safe-b));
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--label);color:var(--bg);padding:10px 20px;border-radius:100px;
+  font-size:14px;font-weight:500;z-index:100;opacity:0;transition:all .3s;
+  pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════ Header Subtitle ═══════ */
+.health-sub{font-size:13px;color:var(--label2);padding:0 var(--pad) 6px;margin-top:-8px}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <main id="main">
+
+    <!-- HOME -->
+    <section id="page-home" class="page on">
+      <header class="nav" data-nav>
+        <div class="nav-top"><div class="nav-title-sm">سرویس الکتا</div></div>
+        <div class="nav-large">Browse</div>
+      </header>
+      <div class="health-sub">دسته‌بندی‌های سرویس و نگهداری</div>
+
+      <div class="section" style="margin-top:14px">
+        <div class="stat-row">
+          <div class="stat" style="animation-delay:.02s">
+            <div class="stat-v" style="color:var(--blue)" id="stM">۰</div>
+            <div class="stat-l">منوال</div>
+          </div>
+          <div class="stat" style="animation-delay:.06s">
+            <div class="stat-v" style="color:var(--orange)" id="stE">۰</div>
+            <div class="stat-l">کد خطا</div>
+          </div>
+          <div class="stat" style="animation-delay:.10s">
+            <div class="stat-v" style="color:var(--yellow)" id="stF">۰</div>
+            <div class="stat-l">ذخیره</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-h"><div class="section-t">دسته‌بندی‌ها</div></div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-h"><div class="section-t">پرکاربردترین‌ها</div></div>
+        <div id="homePop"></div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section id="page-lib" class="page">
+      <header class="nav" data-nav>
+        <div class="nav-top"><div class="nav-title-sm">کتابخانه</div></div>
+        <div class="nav-large">کتابخانه</div>
+      </header>
+      <div class="search">
+        <div class="search-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
+          <input placeholder="جستجو..." oninput="libQ=this.value;renderLib()" />
+        </div>
+      </div>
+      <div class="chips" id="libChips"></div>
+      <div class="section" style="margin-top:0"><div id="libList"></div></div>
+    </section>
+
+    <!-- CODES -->
+    <section id="page-codes" class="page">
+      <header class="nav" data-nav>
+        <div class="nav-top"><div class="nav-title-sm">کدهای خطا</div></div>
+        <div class="nav-large">کدهای خطا</div>
+      </header>
+      <div class="search">
+        <div class="search-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
+          <input placeholder="جستجو..." oninput="codeQ=this.value;renderCodes()" />
+        </div>
+      </div>
+      <div class="chips" id="codeChips"></div>
+      <div class="section" style="margin-top:0"><div class="card" id="codeList"></div></div>
+    </section>
+
+    <!-- FAVORITES -->
+    <section id="page-fav" class="page">
+      <header class="nav" data-nav>
+        <div class="nav-top"><div class="nav-title-sm">ذخیره‌شده</div></div>
+        <div class="nav-large">ذخیره‌شده</div>
+      </header>
+      <div class="section" style="margin-top:6px"><div id="favList"></div></div>
+    </section>
+
+    <!-- MORE -->
+    <section id="page-more" class="page">
+      <header class="nav" data-nav>
+        <div class="nav-top"><div class="nav-title-sm">بیشتر</div></div>
+        <div class="nav-large">بیشتر</div>
+      </header>
+      <div class="section" style="margin-top:6px">
+        <div class="card">
+          <div class="row"><div class="row-body"><div class="row-title">نسخه</div></div><div style="color:var(--label2)">۱.۰</div></div>
+          <div class="row"><div class="row-body"><div class="row-title">تعداد منوال</div></div><div style="color:var(--label2)" id="abM">—</div></div>
+          <div class="row"><div class="row-body"><div class="row-title">وضعیت</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-h"><div class="section-t">دستگاه‌ها</div></div>
+        <div class="card" id="machineList"></div>
+      </div>
+      <div style="text-align:center;color:var(--label3);font-size:12px;padding:24px 16px;line-height:1.6">
+        سرویس الکتا — نسخه ۱.۰<br>ساخته‌شده برای iOS
+      </div>
+    </section>
+
+  </main>
+  <nav class="tabbar"><div class="tabbar-inner" id="tabbar"></div></nav>
+</div>
+
+<div class="sheet-backdrop" id="backdrop" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="closeSheet()">بستن</button>
+    <div class="sheet-title" id="sheetTitle">منوال</div>
+    <button class="sheet-act" id="sheetFav" style="opacity:0">☆</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════ ICONS ═══════════ */
+const ICONS = {
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1 5.4 5.4l-9.7 9.7-5.4-5.4 9.7-9.7z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.2 18.2 21 12 17.7 5.8 21 7 14.2 2 9.3 8.9 8.6 12 2"/></svg>',
+  starFill:'<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.1 8.6 22 9.3 17 14.2 18.2 21 12 17.7 5.8 21 7 14.2 2 9.3 8.9 8.6 12 2"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>',
+  chev:'<svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)"><polyline points="2 2 6 7 2 12"/></svg>'
+};
+
+/* ═══════════ DATA ═══════════ */
+const CATS = [
+  {id:"daily",  name:"QA روزانه",     c1:"#FF9F0A", c2:"#FF6B00", icon:"check"},
+  {id:"weekly", name:"QA هفتگی",      c1:"#5AC8FA", c2:"#0A84FF", icon:"cal"},
+  {id:"monthly",name:"QA ماهانه",     c1:"#BF5AF2", c2:"#5856D6", icon:"clock"},
+  {id:"mlc",    name:"MLC و کولیما",  c1:"#FF375F", c2:"#AF52DE", icon:"grid"},
+  {id:"calib",  name:"کالیبراسیون",   c1:"#FFD60A", c2:"#FF9500", icon:"target"},
+  {id:"imaging",name:"تصویربرداری",   c1:"#00C7BE", c2:"#30B0C7", icon:"cam"},
+  {id:"replace",name:"تعویض قطعات",   c1:"#32D74B", c2:"#28A745", icon:"wrench"},
+  {id:"trouble",name:"عیب‌یابی",      c1:"#FF453A", c2:"#D70015", icon:"warn"}
+];
+
+const MANUALS = [
+  {id:"m1",title:"چک‌لیست QA روزانه دستگاه خطی",cat:"daily",machines:["Versa HD","Infinity","Synergy"],code:"QA-D-100",duration:"۱۵ دقیقه",level:"پایه",
+   summary:"بررسی‌های روزانه صبحگاهی قبل از شروع درمان بیماران، شامل تست دزیمتری ساده، ایمنی و عملکرد مکانیکی.",
+   warn:"انجام این چک‌لیست قبل از هر جلسه درمان الزامی است.",
+   tools:["دزیمتر یونیزاسیون","فانتوم روزانه"],
+   steps:[
+     {t:"روشن کردن دستگاه و انتظار برای اتمام Warm-up (۱۰–۱۵ دقیقه)"},
+     {t:"بررسی وضعیت چراغ‌های نشانگر پنل اصلی",note:"در صورت خطای قرمز، کد را در تب کدهای خطا بررسی کنید."},
+     {t:"تست عملکرد Emergency Stop",note:"دکمه را با چرخش بازگردانید.",level:"warn"},
+     {t:"اندازه‌گیری دز خروجی با فانتوم — مرجع ۱۰۰ cGy",note:"انحراف مجاز ± ۲٪",level:"warn"},
+     {t:"بررسی حرکت گانتری ۳۶۰ درجه و بازوی سقفی"},
+     {t:"تست عملکرد میز درمان"},
+     {t:"بررسی سیستم تصویربرداری kV/MV"},
+     {t:"بررسی فیلترها و MLC"},
+     {t:"ثبت نتایج و امضا"}
+   ]},
+  {id:"m2",title:"تست ایمنی اتاق درمان و اینترلاک‌ها",cat:"daily",machines:["Versa HD","Infinity","Synergy","Unity"],code:"QA-D-105",duration:"۸ دقیقه",level:"پایه",
+   summary:"بررسی روزانه اینترلاک درب، CCTV، ارتباط با بیمار و چراغ‌های هشدار.",
+   warn:"هر نقص در اینترلاک درب باید بلافاصله گزارش شود.",
+   tools:["تست لامپ هشدار","کلید درب"],
+   steps:[
+     {t:"بررسی چراغ قرمز بیرونی اتاق"},
+     {t:"تست اینترلاک درب",level:"danger",note:"زمان قطع باید زیر ۱۰۰ms باشد."},
+     {t:"تست صدای هشدار اتاق"},
+     {t:"بررسی CCTV و ارتباط دوطرفه"},
+     {t:"تست Emergency Stop داخل اتاق"},
+     {t:"بررسی تابلو علائم ایمنی"}
+   ]},
+  {id:"m3",title:"QA هفتگی دزیمتری — خروجی و پروفایل پرتو",cat:"weekly",machines:["Versa HD","Infinity","Synergy"],code:"QA-W-200",duration:"۴۵ دقیقه",level:"متوسط",
+   summary:"اندازه‌گیری خروجی مطلق، پروفایل پرتو و بررسی انرژی با فانتوم آب.",
+   warn:"انحراف بیش از ۲٪ نیازمند کالیبراسیون فوری است.",
+   tools:["فانتوم آب","اتاقک Farmer","الکترومتر","دماسنج","بارومتر"],
+   steps:[
+     {t:"آماده‌سازی فانتوم آب روی ۲۰°C"},
+     {t:"قرارگیری اتاقک در عمق ۱۰cm، SAD=100cm"},
+     {t:"تابش ۱۰۰ MU با میدان ۱۰×۱۰",level:"warn",note:"مرجع: ۱۰۰ cGy ± ۲٪"},
+     {t:"تکرار برای انرژی‌های ۱۰ و ۱۸ MV"},
+     {t:"اندازه‌گیری پروفایل عرضی"},
+     {t:"بررسی Flatness و Symmetry",note:"مسطح بودن زیر ۳٪"},
+     {t:"اندازه‌گیری PDD"},
+     {t:"ثبت در فرم QA"}
+   ]},
+  {id:"m4",title:"QA هفتگی سیستم EPID",cat:"weekly",machines:["Versa HD","Infinity"],code:"QA-W-210",duration:"۳۰ دقیقه",level:"متوسط",
+   summary:"بررسی کیفیت تصویر EPID شامل Uniformity، Resolution و موقعیت.",
+   tools:["فانتوم EPID","فانتوم Las Vegas"],
+   steps:[
+     {t:"راه‌اندازی EPID در SID=150cm"},
+     {t:"تصویر Dark و Flood Field"},
+     {t:"تصویر فانتوم Las Vegas"},
+     {t:"بررسی Uniformity در ۹ نقطه"},
+     {t:"تست موقعیت مرکز تصویر"},
+     {t:"مقایسه و ثبت"}
+   ]},
+  {id:"m5",title:"QA ماهانه MLC و کولیما",cat:"mlc",machines:["Versa HD","Infinity","Synergy","Axesse"],code:"QA-M-300",duration:"۹۰ دقیقه",level:"پیشرفته",
+   summary:"بررسی جامع MLC شامل دقت هر Leaf، سرعت، هم‌ترازی و Picket Fence.",
+   warn:"خطای موقعیت هر Leaf باید زیر ۱mm باشد.",
+   tools:["فانتوم Picket Fence","فیلم EBT3","اسکنر فیلم"],
+   steps:[
+     {t:"تست Picket Fence با همه Leafها",level:"warn",note:"انحراف هر Leaf زیر ۱mm"},
+     {t:"تست حرکت تکی هر Leaf"},
+     {t:"بررسی هم‌ترازی MLC با کولیما"},
+     {t:"تست Gantry Angle با MLC"},
+     {t:"تست IMRT/VMAT با Matrixx",level:"warn",note:"انحراف ۳٪ / ۳mm"},
+     {t:"بررسی روانکاری ریل‌ها"},
+     {t:"پاکیزگی Leafها"},
+     {t:"ثبت گزارش"}
+   ]},
+  {id:"m6",title:"کالیبراسیون ماهانه Imaging kV",cat:"imaging",machines:["Versa HD","Infinity","Axesse"],code:"QA-M-310",duration:"۶۰ دقیقه",level:"پیشرفته",
+   summary:"کالیبراسیون kVp، mA، زمان تابش و یکنواختی تصویر.",
+   tools:["مولتی‌متر kV","فانتوم هم‌ترازی"],
+   steps:[
+     {t:"ورود به Service → Imaging → Calibration"},
+     {t:"اندازه‌گیری kVp",note:"انحراف مجاز ± ۲٪"},
+     {t:"کالیبراسیون Dark و Gain"},
+     {t:"بررسی یکنواختی Flat Field"},
+     {t:"کالیبراسیون مرکز تصویر"},
+     {t:"تست Offset",note:"زیر ۱mm"},
+     {t:"ذخیره و ری‌استارت"}
+   ]},
+  {id:"m7",title:"کالیبراسیون دز خروجی — Output Factor",cat:"calib",machines:["Versa HD","Infinity","Synergy","Unity","Axesse","Precise"],code:"CAL-400",duration:"۱۲۰ دقیقه",level:"پیشرفته",
+   summary:"کالیبراسیون دز مطلق با پروتکل TRS-398 IAEA.",
+   warn:"فقط توسط فیزیک‌دان پزشکی یا مهندس مجاز.",
+   tools:["اتاقک Farmer","الکترومتر","فانتوم آب","دماسنج","بارومتر"],
+   steps:[
+     {t:"آماده‌سازی شرایط مرجع"},
+     {t:"ثبت دما و فشار، محاسبه kTP"},
+     {t:"تابش ۱۰۰ MU × ۳ بار"},
+     {t:"محاسبه دز جذبی"},
+     {t:"مقایسه با مرجع",note:"زیر ۱٪"},
+     {t:"اعمال ضریب در Monaco/RayStation"},
+     {t:"تکرار برای همه انرژی‌ها",level:"warn"},
+     {t:"تست صحت پس از کالیبراسیون"},
+     {t:"ثبت و امضا"}
+   ]},
+  {id:"m8",title:"کالیبراسیون لیزرهای اتاق",cat:"calib",machines:["Versa HD","Infinity","Synergy","Axesse"],code:"CAL-410",duration:"۴۵ دقیقه",level:"متوسط",
+   summary:"کالیبراسیون لیزرها با فانتوم Isocenter.",
+   tools:["فانتوم هم‌ترازی","فیلر"],
+   steps:[
+     {t:"قرارگیری فانتوم روی Isocenter"},
+     {t:"بررسی سه لیزر دیواری و سقفی",note:"انحراف زیر ۱mm در ۱m"},
+     {t:"کالیبراسیون لیزر عرضی"},
+     {t:"کالیبراسیون لیزر طولی و عمودی"},
+     {t:"بازبینی نهایی"}
+   ]},
+  {id:"m9",title:"تعویض Magnetron",cat:"replace",machines:["Versa HD","Infinity","Synergy","Precise"],code:"REP-500",duration:"۳–۴ ساعت",level:"پیشرفته",
+   summary:"رویه تعویض Magnetron و بازگرداندن سیستم به عملکرد نرمال.",
+   warn:"قبل از شروع، دستگاه را حداقل ۲ ساعت خاموش و بریکر را قطع کنید.",
+   tools:["دستکش ESD","آچار تورک","فیلر","گریس وکیوم"],
+   steps:[
+     {t:"خاموشی کامل، قطع بریکر، انتظار ۳۰ دقیقه",level:"danger",note:"مرگ‌بار در صورت عدم رعایت"},
+     {t:"باز کردن پنل Modulator و برچسب‌گذاری کابل‌ها"},
+     {t:"جدا کردن کابل‌های HV، Heater و Filament"},
+     {t:"باز کردن پیچ‌ها",note:"تورک ۲۵ N·m"},
+     {t:"برداشتن Magnetron قدیمی",level:"warn"},
+     {t:"نصب Magnetron جدید با گریس وکیوم"},
+     {t:"اتصال کابل‌ها و بستن پنل"},
+     {t:"اجرای Auto-Conditioning",note:"۳۰–۶۰ دقیقه"},
+     {t:"تنظیم AFC",level:"warn"},
+     {t:"کالیبراسیون و QA نهایی"}
+   ]},
+  {id:"m10",title:"تعویض اتاقک یونیزاسیون مانیتور",cat:"replace",machines:["Versa HD","Infinity","Synergy"],code:"REP-505",duration:"۲ ساعت",level:"متوسط",
+   summary:"تعویض Transmission Chamber در مسیر پرتو.",
+   warn:"پس از تعویض، کالیبراسیون مجدد دز الزامی است.",
+   tools:["پیچ‌گوشتی Torx","دستکش","فیلر"],
+   steps:[
+     {t:"خاموشی و سرد شدن دستگاه"},
+     {t:"باز کردن پنل Head"},
+     {t:"جدا کردن کابل HV و سیگنال"},
+     {t:"باز کردن پیچ‌های اتاقک"},
+     {t:"خارج کردن اتاقک قدیمی و بازرسی"},
+     {t:"نصب اتاقک جدید",level:"warn",note:"مرکز روی محور پرتو"},
+     {t:"اتصال و بستن پنل"},
+     {t:"اجرای Daily QA"},
+     {t:"کالیبراسیون مجدد",level:"warn"}
+   ]},
+  {id:"m11",title:"عیب‌یابی توقف پرتو در حین درمان",cat:"trouble",machines:["Versa HD","Infinity","Synergy","Unity","Axesse"],code:"TRB-600",duration:"متغیر",level:"متوسط",
+   summary:"راهنمای عیب‌یابی توقف ناگهانی Beam و کدهای رایج.",
+   warn:"بیمار باید از اتاق خارج و دز اعمال‌شده ثبت شود.",
+   tools:["دفتر خطا","لاگ سیستم","مولتی‌متر"],
+   steps:[
+     {t:"ثبت کد خطا از پنل"},
+     {t:"بازبینی Service → Logs"},
+     {t:"بررسی سطح آب خنک‌کننده",note:"دمای ورودی زیر ۳۰°C"},
+     {t:"بررسی فشار SF6",level:"warn",note:"بالای ۲۸ psi"},
+     {t:"بررسی AFC و Magnetron/Klystron"},
+     {t:"گزارش به Elekta اگر تکرار شد"},
+     {t:"QA روزانه قبل از ادامه درمان",level:"warn"}
+   ]},
+  {id:"m12",title:"عیب‌یابی خطاهای MLC",cat:"trouble",machines:["Versa HD","Infinity","Synergy"],code:"TRB-610",duration:"۴۵ دقیقه",level:"متوسط",
+   summary:"رفع خطاهای گیرکردن Leaf، Motor و Encoder.",
+   warn:"قبل از دسترسی دستی، MLC را Home کنید.",
+   tools:["برس نرم","هوای فشرده","گریس MLC"],
+   steps:[
+     {t:"شناسایی شماره Leaf مشکل‌دار"},
+     {t:"اجرای Auto-Home"},
+     {t:"بررسی مسیر Leaf"},
+     {t:"تمیزکاری ریل و Leaf",level:"warn",note:"بدون حلال قوی"},
+     {t:"بررسی Motor"},
+     {t:"بازبینی Encoder اگر تکرار شد"},
+     {t:"اجرای Picket Fence"}
+   ]},
+  {id:"m13",title:"کالیبراسیون هندسی CBCT",cat:"imaging",machines:["Versa HD","Infinity","Unity","Axesse"],code:"IMG-700",duration:"۹۰ دقیقه",level:"پیشرفته",
+   summary:"کالیبراسیون کامل CBCT شامل Isocenter و موقعیت‌یابی سه‌بعدی.",
+   warn:"باید توسط تیم Elekta Service انجام شود.",
+   tools:["فانتوم CatPhan","ابزار کالیبراسیون"],
+   steps:[
+     {t:"قرارگیری فانتوم در Isocenter"},
+     {t:"Service → CBCT → Geometry Calibration"},
+     {t:"اسکن ۳۶۰ درجه"},
+     {t:"بازبینی Calibration",level:"warn",note:"انحراف زیر ۰.۵mm"},
+     {t:"Reconstruction با CatPhan"},
+     {t:"تست دقت با Marker در ۶ جهت"},
+     {t:"ذخیره و تست نهایی"}
+   ]},
+  {id:"m14",title:"عیب‌یابی سیستم خنک‌کننده",cat:"trouble",machines:["Versa HD","Infinity","Synergy","Precise"],code:"TRB-620",duration:"۶۰ دقیقه",level:"متوسط",
+   summary:"رفع مشکلات Chiller، پمپ، رادیاتور و افت فشار.",
+   warn:"قبل از باز کردن، فشار را تخلیه کنید.",
+   tools:["مولتی‌متر","متر دما","فشارسنج"],
+   steps:[
+     {t:"بررسی سطح مایع و نشتی"},
+     {t:"اندازه‌گیری ΔT",note:"۳–۵°C"},
+     {t:"بررسی پمپ و جریان"},
+     {t:"بازبینی فیلترها"},
+     {t:"تست سنسور دما و اینترلاک"},
+     {t:"تعویض مایع در صورت نیاز",level:"warn"},
+     {t:"QA پس از رفع"}
+   ]}
+];
+
+const ERRORS = [
+  {code:"E-101",sev:"red",machine:"Verza/Infinity/Synergy",title:"خطای Magnetron — فشار گاز پایین",act:"بررسی فشار SF6"},
+  {code:"E-102",sev:"orange",machine:"Verza/Infinity",title:"کاهش توان RF",act:"بررسی AFC"},
+  {code:"E-115",sev:"red",machine:"همه Linacها",title:"دما بیش از حد Modulator",act:"بررسی فن‌ها"},
+  {code:"E-120",sev:"orange",machine:"Versa/Synergy",title:"افت فشار آب خنک‌کننده",act:"بررسی پمپ"},
+  {code:"E-205",sev:"orange",machine:"Versa/Infinity",title:"خطای موقعیت MLC Leaf",act:"Auto-Home و کالیبراسیون"},
+  {code:"E-210",sev:"red",machine:"Versa/Axesse",title:"عدم تطابق Encoder MLC",act:"تعویض Encoder"},
+  {code:"E-305",sev:"blue",machine:"Infinity/Synergy",title:"هشدار Imaging Dark Field",act:"کالیبراسیون Dark و Gain"},
+  {code:"E-310",sev:"orange",machine:"Versa/Infinity",title:"خطای Flat Panel",act:"بررسی اتصالات"},
+  {code:"E-410",sev:"red",machine:"Unity MR-Linac",title:"افت میدان مغناطیسی",act:"بررسی Cryostat"},
+  {code:"E-415",sev:"orange",machine:"Unity",title:"دمای Magnet بالا",act:"بررسی خنک‌کننده MR"},
+  {code:"E-505",sev:"orange",machine:"همه Linacها",title:"انحراف خروجی دز",act:"کالیبراسیون Output"},
+  {code:"E-510",sev:"red",machine:"همه Linacها",title:"عدم تطابق دز مانیتور",act:"توقف، بررسی اتاقک‌ها"},
+  {code:"E-605",sev:"red",machine:"همه Linacها",title:"خطای اینترلاک درب",act:"خروج از سرویس تا رفع"},
+  {code:"E-610",sev:"orange",machine:"Versa/Axesse",title:"خطای Emergency Stop",act:"بررسی و ریست"},
+  {code:"E-705",sev:"orange",machine:"Versa/Infinity",title:"خطای تصویربرداری kV",act:"کالیبراسیون kV"},
+  {code:"E-710",sev:"blue",machine:"Infinity/Synergy",title:"هشدار تصویر نویزی",act:"بررسی دز تصویر"},
+  {code:"E-805",sev:"orange",machine:"همه Linacها",title:"قطع ارتباط کنسول",act:"بررسی کابل شبکه"},
+  {code:"E-810",sev:"blue",machine:"Versa/Unity",title:"هشدار نرم‌افزار Monaco",act:"به‌روزرسانی"},
+  {code:"E-905",sev:"red",machine:"همه Linacها",title:"خطای موقعیت‌یابی میز",act:"کالیبراسیون Encoder"},
+  {code:"E-910",sev:"orange",machine:"Versa/Axesse",title:"ناهم‌ترازی گانتری",act:"کالیبراسیون Gantry"}
+];
+
+const MACHINES = ["Versa HD","Infinity","Synergy","Unity","Axesse","Precise","Compact"];
+
+/* ═══════════ STATE ═══════════ */
+const fa = n => String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
+const $ = s => document.querySelector(s);
+let libFilter = "all", libQ = "", codeFilter = "all", codeQ = "";
+let favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]"));
+let curSheetManual = null;
+
+/* ═══════════ RENDER ═══════════ */
+function renderStats(){
+  $("#stM").textContent = fa(MANUALS.length);
+  $("#stE").textContent = fa(ERRORS.length);
+  $("#stF").textContent = fa(favs.size);
+  $("#abM").textContent = fa(MANUALS.length) + " مورد";
+}
+function renderCats(){
+  $("#catGrid").innerHTML = CATS.map((c,i) => {
+    return `<button class="cat"
+      style="background:linear-gradient(145deg,${c.c1} 0%,${c.c2} 100%);animation-delay:${i*.04}s"
+      onclick="goCat('${c.id}')">
+      <div class="cat-ic">${ICONS[c.icon]}</div>
+      <div class="cat-n">${c.name}</div>
+    </button>`;
+  }).join("");
+}
+function renderHomePop(){
+  const ids = ["m1","m5","m7","m11"];
+  $("#homePop").innerHTML = ids.map(id => MANUALS.find(m => m.id === id)).filter(Boolean)
+    .map((m,i) => manualCard(m, true, i*.06)).join("");
+}
+function manualCard(m, compact=false, delay=0){
+  const cat = CATS.find(c => c.id === m.cat);
+  const isFav = favs.has(m.id);
+  const grad = `linear-gradient(145deg,${cat.c1} 0%,${cat.c2} 100%)`;
+  return `<div class="manual" style="animation-delay:${delay}s" onclick="openManual('${m.id}')">
+    <div class="manual-ic" style="background:${grad}">${ICONS[cat.icon]}</div>
+    <div class="manual-body">
+      <div class="manual-title">${m.title}</div>
+      ${!compact ? `<div class="manual-sub">${m.summary}</div>` : ""}
+      <div class="manual-meta">
+        <span class="badge">${m.code}</span>
+        <span>${m.duration}</span>
+        <span>${m.level}</span>
+      </div>
+    </div>
+    <button class="manual-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${m.id}')">
+      ${isFav ? ICONS.starFill : ICONS.star}
+    </button>
+  </div>`;
+}
+function renderLibChips(){
+  const all = [{id:"all",name:"همه"},...CATS];
+  $("#libChips").innerHTML = all.map(c =>
+    `<button class="chip ${libFilter===c.id?'on':''}" onclick="libFilter='${c.id}';renderLibChips();renderLib()">${c.name}</button>`
+  ).join("");
+}
+function renderLib(){
+  let list = MANUALS.filter(m => libFilter === "all" || m.cat === libFilter);
+  if(libQ.trim()){
+    const q = libQ.toLowerCase();
+    list = list.filter(m => (m.title+m.summary+m.code+m.machines.join(" ")).toLowerCase().includes(q));
+  }
+  const el = $("#libList");
+  if(!list.length){ el.innerHTML = emptyState("منوالی یافت نشد","فیلتر را تغییر دهید"); return; }
+  el.innerHTML = list.map((m,i) => manualCard(m, false, i*.04)).join("");
+}
+function renderCodeChips(){
+  const sevs = [{id:"all",n:"همه"},{id:"red",n:"بحرانی"},{id:"orange",n:"هشدار"},{id:"blue",n:"اطلاع"}];
+  $("#codeChips").innerHTML = sevs.map(s =>
+    `<button class="chip ${codeFilter===s.id?'on':''}" onclick="codeFilter='${s.id}';renderCodeChips();renderCodes()">${s.n}</button>`
+  ).join("");
+}
+function renderCodes(){
+  let list = ERRORS.filter(c => codeFilter === "all" || c.sev === codeFilter);
+  if(codeQ.trim()){
+    const q = codeQ.toLowerCase();
+    list = list.filter(c => (c.code+c.title+c.act+c.machine).toLowerCase().includes(q));
+  }
+  const el = $("#codeList");
+  if(!list.length){ el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--label2)">کدی یافت نشد</div>`; return; }
+  el.innerHTML = list.map(c => `<div class="ecode">
+    <div class="ecode-code ${c.sev}">${c.code}</div>
+    <div class="ecode-body">
+      <div class="ecode-t">${c.title}</div>
+      <div class="ecode-s">${c.machine}</div>
+      <div class="ecode-s" style="color:var(--blue);margin-top:4px">اقدام: ${c.act}</div>
+    </div>
+  </div>`).join("");
+}
+function renderFavs(){
+  const list = MANUALS.filter(m => favs.has(m.id));
+  const el = $("#favList");
+  if(!list.length){ el.innerHTML = emptyState("هنوز چیزی ذخیره نکردی","روی ستاره بزن تا اینجا بیاد"); return; }
+  el.innerHTML = list.map(m => manualCard(m)).join("");
+}
+function renderMachineList(){
+  $("#machineList").innerHTML = MACHINES.map((m,i) => {
+    const cnt = MANUALS.filter(x => x.machines.includes(m)).length;
+    const colors = ["var(--blue)","var(--green)","var(--orange)","var(--purple)","var(--pink)","var(--teal)","var(--indigo)"];
+    return `<button class="row" onclick="filterMachine('${m}')">
+      <div class="row-icon" style="background:${colors[i%7]}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="6" rx="2"/><path d="M8 9v4a4 4 0 0 0 8 0V9"/><circle cx="12" cy="17" r="3"/></svg>
+      </div>
+      <div class="row-body"><div class="row-title">${m}</div><div class="row-sub">${fa(cnt)} منوال</div></div>
+      <div class="row-chev">${ICONS.chev}</div>
+    </button>`;
+  }).join("");
+}
+function emptyState(t, s){
+  return `<div class="empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    <div class="empty-t">${t}</div>
+    <div>${s}</div>
+  </div>`;
+}
+
+/* ═══════════ DETAIL ═══════════ */
+function openManual(id){
+  const m = MANUALS.find(x => x.id === id);
+  if(!m) return;
+  curSheetManual = m;
+  const cat = CATS.find(c => c.id === m.cat);
+  const isFav = favs.has(m.id);
+  const fb = $("#sheetFav");
+  fb.innerHTML = isFav ? ICONS.starFill : ICONS.star;
+  fb.style.color = isFav ? "var(--yellow)" : "var(--blue)";
+  fb.style.opacity = 1;
+  fb.onclick = () => { toggleFav(m.id); openManual(m.id); };
+  $("#sheetTitle").textContent = m.code;
+  const grad = `linear-gradient(145deg,${cat.c1} 0%,${cat.c2} 100%)`;
+  $("#sheetBody").innerHTML = `
+    <div class="detail-hero" style="background:${grad}">
+      <div class="detail-cat">${cat.name}</div>
+      <div class="detail-title">${m.title}</div>
+      <div class="detail-sum">${m.summary}</div>
+      <div class="detail-meta">
+        <div class="detail-meta-item">${ICONS.clock}<span>${m.duration}</span></div>
+        <div class="detail-meta-item">${ICONS.target}<span>${m.level}</span></div>
+      </div>
+    </div>
+    ${m.warn ? `<div class="alert-box">${ICONS.warn}<div class="txt"><div class="t">هشدار ایمنی</div>${m.warn}</div></div>` : ""}
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">دستگاه‌های مرتبط</div></div>
+    <div class="tags" style="margin-bottom:16px">${m.machines.map(x => `<span class="tag">${x}</span>`).join("")}</div>
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">ابزار مورد نیاز</div></div>
+    <div class="tags" style="margin-bottom:20px">${m.tools.map(x => `<span class="tag">${x}</span>`).join("")}</div>
+    <div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">مراحل (${fa(m.steps.length)})</div></div>
+    <div style="background:var(--card);border-radius:14px;padding:4px 16px;margin-bottom:16px">
+      ${m.steps.map((s,i) => `<div class="step ${s.level||''}">
+        <div class="step-n">${fa(i+1)}</div>
+        <div class="step-body"><div class="step-t">${s.t}</div>${s.note?`<div class="step-note">${s.note}</div>`:""}</div>
+      </div>`).join("")}
+    </div>
+  `;
+  $("#backdrop").classList.add("show");
+  $("#sheet").classList.add("show");
+}
+function closeSheet(){
+  $("#backdrop").classList.remove("show");
+  $("#sheet").classList.remove("show");
+}
+function toggleFav(id){
+  if(favs.has(id)){ favs.delete(id); toast("حذف شد"); }
+  else { favs.add(id); toast("ذخیره شد ★"); }
+  localStorage.setItem("favs", JSON.stringify([...favs]));
+  renderStats(); renderHomePop(); renderLib(); renderFavs();
+  if(curSheetManual){
+    const fb = $("#sheetFav");
+    const isFav = favs.has(curSheetManual.id);
+    fb.innerHTML = isFav ? ICONS.starFill : ICONS.star;
+    fb.style.color = isFav ? "var(--yellow)" : "var(--blue)";
+  }
+}
+function filterMachine(m){
+  libFilter = "all"; libQ = m;
+  renderLibChips(); renderLib();
+  go("lib");
+}
+function goCat(id){
+  libFilter = id; renderLibChips(); renderLib(); go("lib");
+}
+
+/* ═══════════ TABS ═══════════ */
+const TABS = [
+  {id:"home",label:"خانه",icon:ICONS.home},
+  {id:"lib",label:"کتابخانه",icon:ICONS.book},
+  {id:"codes",label:"کد خطا",icon:ICONS.warn},
+  {id:"fav",label:"ذخیره",icon:ICONS.star},
+  {id:"more",label:"بیشتر",icon:ICONS.more}
+];
+function renderTabbar(){
+  const cur = document.querySelector(".page.on").id.replace("page-","");
+  $("#tabbar").innerHTML = TABS.map(t =>
+    `<button class="tab ${t.id===cur?'active':''}" onclick="go('${t.id}')">${t.icon}<span>${t.label}</span></button>`
+  ).join("");
+}
+function go(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("on"));
+  document.getElementById("page-"+id).classList.add("on");
+  document.getElementById("main").scrollTop = 0;
+  document.querySelectorAll("[data-nav]").forEach(n => n.classList.remove("scrolled"));
+  renderTabbar();
+  if(id === "fav") renderFavs();
+  if(id === "lib") renderLib();
+  if(id === "codes") renderCodes();
+}
+
+/* ═══════════ MISC ═══════════ */
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1800);
+}
+function updateOnline(){
+  const el = $("#onlineStatus");
+  if(!el) return;
+  if(navigator.onLine){ el.textContent = "فعال ✓"; el.style.color = "var(--green)"; }
+  else { el.textContent = "آفلاین — کش"; el.style.color = "var(--blue)"; }
+}
+window.addEventListener("online", updateOnline);
+window.addEventListener("offline", updateOnline);
+
+document.getElementById("main").addEventListener("scroll", e => {
+  const top = e.target.scrollTop;
+  const nav = document.querySelector(".page.on [data-nav]");
+  if(!nav) return;
+  nav.classList.toggle("scrolled", top > 24);
+});
+
+/* ═══════ Ripple on tab tap ═══════ */
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if(!tab) return;
+  const rect = tab.getBoundingClientRect();
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + "px";
+  ripple.style.left = (e.clientX - rect.left - size/2) + "px";
+  ripple.style.top  = (e.clientY - rect.top  - size/2) + "px";
+  tab.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+  if(navigator.vibrate) navigator.vibrate(8);
+}, { passive:true });
+
+/* ═══════ Service Worker ═══════ */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+/* ═══════════ INIT ═══════════ */
+renderTabbar();
+renderStats();
+renderCats();
+renderHomePop();
+renderLibChips();
+renderLib();
+renderCodeChips();
+renderCodes();
+renderFavs();
+renderMachineList();
+updateOnline();
+</script>
+</body>
+</html>

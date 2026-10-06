@@ -426,3 +426,65 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
     transition-duration: .01ms !important;
   }
 }
+/* ═══ FIX: Sheet Close Improvements ═══ */
+
+/* هدر شیت چسبان و واضح */
+.sheet-head{
+  background:rgba(28,28,30,.95) !important;
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--sep);
+  padding:10px 16px 12px !important;
+  position:relative;
+  z-index:5;
+}
+
+.sheet-act{
+  min-width:66px;
+  padding:8px 14px;
+  font-size:17px;
+  font-weight:600;
+  border-radius:10px;
+  transition:background .15s, transform .1s;
+}
+.sheet-act:active{
+  background:var(--fill);
+  transform:scale(.95);
+}
+
+/* دکمه بستن بزرگ در پایین */
+.sheet-close-bottom{
+  display:block;
+  width:100%;
+  margin:28px 0 8px;
+  padding:16px;
+  border-radius:16px;
+  background:rgba(120,120,128,.22);
+  color:var(--blue);
+  font-size:17px;
+  font-weight:600;
+  text-align:center;
+  border:none;
+  cursor:pointer;
+  transition:transform .12s, background .15s;
+}
+.sheet-close-bottom:active{
+  transform:scale(.97);
+  background:rgba(120,120,128,.38);
+}
+
+/* دستگیره با انیمیشن واضح‌تر */
+.sheet-grab{
+  padding:14px 0 6px;
+  cursor:grab;
+  touch-action:none;
+  display:flex;
+  justify-content:center;
+}
+.sheet-grab::after{
+  content:"";
+  width:44px;
+  height:5px;
+  border-radius:100px;
+  background:rgba(235,235,245,.5);
+}

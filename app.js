@@ -34,12 +34,27 @@ function renderStats(){
   $("#abE").textContent = fa(ERRORS.length) + " مورد";
 }
 function renderCats(){
-  $("#catGrid").innerHTML = CATS.map((c,i) =>
-    '<button class="cat" style="background:linear-gradient(145deg,'+c.c1+' 0%,'+c.c2+' 100%);animation-delay:'+(i*.04)+'s" onclick="goCat(\''+c.id+'\')">'
-    +'<div class="cat-ic">'+ICONS[c.icon]+'</div>'
-    +'<div class="cat-n">'+c.name+'</div>'
-    +'</button>'
-  ).join("");
+  var ill = window.ILLUSTRATIONS || {};
+  $("#catGrid").innerHTML = CATS.map((c,i) => {
+    var bg = ill[c.id] || ill.default || "";
+    return '<button class="cat" style="background:linear-gradient(145deg,'+c.c1+' 0%,'+c.c2+' 100%);animation-delay:'+(i*.04)+'s" onclick="goCat(\''+c.id+'\')">'
+      + '<div class="cat-ill">' + bg + '</div>'
+      + '<div class="cat-ic">'+ICONS[c.icon]+'</div>'
+      + '<div class="cat-n">'+c.name+'</div>'
+      + '</button>';
+  }).join("");
+}
+function renderHero(){
+  var container = document.querySelector("#page-home .health-sub");
+  if(!container) return;
+  var existing = document.getElementById("homeHero");
+  if(existing) return;
+  var ill = window.ILLUSTRATIONS || {};
+  var hero = document.createElement("div");
+  hero.id = "homeHero";
+  hero.className = "home-hero";
+  hero.innerHTML = ill.hero || "";
+  container.parentNode.insertBefore(hero, container);
 }
 function renderHomePop(){
   const ids = ["s1","i1","m5","m7","m1","i3"];
@@ -341,6 +356,7 @@ if("serviceWorker" in navigator){
 renderTabbar();
 renderStats();
 renderCats();
+renderHero();
 renderHomePop();
 renderLibChips();
 renderLib();

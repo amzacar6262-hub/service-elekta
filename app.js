@@ -337,4 +337,192 @@ updateOnline();
     grab.addEventListener('touchend', onEnd);
     grab.addEventListener('touchcancel', onEnd);
   }
+  
+/* ═══════════════════════════════════════
+   QR Scanner
+   ═══════════════════════════════════════ */
+
+const QR_MACHINES = {
+  "ELEKTA-SYN-01":"Synergy",
+  "ELEKTA-SYN-02":"Synergy",
+  "ELEKTA-INF-01":"Infinity",
+  "ELEKTA-INF-02":"Infinity",
+  "ELEKTA-VHD-01":"Versa HD",
+  "ELEKTA-AXS-01":"Axesse",
+  "ELEKTA-UNI-01":"Unity",
+  "ELEKTA-PRC-01":"Precise",
+  "ELEKTA-CMP-01":"Compact",
+  "ELEKTA-FLX-01":"Flexitron",
+  /* ── میان‌بُرها (اختیاری) ── */
+  "SYN":"Synergy",
+  "INF":"Infinity",
+  "VHD":"Versa HD",
+  "AXS":"Axesse",
+  "UNI":"Unity",
+  "PRC":"Precise",
+  "CMP":"Compact",
+  "FLX":"Flexitron"
+};
+
+let scanStream = null;
+let scanDetector = null;
+let scanRAF = null;
+let scanFacingMode = "environment";
+
+/* ── شروع اسکن ── */
+async function startScan(){
+  const overlay = document.getElementById("scanOverlay");
+  const video = document.getElementById("scanVideo");
+  if(!overlay || !video) return;
+
+  overlay.classList.add("show");
+
+  /* بررسی پشتیبانی BarcodeDetector */
+  if(!("BarcodeDetector" in window)){
+    toast("مرورگر از اسکن QR پشتیبانی نمی‌کند");
+    setTimeout(() => {
+      stopScan();
+      openManualQR();
+    }, 800);
+    return;
+  }
+
+  try {
+    /* دسترسی به دوربین */
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: scanFacingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+    video.srcObject = scanStream;
+    await video.play().catch(() => {});
+
+    /* راه‌اندازی detector */
+    scanDetector = new BarcodeDetector({ formats: ["qr_code"] });
+
+    /* حلقه اسکن */
+    const tick = async () => {
+      if(!scanStream || !video) return;
+      try {
+        const codes = await scanDetector.detect(video);
+        if(codes && codes.length > 0){
+          const value = codes[0].rawValue;
+          handleQRResult(value);
+          return;
+        }
+      } catch(e){ /* ignore frame errors */ }
+      scanRAF = requestAnimationFrame(tick);
+    };
+    tick();
+
+  } catch(err){
+    console.warn("Scan error:", err);
+    toast("دسترسی به دوربین ممکن نشد");
+    stopScan();
+    setTimeout(openManualQR, 500);
+  }
+}
+
+/* ── توقف اسکن ── */
+function stopScan(){
+  const overlay = document.getElementById("scanOverlay");
+  if(overlay) overlay.classList.remove("show");
+
+  if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF = null; }
+  if(scanStream){
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
+  }
+  const video = document.getElementById("scanVideo");
+  if(video) video.srcObject = null;
+  scanDetector = null;
+}
+
+/* ── تغییر دوربین ── */
+function toggleScanCamera(){
+  scanFacingMode = scanFacingMode === "environment" ? "user" : "environment";
+  stopScan();
+  setTimeout(startScan, 200);
+}
+
+/* ── پردازش نتیجه اسکن ── */
+function handleQRResult(value){
+  const clean = String(value || "").trim().toUpperCase();
+  if(!clean) return;
+
+  /* جستجو در نقشه */
+  let machine = QR_MACHINES[clean];
+
+  /* اگر کد کامل نبود، پسوند رو جدا کن */
+  if(!machine && clean.startsWith("ELEKTA-")){
+    const parts = clean.split("-");
+    if(parts.length >= 3){
+      const mid = parts[1];
+      if(QR_MACHINES[mid]) machine = QR_MACHINES[mid];
+      else if(QR_MACHINES["ELEKTA-"+mid+"-01"]) machine = QR_MACHINES["ELEKTA-"+mid+"-01"];
+    }
+  }
+
+  /* Flash سبز موفقیت */
+  flashScanSuccess();
+
+  setTimeout(() => {
+    stopScan();
+
+    if(machine){
+      /* فیلتر کتابخانه بر اساس دستگاه */
+      libFilter = "all";
+      libQ = machine;
+      renderLibChips();
+      renderLib();
+      go("lib");
+      const searchInput = document.querySelector("#page-lib .search-inner input");
+      if(searchInput) searchInput.value = machine;
+
+      toast("دستگاه: " + machine);
+    } else {
+      toast("کد ناشناخته: " + clean);
+      setTimeout(openManualQR, 400);
+    }
+  }, 250);
+}
+
+/* ── Flash سبز ── */
+function flashScanSuccess(){
+  let f = document.querySelector(".scan-success-flash");
+  if(!f){
+    f = document.createElement("div");
+    f.className = "scan-success-flash";
+    document.body.appendChild(f);
+  }
+  f.classList.add("show");
+  if(navigator.vibrate) navigator.vibrate([15, 30, 15]);
+  setTimeout(() => f.classList.remove("show"), 350);
+}
+
+/* ── ورود دستی QR ── */
+function openManualQR(){
+  const overlay = document.getElementById("qrInputOverlay");
+  if(!overlay) return;
+  overlay.classList.add("show");
+  setTimeout(() => {
+    const inp = document.getElementById("qrManualInput");
+    if(inp){ inp.value = ""; inp.focus(); }
+  }, 100);
+}
+function closeQRInput(){
+  const overlay = document.getElementById("qrInputOverlay");
+  if(overlay) overlay.classList.remove("show");
+}
+function submitQRManual(){
+  const inp = document.getElementById("qrManualInput");
+  if(!inp) return;
+  const v = inp.value.trim();
+  if(!v){ toast("کدی وارد نشده"); return; }
+  closeQRInput();
+  handleQRResult(v);
+}
 })();

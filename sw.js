@@ -1,4 +1,4 @@
-const CACHE = "elekta-service-v2";
+const CACHE = "elekta-service-v3";
 const ASSETS = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", e => {

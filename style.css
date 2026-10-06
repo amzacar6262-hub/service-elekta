@@ -281,3 +281,148 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   font-size:14px;font-weight:500;z-index:100;opacity:0;transition:all .3s;
   pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ═══════════════════════════════════════
+   Advanced Animations — iOS 26 Style
+   ═══════════════════════════════════════ */
+
+/* ── Page transition با spring ── */
+.page.on{
+  animation: pageSpring .5s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes pageSpring{
+  0%{ opacity:0; transform:translateY(16px) scale(.98) }
+  60%{ opacity:1; transform:translateY(-2px) scale(1.005) }
+  100%{ opacity:1; transform:translateY(0) scale(1) }
+}
+
+/* ── Card entrance با spring ── */
+@keyframes cardSpring{
+  0%{ opacity:0; transform:translateY(24px) scale(.94) }
+  55%{ opacity:1; transform:translateY(-4px) scale(1.02) }
+  80%{ transform:translateY(2px) scale(.998) }
+  100%{ opacity:1; transform:translateY(0) scale(1) }
+}
+.manual{ animation: cardSpring .55s cubic-bezier(.34,1.4,.64,1) backwards }
+.stat{ animation: cardSpring .6s cubic-bezier(.34,1.4,.64,1) backwards }
+.ecode{ animation: cardSpring .45s cubic-bezier(.34,1.4,.64,1) backwards }
+
+/* ── Parallax هدر هنگام اسکرول ── */
+.nav-large{
+  transition: transform .3s cubic-bezier(.32,.72,0,1), opacity .3s, font-size .3s;
+}
+.nav.scrolled .nav-large{ transform: translateY(-20px) }
+
+/* ── Sheet با spring ── */
+.sheet{ transition: transform .55s cubic-bezier(.32,.72,0,1) }
+
+/* ── Tabs با morph icon ── */
+.tab svg{
+  transition: transform .5s cubic-bezier(.34,1.56,.64,1),
+              filter .3s;
+}
+.tab.active svg{
+  animation: iconMorph .55s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes iconMorph{
+  0%{ transform:scale(1) rotate(0deg) }
+  30%{ transform:scale(1.28) rotate(-8deg) }
+  60%{ transform:scale(1.05) rotate(4deg) }
+  100%{ transform:scale(1.12) rotate(0deg) }
+}
+
+/* ── Glow pulse روی tab فعال ── */
+.tab.active::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  background: radial-gradient(circle at center,
+    rgba(10,132,255,.2) 0%, transparent 70%);
+  animation: glowPulse 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes glowPulse{
+  0%,100%{ opacity:.4; transform:scale(1) }
+  50%{ opacity:.7; transform:scale(1.05) }
+}
+
+/* ── Card Press با scale spring ── */
+.cat:active{ transform:scale(.92); transition:transform .1s }
+.manual:active{ transform:scale(.96); transition:transform .1s }
+
+/* ── Sheet content fade-in ── */
+.sheet-body > *{
+  animation: contentFade .4s ease backwards;
+}
+.sheet-body > *:nth-child(1){ animation-delay:.05s }
+.sheet-body > *:nth-child(2){ animation-delay:.1s }
+.sheet-body > *:nth-child(3){ animation-delay:.15s }
+.sheet-body > *:nth-child(4){ animation-delay:.2s }
+.sheet-body > *:nth-child(5){ animation-delay:.25s }
+@keyframes contentFade{
+  from{ opacity:0; transform:translateY(8px) }
+  to{ opacity:1; transform:translateY(0) }
+}
+
+/* ── Step entrance stagger ── */
+.step{ animation: stepSlide .45s cubic-bezier(.34,1.4,.64,1) backwards }
+.step:nth-child(1){ animation-delay:.05s }
+.step:nth-child(2){ animation-delay:.1s }
+.step:nth-child(3){ animation-delay:.15s }
+.step:nth-child(4){ animation-delay:.2s }
+.step:nth-child(5){ animation-delay:.25s }
+.step:nth-child(6){ animation-delay:.3s }
+.step:nth-child(7){ animation-delay:.35s }
+.step:nth-child(8){ animation-delay:.4s }
+.step:nth-child(9){ animation-delay:.45s }
+.step:nth-child(10){ animation-delay:.5s }
+@keyframes stepSlide{
+  from{ opacity:0; transform:translateX(-12px) }
+  to{ opacity:1; transform:translateX(0) }
+}
+
+/* ── Chip tap feedback ── */
+.chip:active{ transform:scale(.94); transition:transform .1s }
+.chip{ transition: background .2s, color .2s, transform .12s }
+
+/* ── Stat number pop ── */
+.stat-v{
+  transition: color .3s, transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.stat:active .stat-v{ transform:scale(1.1) }
+
+/* ── Icon pulse روی category tap ── */
+.cat:active .cat-ic{
+  animation: iconBounce .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes iconBounce{
+  0%{ transform:scale(1) }
+  50%{ transform:scale(1.18) }
+  100%{ transform:scale(1) }
+}
+
+/* ── Toast entrance ── */
+.toast.show{
+  animation: toastIn .4s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes toastIn{
+  from{ opacity:0; transform:translateX(-50%) translateY(30px) scale(.9) }
+  to{ opacity:1; transform:translateX(-50%) translateY(0) scale(1) }
+}
+
+/* ── Sheet grip pulse ── */
+.sheet-grab{
+  animation: gripPulse 2.5s ease-in-out infinite;
+}
+@keyframes gripPulse{
+  0%,100%{ opacity:.4 }
+  50%{ opacity:.8 }
+}
+
+/* ── Reduced motion support ── */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -745,3 +745,173 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   transition:opacity .35s ease;
 }
 .scan-success-flash.show{ opacity:.6 }
+/* ═══════════════════════════════════════
+   Reference Tables
+   ═══════════════════════════════════════ */
+
+.nav-back{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  color:var(--blue);
+  font-size:17px;
+  font-weight:500;
+  padding:4px 8px;
+  margin-right:-8px;
+  border-radius:8px;
+  transition:background .15s;
+}
+.nav-back:active{ background:var(--fill) }
+.nav-back svg{ width:20px; height:20px }
+
+/* کارت اصلی هر جدول */
+.ref-card{
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  animation: cardSpring .55s cubic-bezier(.34,1.4,.64,1) backwards;
+}
+
+.ref-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  cursor:pointer;
+  user-select:none;
+  transition:background .15s;
+  position:relative;
+}
+.ref-head:active{ background:var(--fill) }
+
+.ref-icon{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+.ref-icon svg{ width:22px; height:22px }
+
+.ref-head-info{
+  flex:1;
+  min-width:0;
+}
+.ref-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--label);
+  margin-bottom:2px;
+}
+.ref-desc{
+  font-size:12px;
+  color:var(--label2);
+  line-height:1.35;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:1;
+  -webkit-box-orient:vertical;
+}
+
+.ref-chev{
+  color:var(--label3);
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+  flex-shrink:0;
+}
+.ref-chev svg{
+  width:14px;
+  height:14px;
+}
+.ref-card.open .ref-chev{
+  transform:rotate(180deg);
+}
+
+.ref-count{
+  font-size:11px;
+  font-weight:600;
+  color:var(--label3);
+  margin-right:auto;
+  padding:0 8px;
+}
+
+/* بدنه — جمع و بازشو */
+.ref-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .4s cubic-bezier(.32,.72,0,1);
+}
+.ref-card.open .ref-body{
+  max-height:3000px;
+}
+
+/* جدول */
+.ref-table{
+  padding:0 16px 16px;
+}
+.ref-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:10px 0;
+  border-top:.5px solid var(--sep);
+  font-size:14px;
+}
+.ref-row:first-child{ border-top:0 }
+
+.ref-k{
+  color:var(--label2);
+  flex:1;
+  line-height:1.4;
+  padding-top:2px;
+}
+
+.ref-v{
+  font-family:ui-monospace,"SF Mono",monospace;
+  font-weight:600;
+  color:var(--blue);
+  text-align:left;
+  direction:ltr;
+  flex-shrink:0;
+  padding:2px 8px;
+  background:rgba(10,132,255,.1);
+  border-radius:6px;
+  font-size:13px;
+  max-width:55%;
+  word-break:break-word;
+}
+
+.ref-cat{
+  display:inline-block;
+  padding:2px 7px;
+  font-size:10px;
+  background:var(--fill);
+  color:var(--label3);
+  border-radius:100px;
+  margin-right:6px;
+  font-weight:500;
+}
+
+.ref-warn{
+  display:flex;
+  gap:10px;
+  padding:12px 14px;
+  background:rgba(255,159,10,.12);
+  border-radius:12px;
+  margin:0 16px 16px;
+  font-size:13px;
+  color:var(--label);
+  line-height:1.5;
+}
+.ref-warn svg{
+  width:18px;
+  height:18px;
+  color:var(--orange);
+  flex-shrink:0;
+  margin-top:2px;
+}

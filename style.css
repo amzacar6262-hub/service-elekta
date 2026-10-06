@@ -488,3 +488,260 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   border-radius:100px;
   background:rgba(235,235,245,.5);
 }
+/* ═══════════════════════════════════════
+   QR Scanner
+   ═══════════════════════════════════════ */
+
+/* دکمه اسکن در هدر */
+.nav-icon-btn{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:var(--fill);
+  color:var(--blue);
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1), background .15s;
+  border:none;
+  cursor:pointer;
+}
+.nav-icon-btn svg{ width:20px; height:20px }
+.nav-icon-btn:active{
+  transform:scale(.9);
+  background:rgba(10,132,255,.2);
+}
+
+/* ── Overlay اسکن ── */
+.scan-overlay{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:#000;
+  display:none;
+  flex-direction:column;
+  padding-top:var(--safe-t);
+  padding-bottom:var(--safe-b);
+}
+.scan-overlay.show{ display:flex }
+
+.scan-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px;
+  color:#fff;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.scan-title{
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+}
+.scan-btn{
+  color:var(--blue);
+  font-size:16px;
+  font-weight:500;
+  padding:6px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.1);
+  border:none;
+  cursor:pointer;
+}
+.scan-btn:active{ opacity:.7 }
+
+.scan-video-wrap{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  background:#000;
+}
+.scan-video-wrap video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* کادر اسکن */
+.scan-frame{
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%, -60%);
+  width:260px;
+  height:260px;
+  border-radius:28px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+  pointer-events:none;
+}
+
+.scan-corner{
+  position:absolute;
+  width:34px;
+  height:34px;
+  border:4px solid var(--blue);
+  filter:drop-shadow(0 0 8px rgba(10,132,255,.6));
+}
+.scan-corner.tl{ top:-4px; right:-4px; border-left:0; border-bottom:0; border-radius:0 28px 0 0 }
+.scan-corner.tr{ top:-4px; left:-4px; border-right:0; border-bottom:0; border-radius:28px 0 0 0 }
+.scan-corner.bl{ bottom:-4px; right:-4px; border-left:0; border-top:0; border-radius:0 0 28px 0 }
+.scan-corner.br{ bottom:-4px; left:-4px; border-right:0; border-top:0; border-radius:0 0 0 28px }
+
+/* خط اسکن متحرک */
+.scan-line{
+  position:absolute;
+  left:10%;
+  right:10%;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--blue), transparent);
+  border-radius:2px;
+  box-shadow:0 0 12px rgba(10,132,255,.8);
+  animation: scanLineMove 2s ease-in-out infinite;
+}
+@keyframes scanLineMove{
+  0%,100%{ top:12% }
+  50%{ top:88% }
+}
+
+.scan-hint{
+  position:absolute;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding:10px 20px;
+  border-radius:100px;
+  color:#fff;
+  font-size:13px;
+  white-space:nowrap;
+  border:.5px solid rgba(255,255,255,.15);
+}
+
+.scan-bottom{
+  padding:16px;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.scan-manual-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-size:15px;
+  font-weight:500;
+  border:.5px solid rgba(255,255,255,.15);
+  cursor:pointer;
+  transition:transform .12s, background .15s;
+}
+.scan-manual-btn:active{
+  transform:scale(.97);
+  background:rgba(255,255,255,.2);
+}
+
+/* ── Manual QR Input ── */
+.qr-input-overlay{
+  position:fixed;
+  inset:0;
+  z-index:210;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.qr-input-overlay.show{ display:flex }
+
+.qr-input-box{
+  background:var(--card);
+  border-radius:20px;
+  padding:24px;
+  width:100%;
+  max-width:340px;
+  border:.5px solid var(--sep);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  animation: boxIn .35s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes boxIn{
+  from{ opacity:0; transform:scale(.9) translateY(20px) }
+  to{ opacity:1; transform:scale(1) translateY(0) }
+}
+
+.qr-input-title{
+  font-size:18px;
+  font-weight:700;
+  color:var(--label);
+  margin-bottom:6px;
+  text-align:center;
+}
+.qr-input-hint{
+  font-size:13px;
+  color:var(--label2);
+  text-align:center;
+  margin-bottom:18px;
+}
+.qr-input-field{
+  width:100%;
+  padding:14px 16px;
+  border-radius:12px;
+  background:var(--fill);
+  color:var(--label);
+  border:.5px solid var(--sep);
+  font-size:16px;
+  text-align:center;
+  letter-spacing:.05em;
+  font-family:ui-monospace,monospace;
+  outline:none;
+  direction:ltr;
+}
+.qr-input-field:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(10,132,255,.2);
+}
+.qr-input-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+.qr-btn-cancel,
+.qr-btn-ok{
+  padding:14px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+  transition:transform .1s, opacity .15s;
+}
+.qr-btn-cancel{
+  background:var(--fill);
+  color:var(--label);
+}
+.qr-btn-ok{
+  background:var(--blue);
+  color:#fff;
+}
+.qr-btn-cancel:active,
+.qr-btn-ok:active{ transform:scale(.96); opacity:.85 }
+
+/* ── Flash سبز هنگام اسکن موفق ── */
+.scan-success-flash{
+  position:fixed;
+  inset:0;
+  background:var(--green);
+  z-index:300;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease;
+}
+.scan-success-flash.show{ opacity:.6 }

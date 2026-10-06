@@ -216,6 +216,7 @@ function go(id){
   if(id === "fav") renderFavs();
   if(id === "lib") renderLib();
   if(id === "codes") renderCodes();
+  if(id === "ref") renderRef();
 }
 
 function toast(msg){

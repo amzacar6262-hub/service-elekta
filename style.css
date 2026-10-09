@@ -1743,3 +1743,231 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   z-index:4;
   pointer-events:none;
 }
+/* ═══════════════════════════════════════
+   Service Log
+   ═══════════════════════════════════════ */
+
+.log-entry{
+  padding:14px 16px;
+  position:relative;
+  animation:cardIn .35s cubic-bezier(.34,1.4,.64,1) backwards;
+}
+.log-entry + .log-entry::before{
+  content:"";
+  position:absolute;
+  top:0; right:16px; left:0;
+  height:.5px;
+  background:var(--sep);
+}
+.log-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
+}
+.log-title{
+  font-size:15px;
+  font-weight:600;
+  color:var(--label);
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.log-status{
+  font-size:10px;
+  font-weight:600;
+  padding:3px 8px;
+  border-radius:100px;
+  flex-shrink:0;
+}
+.log-status.done{ background:rgba(50,215,75,.15); color:var(--green); }
+.log-status.partial{ background:rgba(255,159,10,.15); color:var(--orange); }
+.log-status.failed{ background:rgba(255,69,58,.15); color:var(--red); }
+.log-meta{
+  display:flex;
+  gap:10px;
+  font-size:12px;
+  color:var(--label2);
+  flex-wrap:wrap;
+}
+.log-meta span{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+}
+.log-notes{
+  font-size:13px;
+  color:var(--label2);
+  margin-top:8px;
+  padding:8px 10px;
+  background:var(--fill);
+  border-radius:8px;
+  line-height:1.5;
+}
+.log-empty{
+  text-align:center;
+  padding:60px 20px;
+  color:var(--label2);
+}
+.log-empty svg{
+  width:56px; height:56px;
+  opacity:.35;
+  margin-bottom:12px;
+}
+.log-empty-t{
+  font-size:16px;
+  font-weight:600;
+  color:var(--label);
+  margin-bottom:4px;
+}
+
+.log-manual-selected{
+  padding:12px 16px;
+  background:var(--fill);
+  border-radius:12px;
+  font-size:15px;
+  font-weight:500;
+  color:var(--label);
+  margin-bottom:20px;
+  text-align:center;
+}
+
+/* ═══════════════════════════════════════
+   Manual Sheet — Checklist + Notes
+   ═══════════════════════════════════════ */
+
+/* Steps با checkbox */
+.step-check{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:2px solid var(--label3);
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  margin-top:3px;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;
+  background:transparent;
+}
+.step-check svg{
+  width:12px;
+  height:12px;
+  color:#fff;
+  opacity:0;
+  transform:scale(.5);
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+}
+.step.done .step-check{
+  background:var(--green);
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(50,215,75,.15);
+}
+.step.done .step-check svg{
+  opacity:1;
+  transform:scale(1);
+}
+.step.done .step-t{
+  color:var(--label2);
+  text-decoration:line-through;
+  text-decoration-color:var(--label3);
+}
+
+/* اکشن‌های Sheet — Notes, PDF, Reset */
+.sheet-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+.sheet-action-btn{
+  padding:12px;
+  border-radius:12px;
+  background:var(--fill);
+  color:var(--label);
+  font-size:14px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border:none;
+  cursor:pointer;
+  transition:transform .1s, background .15s;
+}
+.sheet-action-btn:active{
+  transform:scale(.96);
+}
+.sheet-action-btn.primary{
+  background:var(--blue);
+  color:#fff;
+}
+.sheet-action-btn svg{
+  width:16px;
+  height:16px;
+}
+
+/* Notes بخش */
+.manual-notes-section{
+  background:var(--card);
+  border-radius:14px;
+  padding:4px 16px 16px;
+  margin-bottom:16px;
+}
+.manual-notes-area{
+  width:100%;
+  min-height:70px;
+  padding:12px;
+  border-radius:10px;
+  background:var(--fill);
+  border:.5px solid var(--sep);
+  color:var(--label);
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.5;
+  resize:none;
+  outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+.manual-notes-area:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(10,132,255,.2);
+}
+.manual-notes-area::placeholder{
+  color:var(--label3);
+}
+
+/* ═══════════════════════════════════════
+   Print / PDF
+   ═══════════════════════════════════════ */
+@media print{
+  body *{ visibility:hidden !important; }
+  .sheet-body,
+  .sheet-body *{ visibility:visible !important; }
+  .sheet-body{
+    position:absolute !important;
+    top:0; left:0;
+    width:100% !important;
+    max-height:none !important;
+    overflow:visible !important;
+    background:#fff !important;
+    color:#000 !important;
+    padding:20px !important;
+  }
+  .sheet-body .sheet-close-bottom,
+  .sheet-body .sheet-actions,
+  .sheet-body .step-check{
+    display:none !important;
+  }
+  .sheet-body .detail-hero{
+    color:#000 !important;
+    background:#f0f0f0 !important;
+    box-shadow:none !important;
+  }
+  .sheet-body .step-n{
+    background:#000 !important;
+    color:#fff !important;
+  }
+}

@@ -57,15 +57,14 @@ function renderHero(){
   container.parentNode.insertBefore(hero, container);
 }
 function renderToolGrid(){
-  var el = document.getElementById("toolGrid");
-  if(!el) return;
   var tools = [
     { id:"ref",     name:"جداول مرجع",   c1:"#FF3B30", c2:"#AF52DE", icon:"target", action:"go('ref')" },
     { id:"pm",      name:"PM چک‌لیست",   c1:"#32D74B", c2:"#248A3D", icon:"check",  action:"go('pm')" },
     { id:"gallery", name:"گالری تصاویر", c1:"#FF375F", c2:"#AF52DE", icon:"cam",    action:"go('gallery')" },
     { id:"qr",      name:"اسکن QR",      c1:"#5AC8FA", c2:"#0A84FF", icon:"grid",   action:"startScan()" }
   ];
-  el.innerHTML = tools.map(function(t, i){
+
+  var html = tools.map(function(t, i){
     return '<button class="cat cat-mini" ' +
       'style="background:linear-gradient(145deg,' + t.c1 + ' 0%,' + t.c2 + ' 100%);animation-delay:' + (i*.04) + 's" ' +
       'onclick="' + t.action + '">' +
@@ -73,6 +72,14 @@ function renderToolGrid(){
       '<div class="cat-n">' + t.name + '</div>' +
     '</button>';
   }).join("");
+
+  /* صفحه Home */
+  var elHome = document.getElementById("homeToolGrid");
+  if(elHome) elHome.innerHTML = html;
+
+  /* صفحه More */
+  var elMore = document.getElementById("toolGrid");
+  if(elMore) elMore.innerHTML = html;
 }
 function renderHomePop(){
   var el = document.getElementById("homePop");

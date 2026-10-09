@@ -22,7 +22,7 @@
     <section id="page-home" class="page on">
       <header class="nav nav-compact" data-nav>
         <div class="nav-top">
-          <button class="nav-icon-btn" onclick="startScan()" aria-label="اسکن QR">
+          <button class="nav-icon-btn" onclick="startScan()" aria-label="Scan QR">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
               <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
@@ -42,7 +42,7 @@
             </div>
             <div class="nav-brand-text">Elekta Service</div>
           </div>
-          <button class="nav-icon-btn" onclick="go('more')" aria-label="تنظیمات">
+          <button class="nav-icon-btn" onclick="go('more')" aria-label="Settings">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <circle cx="5" cy="12" r="2"/>
               <circle cx="12" cy="12" r="2"/>
@@ -56,41 +56,41 @@
         <img src="./hero.png" alt="Elekta" />
         <div class="hero-overlay">
           <div class="hero-badge">Elekta Service</div>
-          <div class="hero-caption">پایگاه دانش سرویس و نگهداری</div>
+          <div class="hero-caption" data-i18n="home_sub">پایگاه دانش سرویس و نگهداری</div>
         </div>
       </div>
 
-      <div class="health-sub">دسته‌بندی‌های سرویس و نگهداری</div>
+      <div class="health-sub" data-i18n="home_sub">دسته‌بندی‌های سرویس و نگهداری</div>
 
       <div class="section" style="margin-top:14px">
         <div class="stat-row">
           <div class="stat" style="animation-delay:.02s">
             <div class="stat-v" style="color:var(--blue)" id="stM">۰</div>
-            <div class="stat-l">منوال</div>
+            <div class="stat-l" data-i18n="stat_manuals">منوال</div>
           </div>
           <div class="stat" style="animation-delay:.06s">
             <div class="stat-v" style="color:var(--orange)" id="stE">۰</div>
-            <div class="stat-l">کد خطا</div>
+            <div class="stat-l" data-i18n="stat_errors">کد خطا</div>
           </div>
           <div class="stat" style="animation-delay:.10s">
             <div class="stat-v" style="color:var(--yellow)" id="stF">۰</div>
-            <div class="stat-l">ذخیره</div>
+            <div class="stat-l" data-i18n="stat_saved">ذخیره</div>
           </div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">دسته‌بندی‌ها</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_categories">دسته‌بندی‌ها</div></div>
         <div class="cat-grid" id="catGrid"></div>
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">ابزارهای مرجع</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_tools">ابزارهای مرجع</div></div>
         <div class="cat-grid" id="homeToolGrid"></div>
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">پرکاربردترین‌ها</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_popular">پرکاربردترین‌ها</div></div>
         <div class="cat-grid" id="homePop"></div>
       </div>
     </section>
@@ -98,13 +98,13 @@
     <!-- ═══ LIBRARY ═══ -->
     <section id="page-lib" class="page">
       <header class="nav" data-nav>
-        <div class="nav-top"><div class="nav-title-sm">کتابخانه</div></div>
-        <div class="nav-large">کتابخانه</div>
+        <div class="nav-top"><div class="nav-title-sm" data-i18n="lib_title">کتابخانه</div></div>
+        <div class="nav-large" data-i18n="lib_title">کتابخانه</div>
       </header>
       <div class="search">
         <div class="search-inner">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
-          <input placeholder="جستجو..." oninput="libQ=this.value;renderLib()" />
+          <input placeholder="جستجو..." data-i18n-ph="search_ph" oninput="libQ=this.value;renderLib()" />
         </div>
       </div>
       <div class="chips" id="libChips"></div>
@@ -114,13 +114,13 @@
     <!-- ═══ ERROR CODES ═══ -->
     <section id="page-codes" class="page">
       <header class="nav" data-nav>
-        <div class="nav-top"><div class="nav-title-sm">کدهای خطا</div></div>
-        <div class="nav-large">کدهای خطا</div>
+        <div class="nav-top"><div class="nav-title-sm" data-i18n="codes_title">کدهای خطا</div></div>
+        <div class="nav-large" data-i18n="codes_title">کدهای خطا</div>
       </header>
       <div class="search">
         <div class="search-inner">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
-          <input placeholder="جستجو..." oninput="codeQ=this.value;renderCodes()" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20="" y1page="20" x2="16.5-ref" y2="16.5""/></svg>
+          <input class placeholder="جستجو..." data-i="18n-ph="search_ph" oninput="codeQ=this.value;renderCodes()" />
         </div>
       </div>
       <div class="chips" id="codeChips"></div>
@@ -128,25 +128,25 @@
     </section>
 
     <!-- ═══ REFERENCE ═══ -->
-    <section id="page-ref" class="page">
+    <section idpage">
       <header class="nav" data-nav>
         <div class="nav-top">
           <button class="nav-back" onclick="go('more')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
-            بیش‌تر
+            <span data-i18n="more_title">بیش‌تر</span>
           </button>
-          <div class="nav-title-sm">جداول مرجع</div>
+          <div class="nav-title-sm" data-i18n="ref_title">جداول مرجع</div>
         </div>
-        <div class="nav-large">مرجع</div>
+        <div class="nav-large" data-i18n="ref_title">مرجع</div>
       </header>
-      <div class="health-sub">تلورانس‌ها، پارامترها و مقادیر کلیدی</div>
+      <div class="health-sub" data-i18n="ref_sub">تلورانس‌ها، پارامترها و مقادیر کلیدی</div>
       <div class="section" style="margin-top:14px">
         <div class="search">
           <div class="search-inner">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
-            <input placeholder="جستجو در جداول..." oninput="refQ=this.value;renderRef()" />
+            <input placeholder="جستجو در جداول..." data-i18n-ph="ref_search_ph" oninput="refQ=this.value;renderRef()" />
           </div>
         </div>
       </div>
@@ -159,17 +159,17 @@
     <section id="page-gallery" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
-          <div class="nav-title-sm">گالری</div>
-          <button class="nav-icon-btn nav-add-btn" onclick="pickGalleryImage()" aria-label="افزودن عکس">
+          <div class="nav-title-sm" data-i18n="gallery_title">گالری</div>
+          <button class="nav-icon-btn nav-add-btn" onclick="pickGalleryImage()" aria-label="Add photo">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
         </div>
-        <div class="nav-large">گالری</div>
+        <div class="nav-large" data-i18n="gallery_title">گالری</div>
       </header>
-      <div class="health-sub" id="gallerySub">عکس‌های واقعی از تعمیرات و قطعات</div>
+      <div class="health-sub" id="gallerySub" data-i18n="gallery_sub">عکس‌های واقعی از تعمیرات و قطعات</div>
       <div class="gallery-cats" id="galleryCats"></div>
       <div class="gallery-grid" id="galleryGrid"></div>
     </section>
@@ -182,19 +182,19 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
-            بیش‌تر
+            <span data-i18n="more_title">بیش‌تر</span>
           </button>
-          <div class="nav-title-sm">نگهداری</div>
-          <button class="nav-icon-btn" onclick="resetPMAll()" aria-label="ریست">
+          <div class="nav-title-sm" data-i18n="pm_title">نگهداری</div>
+          <button class="nav-icon-btn" onclick="resetPMAll()" aria-label="Reset">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="1 4 1 10 7 10"/>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
             </svg>
           </button>
         </div>
-        <div class="nav-large">PM</div>
+        <div class="nav-large" data-i18n="pm_large">PM</div>
       </header>
-      <div class="health-sub">چک‌لیست نگهداری پیشگیرانه</div>
+      <div class="health-sub" data-i18n="pm_sub">چک‌لیست نگهداری پیشگیرانه</div>
       <div class="section" style="margin-top:14px">
         <div class="pm-progress-card" id="pmProgressCard"></div>
       </div>
@@ -208,8 +208,8 @@
     <!-- ═══ FAVORITES ═══ -->
     <section id="page-fav" class="page">
       <header class="nav" data-nav>
-        <div class="nav-top"><div class="nav-title-sm">ذخیره‌شده</div></div>
-        <div class="nav-large">ذخیره‌شده</div>
+        <div class="nav-top"><div class="nav-title-sm" data-i18n="fav_title">ذخیره‌شده</div></div>
+        <div class="nav-large" data-i18n="fav_title">ذخیره‌شده</div>
       </header>
       <div class="section" style="margin-top:6px"><div id="favList"></div></div>
     </section>
@@ -217,21 +217,39 @@
     <!-- ═══ MORE ═══ -->
     <section id="page-more" class="page">
       <header class="nav" data-nav>
-        <div class="nav-top"><div class="nav-title-sm">بیشتر</div></div>
-        <div class="nav-large">بیشتر</div>
+        <div class="nav-top"><div class="nav-title-sm" data-i18n="more_title">بیشتر</div></div>
+        <div class="nav-large" data-i18n="more_title">بیشتر</div>
       </header>
 
       <div class="section" style="margin-top:6px">
         <div class="card">
-          <div class="row"><div class="row-body"><div class="row-title">نسخه</div></div><div style="color:var(--label2)">۳.۰</div></div>
-          <div class="row"><div class="row-body"><div class="row-title">تعداد منوال</div></div><div style="color:var(--label2)" id="abM">—</div></div>
-          <div class="row"><div class="row-body"><div class="row-title">تعداد کد خطا</div></div><div style="color:var(--label2)" id="abE">—</div></div>
-          <div class="row"><div class="row-body"><div class="row-title">وضعیت</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div></div>
+          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_version">نسخه</16div></.div><div5 style="color:var(--label2)"> ۳.۰</3div></div>
+          <.div class="row"><div class="row-body"><div class="row-title" data-i18n="row_manuals">تعداد منوال</div></div><div style="color:var(--label2)" id="abM">—</div></div>
+          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_errors">تعداد کد خطا</div></div><div style="color:var(--label2)" id="abE">—</div></div>
+          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_status">وضعیت</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div></div>
+
+          <!-- 🌐 Language Switch -->
+          <div class="row">
+            <div class="row-icon" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="row-body">
+              <div class="row-title" data-i18n="row_lang">زبان / Language</div>
+            </div>
+            <div class="lang-seg" id="langSeg">
+              <button data-lang="fa" onclick="setLanguage('fa')">FA</button>
+              <button data-lang="en" onclick="setLanguage('en')">EN</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">تعمیرات</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_repairs">تعمیرات</div></div>
         <div class="card">
           <button class="row" onclick="go('pm')">
             <div class="row-icon" style="background:linear-gradient(145deg,#32D74B,#248A3D)">
@@ -241,8 +259,8 @@
               </svg>
             </div>
             <div class="row-body">
-              <div class="row-title">نگهداری پیشگیرانه (PM)</div>
-              <div class="row-sub">چک‌لیست روزانه تا سالانه</div>
+              <div class="row-title" data-i18n="row_pm_title">نگهداری پیشگیرانه (PM)</div>
+              <div class="row-sub" data-i18n="row_pm_sub">چک‌لیست روزانه تا سالانه</div>
             </div>
             <div class="row-chev">
               <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)"><polyline points="2 2 6 7 2 12"/></svg>
@@ -252,17 +270,18 @@
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">ابزارهای مرجع</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_tools">ابزارهای مرجع</div></div>
         <div class="cat-grid" id="toolGrid"></div>
       </div>
 
       <div class="section">
-        <div class="section-h"><div class="section-t">دستگاه‌ها</div></div>
+        <div class="section-h"><div class="section-t" data-i18n="sec_devices">دستگاه‌ها</div></div>
         <div class="card" id="machineList"></div>
       </div>
 
       <div style="text-align:center;color:var(--label3);font-size:12px;padding:24px 16px;line-height:1.6">
-        Elekta Service — نسخه ۳.۰<br>ساخته‌شده برای iOS
+        <span data-i18n="footer_line1">Elekta Service — نسخه ۳.۰</span><br>
+        <span data-i18n="footer_line2">ساخته‌شده برای iOS</span>
       </div>
     </section>
 
@@ -275,7 +294,7 @@
 <div class="sheet" id="sheet">
   <div class="sheet-grab"></div>
   <div class="sheet-head">
-    <button class="sheet-act" onclick="closeSheet()">بستن</button>
+    <button class="sheet-act" onclick="closeSheet()" data-i18n="sheet_close">بستن</button>
     <div class="sheet-title" id="sheetTitle">منوال</div>
     <button class="sheet-act" id="sheetFav" style="opacity:0">☆</button>
   </div>
@@ -285,9 +304,9 @@
 <!-- ═══ QR SCANNER OVERLAY ═══ -->
 <div class="scan-overlay" id="scanOverlay">
   <div class="scan-top">
-    <button class="scan-btn" onclick="stopScan()">انصراف</button>
-    <div class="scan-title">اسکن QR دستگاه</div>
-    <button class="scan-btn" onclick="toggleScanCamera()" id="scanFlipBtn">تغییر</button>
+    <button class="scan-btn" onclick="stopScan()" data-i18n="qr_cancel">انصراف</button>
+    <div class="scan-title" data-i18n="qr_title">اسکن QR دستگاه</div>
+    <button class="scan-btn" onclick="toggleScanCamera()" id="scanFlipBtn" data-i18n="qr_switch">تغییر</button>
   </div>
   <div class="scan-video-wrap">
     <video id="scanVideo" playsinline autoplay muted></video>
@@ -298,15 +317,15 @@
       <div class="scan-corner br"></div>
       <div class="scan-line"></div>
     </div>
-    <div class="scan-hint">QR روی برچسب دستگاه را داخل کادر قرار دهید</div>
+    <div class="scan-hint" data-i18n="qr_hint">QR روی برچسب دستگاه را داخل کادر قرار دهید</div>
   </div>
   <div class="scan-bottom">
     <button class="scan-manual-btn" onclick="openManualQR()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px">
         <path d="M12 20h9"/>
-        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>
+        <path d="M5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>
       </svg>
-      وارد کردن دستی کد
+      <span data-i18n="qr_manual">وارد کردن دستی کد</span>
     </button>
   </div>
 </div>
@@ -314,14 +333,14 @@
 <!-- ═══ MANUAL QR INPUT ═══ -->
 <div class="qr-input-overlay" id="qrInputOverlay">
   <div class="qr-input-box">
-    <div class="qr-input-title">کد دستگاه را وارد کنید</div>
-    <div class="qr-input-hint">مثال: ELEKTA-SYN-01</div>
+    <div class="qr-input-title" data-i18n="qr_manual_t">کد دستگاه را وارد کنید</div>
+    <div class="qr-input-hint" data-i18n="qr_manual_hint">مثال: ELEKTA-SYN-01</div>
     <input type="text" id="qrManualInput" class="qr-input-field"
            placeholder="ELEKTA-XXX-XX" autocomplete="off"
            autocapitalize="characters" />
     <div class="qr-input-actions">
-      <button class="qr-btn-cancel" onclick="closeQRInput()">انصراف</button>
-      <button class="qr-btn-ok" onclick="submitQRManual()">تایید</button>
+      <button class="qr-btn-cancel" onclick="closeQRInput()" data-i18n="qr_cancel">انصراف</button>
+      <button class="qr-btn-ok" onclick="submitQRManual()" data-i18n="qr_ok">تایید</button>
     </div>
   </div>
 </div>
@@ -366,24 +385,31 @@
 <div class="sheet add-photo-sheet" id="addPhotoSheet">
   <div class="sheet-grab"></div>
   <div class="sheet-head">
-    <button class="sheet-act" onclick="closeAddPhotoSheet()">انصراف</button>
-    <div class="sheet-title">افزودن عکس</div>
-    <button class="sheet-act" style="font-weight:700;color:var(--blue)" onclick="saveNewPhoto()">ذخیره</button>
+    <button class="sheet-act" onclick="closeAddPhotoSheet()" data-i18n="add_cancel">انصراف</button>
+    <div class="sheet-title" data-i18n="add_photo">افزودن عکس</div>
+    <button class="sheet-act" style="font-weight:700;color:var(--blue)" onclick="saveNewPhoto()" data-i18n="add_save">ذخیره</button>
   </div>
   <div class="sheet-body">
     <div class="add-photo-preview">
       <img id="addPhotoPreview" src="" alt="" />
     </div>
-    <div class="add-photo-label">عنوان عکس</div>
+    <div class="add-photo-label" data-i18n="add_title_lbl">عنوان عکس</div>
     <input type="text" id="addPhotoTitle" class="add-photo-field"
            placeholder="مثلاً: تعویض Magnetron در Synergy"
+           data-i18n-ph="add_title_ph"
            autocomplete="off" />
-    <div class="add-photo-label">دسته‌بندی</div>
+    <div class="add-photo-label" data-i18n="add_cat_lbl">دسته‌بندی</div>
     <div class="add-photo-cats" id="addPhotoCats"></div>
-    <div class="add-photo-label">یادداشت <span class="opt">(اختیاری)</span></div>
+    <div class="add-photo-label">
+      <span data-i18n="add_notes_lbl">یادداشت</span>
+      <span class="opt" data-i18n="add_notes_opt">(اختیاری)</span>
+    </div>
     <textarea id="addPhotoNotes" class="add-photo-field add-photo-textarea"
-              placeholder="جزئیات بیشتر..." rows="3"></textarea>
-    <div class="add-photo-label">دستگاه <span class="opt">(اختیاری)</span></div>
+              placeholder="جزئیات بیشتر..." data-i18n-ph="add_notes_ph" rows="3"></textarea>
+    <div class="add-photo-label">
+      <span data-i18n="add_dev_lbl">دستگاه</span>
+      <span class="opt" data-i18n="add_notes_opt">(اختیاری)</span>
+    </div>
     <div class="add-photo-machines" id="addPhotoMachines"></div>
   </div>
 </div>
@@ -391,6 +417,7 @@
 <div class="toast" id="toast"></div>
 
 <!-- ═══ SCRIPTS ═══ -->
+<script src="i18n.js"></script>
 <script src="data.js"></script>
 <script src="data2.js"></script>
 <script src="data3.js"></script>

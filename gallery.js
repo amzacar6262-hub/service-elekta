@@ -1,29 +1,29 @@
 /* ═══════════════════════════════════════
    gallery.js — گالری با ذخیره‌سازی محلی
-   IndexedDB برای عکس‌های کاربر
+   نسخه ۴.۰ — سرویس‌محور
    ═══════════════════════════════════════ */
 
 const GALLERY_CATS = [
-  { id:"all",     name:"همه" },
-  { id:"parts",   name:"قطعات" },
-  { id:"repair",  name:"تعمیرات" },
-  { id:"install", name:"نصب" },
-  { id:"mlc",     name:"MLC" },
-  { id:"rf",      name:"RF و Magnetron" },
-  { id:"imaging", name:"تصویربرداری" },
-  { id:"cooling", name:"خنک‌کننده" },
-  { id:"tools",   name:"ابزار" }
+  { id:"all",      name:"gcat_all" },
+  { id:"parts",    name:"gcat_parts" },
+  { id:"repair",   name:"gcat_repair" },
+  { id:"install",  name:"gcat_install" },
+  { id:"mlc",      name:"gcat_mlc" },
+  { id:"rf",       name:"gcat_rf" },
+  { id:"imaging",  name:"gcat_imaging" },
+  { id:"cooling",  name:"gcat_cooling" },
+  { id:"tools",    name:"gcat_tools" }
 ];
 
-/* عکس‌های پیش‌فرض (اختیاری) — قابل نگه‌داشتن یا حذف */
+/* عکس‌های پیش‌فرض */
 const GALLERY_IMAGES = [];
 
 /* ── متغیرهای state ── */
 let galleryFilter = "all";
 let lightboxIndex = 0;
 let lightboxList = [];
-let localPhotos = [];  /* عکس‌های ذخیره‌شده در IndexedDB */
-let pendingPhoto = null;  /* عکس در حال افزودن */
+let localPhotos = [];
+let pendingPhoto = null;
 let pendingCategory = "parts";
 let pendingMachine = "";
 
@@ -83,11 +83,9 @@ async function photoDelete(id){
   });
 }
 
-/* بارگذاری عکس‌های محلی */
 async function loadLocalPhotos(){
   try {
     const arr = await photoGetAll();
-    /* مرتب‌سازی — جدیدترین اول */
     localPhotos = arr.sort(function(a, b){ return (b.added || 0) - (a.added || 0); });
   } catch(e){
     console.warn("loadLocalPhotos failed:", e);
@@ -143,14 +141,13 @@ async function handleGalleryFileSelect(e){
   if(!file) return;
 
   if(!file.type.startsWith("image/")){
-    if(typeof toast === "function") toast("فقط فایل تصویری مجاز است");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_img_only") : "فقط فایل تصویری مجاز است");
     return;
   }
 
-  if(typeof toast === "function") toast("در حال پردازش عکس...");
+  if(typeof toast === "function") toast(typeof t === "function" ? t("add_process") : "در حال پردازش عکس...");
 
   try {
-    /* Resize به حداکثر ۱۶۰۰px و کیفیت ۸۵٪ */
     const dataUrl = await resizeImage(file, 1600, 0.85);
     pendingPhoto = dataUrl;
     pendingCategory = "parts";
@@ -158,7 +155,7 @@ async function handleGalleryFileSelect(e){
     openAddPhotoSheet(dataUrl);
   } catch(err){
     console.warn(err);
-    if(typeof toast === "function") toast("خطا در پردازش عکس");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_img_err") : "خطا در پردازش عکس");
   }
 }
 
@@ -196,9 +193,10 @@ function renderAddPhotoCats(){
   el.innerHTML = GALLERY_CATS
     .filter(function(c){ return c.id !== "all"; })
     .map(function(c){
+      const label = (typeof t === "function") ? t(c.name) : c.name;
       return '<button class="add-photo-cat ' + (pendingCategory === c.id ? 'on' : '') + '" ' +
              'onclick="selectAddPhotoCat(\'' + c.id + '\')">' +
-             c.name +
+             label +
              '</button>';
     }).join("");
 }
@@ -232,12 +230,12 @@ function selectAddPhotoMachine(m){
    ═══════════════════════════════════════ */
 async function saveNewPhoto(){
   if(!pendingPhoto){
-    if(typeof toast === "function") toast("عکسی انتخاب نشده");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_no_photo") : "عکسی انتخاب نشده");
     return;
   }
   const title = (document.getElementById("addPhotoTitle").value || "").trim();
   if(!title){
-    if(typeof toast === "function") toast("عنوان را وارد کنید");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_title_req") : "عنوان را وارد کنید");
     document.getElementById("addPhotoTitle").focus();
     return;
   }
@@ -259,11 +257,11 @@ async function saveNewPhoto(){
     closeAddPhotoSheet();
     renderGalleryChips();
     renderGallery();
-    if(typeof toast === "function") toast("عکس ذخیره شد ✓");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_saved") : "عکس ذخیره شد ✓");
     if(navigator.vibrate) navigator.vibrate([15, 30, 15]);
   } catch(err){
     console.warn(err);
-    if(typeof toast === "function") toast("خطا در ذخیره عکس");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_save_err") : "خطا در ذخیره عکس");
   }
 }
 
@@ -271,7 +269,6 @@ async function saveNewPhoto(){
    رندر گالری
    ═══════════════════════════════════════ */
 function getAllImages(){
-  /* عکس‌های پیش‌فرض + عکس‌های محلی */
   return GALLERY_IMAGES.concat(localPhotos);
 }
 
@@ -284,9 +281,10 @@ function renderGalleryChips(){
       ? all.length
       : all.filter(function(i){ return i.cat === c.id; }).length;
     if(c.id !== "all" && count === 0) return "";
+    const label = (typeof t === "function") ? t(c.name) : c.name;
     return '<button class="gallery-chip ' + (galleryFilter === c.id ? 'on' : '') + '" ' +
            'onclick="setGalleryFilter(\'' + c.id + '\')">' +
-           c.name +
+           label +
            '<span class="dot"></span>' +
            fa(count) +
            '</button>';
@@ -308,6 +306,8 @@ function renderGallery(){
     : all.filter(function(i){ return i.cat === galleryFilter; });
 
   if(!list.length){
+    const title = (typeof t === "function") ? t("gallery_empty") : "گالری خالی است";
+    const sub = (typeof t === "function") ? t("gallery_empty_s") : "با دکمه + اولین عکس سرویس را اضافه کن";
     el.innerHTML =
       '<div class="gallery-empty">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
@@ -315,19 +315,20 @@ function renderGallery(){
           '<circle cx="9" cy="9" r="2"/>' +
           '<path d="M21 15l-5-5L5 21"/>' +
         '</svg>' +
-        '<div class="gallery-empty-t">گالری خالی است</div>' +
-        '<div class="gallery-empty-s">با دکمه + بالا، اولین عکس سرویس را اضافه کن</div>' +
+        '<div class="gallery-empty-t">' + title + '</div>' +
+        '<div class="gallery-empty-s">' + sub + '</div>' +
       '</div>';
     return;
   }
 
   el.innerHTML = list.map(function(img, i){
     const cat = GALLERY_CATS.find(function(c){ return c.id === img.cat; });
-    const catName = cat ? cat.name : "";
+    const catName = cat ? ((typeof t === "function") ? t(cat.name) : cat.name) : "";
+    const localBadge = (typeof t === "function") ? t("gallery_local") : "محلی";
     return '<div class="gallery-item" style="animation-delay:' + (i * .04) + 's" ' +
            'onclick="openLightbox(' + i + ')">' +
       '<img src="' + img.src + '" alt="' + (img.title || '') + '" loading="lazy" />' +
-      (img.local ? '<span class="gallery-item-local-badge">محلی</span>' : '') +
+      (img.local ? '<span class="gallery-item-local-badge">' + localBadge + '</span>' : '') +
       '<div class="gallery-item-info">' +
         (catName ? '<span class="gallery-item-cat">' + catName + '</span>' : '') +
         '<div class="gallery-item-title">' + (img.title || '') + '</div>' +
@@ -374,10 +375,7 @@ function updateLightbox(){
   }
   if(cap) cap.textContent = img.title || "";
   if(cnt) cnt.textContent = fa(lightboxIndex + 1) + " / " + fa(lightboxList.length);
-  /* دکمه حذف فقط برای عکس‌های محلی */
-  if(delBtn){
-    delBtn.style.display = img.local ? "grid" : "none";
-  }
+  if(delBtn) delBtn.style.display = img.local ? "grid" : "none";
 }
 
 function lightboxNext(){
@@ -396,17 +394,15 @@ function lightboxPrev(){
   }
 }
 
-/* حذف عکس فعلی */
 async function deleteCurrentPhoto(){
   const img = lightboxList[lightboxIndex];
   if(!img || !img.local) return;
-  if(!confirm("این عکس حذف شود؟")) return;
+  const conf = (typeof t === "function") ? t("add_del_conf") : "این عکس حذف شود؟";
+  if(!confirm(conf)) return;
 
   try {
     await photoDelete(img.id);
     localPhotos = localPhotos.filter(function(p){ return p.id !== img.id; });
-
-    /* به‌روزرسانی لیست lightbox */
     lightboxList = lightboxList.filter(function(p){ return p.id !== img.id; });
 
     if(!lightboxList.length){
@@ -418,11 +414,10 @@ async function deleteCurrentPhoto(){
 
     renderGalleryChips();
     renderGallery();
-    if(typeof toast === "function") toast("عکس حذف شد");
+    if(typeof toast === "function") toast(typeof t === "function" ? t("add_deleted") : "عکس حذف شد");
     if(navigator.vibrate) navigator.vibrate([10, 40, 10]);
   } catch(err){
     console.warn(err);
-    if(typeof toast === "function") toast("خطا در حذف");
   }
 }
 
@@ -449,7 +444,7 @@ async function deleteCurrentPhoto(){
   }, { passive:true });
 })();
 
-/* اتصال input به event */
+/* اتصال input */
 document.addEventListener("DOMContentLoaded", function(){
   const inp = document.getElementById("galleryFileInput");
   if(inp) inp.addEventListener("change", handleGalleryFileSelect);
@@ -476,5 +471,5 @@ window.loadLocalPhotos = loadLocalPhotos;
   await loadLocalPhotos();
   renderGalleryChips();
   renderGallery();
-  console.log("✅ gallery.js ready — " + localPhotos.length + " local photos");
+  console.log("✅ gallery.js ready — " + localPhotos.length + " photos");
 })();

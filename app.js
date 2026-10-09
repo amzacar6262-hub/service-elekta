@@ -56,10 +56,42 @@ function renderHero(){
   hero.innerHTML = ill.hero || "";
   container.parentNode.insertBefore(hero, container);
 }
+function renderToolGrid(){
+  var el = document.getElementById("toolGrid");
+  if(!el) return;
+  var tools = [
+    { id:"ref",     name:"جداول مرجع",   c1:"#FF3B30", c2:"#AF52DE", icon:"target", action:"go('ref')" },
+    { id:"pm",      name:"PM چک‌لیست",   c1:"#32D74B", c2:"#248A3D", icon:"check",  action:"go('pm')" },
+    { id:"gallery", name:"گالری تصاویر", c1:"#FF375F", c2:"#AF52DE", icon:"cam",    action:"go('gallery')" },
+    { id:"qr",      name:"اسکن QR",      c1:"#5AC8FA", c2:"#0A84FF", icon:"grid",   action:"startScan()" }
+  ];
+  el.innerHTML = tools.map(function(t, i){
+    return '<button class="cat cat-mini" ' +
+      'style="background:linear-gradient(145deg,' + t.c1 + ' 0%,' + t.c2 + ' 100%);animation-delay:' + (i*.04) + 's" ' +
+      'onclick="' + t.action + '">' +
+      '<div class="cat-ic">' + ICONS[t.icon] + '</div>' +
+      '<div class="cat-n">' + t.name + '</div>' +
+    '</button>';
+  }).join("");
+}
 function renderHomePop(){
-  const ids = ["s1","i1","m5","m7","m1","i3"];
-  $("#homePop").innerHTML = ids.map(id => MANUALS.find(m => m.id === id)).filter(Boolean)
-    .map((m,i) => manualCard(m, true, i*.06)).join("");
+  var el = document.getElementById("homePop");
+  if(!el) return;
+  var ids = ["s1", "i1", "m5", "m7"];
+  var list = ids
+    .map(function(id){ return MANUALS.find(function(m){ return m.id === id; }); })
+    .filter(Boolean);
+
+  el.innerHTML = list.map(function(m, i){
+    var cat = CATS.find(function(c){ return c.id === m.cat; }) || CATS[0];
+    return '<button class="cat cat-mini" ' +
+      'style="background:linear-gradient(145deg,' + cat.c1 + ' 0%,' + cat.c2 + ' 100%);animation-delay:' + (i*.04) + 's" ' +
+      'onclick="openManual(\'' + m.id + '\')">' +
+      '<span class="cat-badge-top">' + m.code + '</span>' +
+      '<div class="cat-ic">' + ICONS[cat.icon] + '</div>' +
+      '<div class="cat-n">' + m.title + '</div>' +
+    '</button>';
+  }).join("");
 }
 function manualCard(m, compact, delay){
   if(delay===undefined) delay=0;
@@ -377,6 +409,7 @@ renderTabbar();
 renderStats();
 renderCats();
 renderHero();
+renderToolGrid();
 renderHomePop();
 renderLibChips();
 renderLib();

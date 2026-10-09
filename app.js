@@ -87,7 +87,7 @@ function renderToolGrid(){
 function renderHomePop(){
   var el = document.getElementById("homePop");
   if(!el) return;
-  var ids = ["s1", "i1", "m5", "m7"];
+  var ids = ["r1", "t1", "s1", "i1"];
   var list = ids
     .map(function(id){ return MANUALS.find(function(m){ return m.id === id; }); })
     .filter(Boolean);

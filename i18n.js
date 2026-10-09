@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════
    i18n.js — دوزبانه (فارسی / English)
+   نسخه ۴.۰ — سرویس‌محور
    ═══════════════════════════════════════ */
 
 const I18N = {
@@ -12,18 +13,18 @@ const I18N = {
     tab_fav:        "ذخیره",
 
     /* ── Home ── */
-    home_sub:       "دسته‌بندی‌های سرویس و نگهداری",
+    home_sub:       "سرویس، تعمیر و نگهداری",
     stat_manuals:   "منوال",
     stat_errors:    "کد خطا",
     stat_saved:     "ذخیره",
-    sec_categories: "دسته‌بندی‌ها",
-    sec_tools:      "ابزارهای مرجع",
-    sec_popular:    "پرکاربردترین‌ها",
+    sec_categories: "دسته‌بندی‌های سرویس",
+    sec_tools:      "ابزارها",
+    sec_popular:    "پرتکرارترین",
 
     /* ── Tools ── */
     tool_ref:       "جداول مرجع",
     tool_pm:        "PM چک‌لیست",
-    tool_gallery:   "گالری تصاویر",
+    tool_gallery:   "گالری",
     tool_qr:        "اسکن QR",
 
     /* ── Library ── */
@@ -45,13 +46,12 @@ const I18N = {
     ref_search_ph:  "جستجو در جداول...",
     ref_empty:      "چیزی پیدا نشد",
     ref_empty_sub:  "عبارت دیگری را امتحان کنید",
-    ref_tables:     "جدولا",
 
     /* ── Gallery ── */
     gallery_title:  "گالری",
-    gallery_sub:    "عکس‌های واقعی از تعمیرات و قطعات",
+    gallery_sub:    "عکس‌های تعمیرات و قطعات",
     gallery_empty:  "گالری خالی است",
-    gallery_empty_s:"با دکمه + بالا، اولین عکس سرویس را اضافه کن",
+    gallery_empty_s:"با دکمه + اولین عکس سرویس را اضافه کن",
     gallery_local:  "محلی",
 
     /* ── Favorites ── */
@@ -66,16 +66,15 @@ const I18N = {
     row_errors:     "تعداد کد خطا",
     row_status:     "وضعیت",
     status_online:  "آنلاین ✓",
-    status_offline: "آفلاین — کش",
+    status_offline: "آفلاین",
     sec_repairs:    "تعمیرات",
     sec_devices:    "دستگاه‌ها",
     row_pm_title:   "نگهداری پیشگیرانه (PM)",
     row_pm_sub:     "چک‌لیست روزانه تا سالانه",
     row_lang:       "زبان / Language",
-    footer_line1:   "Elekta Service — نسخه ۳.۰",
+    footer_line1:   "Elekta Service — نسخه ۴.۰",
     footer_line2:   "ساخته‌شده برای iOS",
     item_suffix:    " مورد",
-    machine_manuals:"منوال مرتبط",
     manuals_word:   "منوال",
 
     /* ── PM ── */
@@ -113,8 +112,6 @@ const I18N = {
     sheet_tools:    "ابزار مورد نیاز",
     sheet_steps:    "مراحل",
     sheet_warning:  "هشدار ایمنی",
-    sheet_last_upd: "آخرین به‌روزرسانی:",
-    sheet_steps_wd: "مراحل",
 
     /* ── QR ── */
     qr_title:       "اسکن QR دستگاه",
@@ -125,8 +122,8 @@ const I18N = {
     qr_manual_t:    "کد دستگاه را وارد کنید",
     qr_manual_hint: "مثال: ELEKTA-SYN-01",
     qr_ok:          "تایید",
-    qr_unknown:     "کد ناشناخته: ",
-    qr_device_found:"دستگاه: ",
+    qr_unknown:     "کد ناشناخته",
+    qr_device_found:"دستگاه",
     qr_cam_err:     "خطا در باز کردن دوربین",
     qr_cam_denied:  "اجازه دوربین داده نشد",
     qr_no_barcode:  "اسکن خودکار پشتیبانی نمی‌شود",
@@ -144,7 +141,7 @@ const I18N = {
     add_dev_lbl:    "دستگاه",
     add_title_req:  "عنوان را وارد کنید",
     add_no_photo:   "عکسی انتخاب نشده",
-    add_saved:      "عکس ذخیره شد ✓",
+    add_saved:      "عکس ذخیره شد",
     add_save_err:   "خطا در ذخیره عکس",
     add_deleted:    "عکس حذف شد",
     add_del_conf:   "این عکس حذف شود؟",
@@ -153,9 +150,8 @@ const I18N = {
     add_img_err:    "خطا در پردازش عکس",
 
     /* ── Toast ── */
-    t_saved:        "ذخیره شد ★",
+    t_saved:        "ذخیره شد",
     t_removed:      "حذف شد",
-    t_copied:       "کپی شد",
 
     /* ── Gallery Categories ── */
     gcat_all:       "همه",
@@ -168,21 +164,19 @@ const I18N = {
     gcat_cooling:   "خنک‌کننده",
     gcat_tools:     "ابزار",
 
-    /* ── Category Names ── */
-    cat_daily:      "QA روزانه",
-    cat_weekly:     "QA هفتگی",
-    cat_monthly:    "QA ماهانه",
-    cat_mlc:        "MLC و کولیما",
-    cat_calib:      "کالیبراسیون",
-    cat_imaging:    "تصویربرداری",
+    /* ── Categories ── */
     cat_replace:    "تعویض قطعات",
     cat_trouble:    "عیب‌یابی",
-    cat_sbrt:       "SBRT و SRS",
-    cat_invivo:     "دزیمتری In-Vivo",
-    cat_aria:       "ARIA و شبکه",
-    cat_brachy:     "Brachytherapy",
-    cat_synergy:    "اختصاصی Synergy",
-    cat_infinity:   "اختصاصی Infinity"
+    cat_synergy:    "Synergy",
+    cat_infinity:   "Infinity",
+    cat_rf:         "RF و Waveguide",
+    cat_electronic: "الکترونیک و برد",
+    cat_mech:       "مکانیک و میز",
+    cat_software:   "نرم‌افزار",
+    cat_emergency:  "اضطراری و ایمنی",
+    cat_inventory:  "انبار و قطعات",
+    cat_mlc:        "MLC و کولیما",
+    cat_pm:         "PM و نگهداری"
   },
 
   en: {
@@ -194,18 +188,18 @@ const I18N = {
     tab_fav:        "Saved",
 
     /* ── Home ── */
-    home_sub:       "Service & Maintenance Categories",
+    home_sub:       "Service, Repair & Maintenance",
     stat_manuals:   "Manuals",
     stat_errors:    "Codes",
     stat_saved:     "Saved",
-    sec_categories: "Categories",
-    sec_tools:      "Reference Tools",
+    sec_categories: "Service Categories",
+    sec_tools:      "Tools",
     sec_popular:    "Most Used",
 
     /* ── Tools ── */
     tool_ref:       "Reference Tables",
     tool_pm:        "PM Checklist",
-    tool_gallery:   "Photo Gallery",
+    tool_gallery:   "Gallery",
     tool_qr:        "Scan QR",
 
     /* ── Library ── */
@@ -227,13 +221,12 @@ const I18N = {
     ref_search_ph:  "Search tables...",
     ref_empty:      "Nothing found",
     ref_empty_sub:  "Try a different keyword",
-    ref_tables:     "tables",
 
     /* ── Gallery ── */
     gallery_title:  "Gallery",
-    gallery_sub:    "Real photos of repairs and parts",
+    gallery_sub:    "Photos of repairs and parts",
     gallery_empty:  "Gallery is empty",
-    gallery_empty_s:"Tap + above to add your first service photo",
+    gallery_empty_s:"Tap + to add your first service photo",
     gallery_local:  "local",
 
     /* ── Favorites ── */
@@ -247,17 +240,16 @@ const I18N = {
     row_manuals:    "Manuals",
     row_errors:     "Error Codes",
     row_status:     "Status",
-    status_online:  "Online ✓",
-    status_offline: "Offline — Cache",
+    status_online:  "Online",
+    status_offline: "Offline",
     sec_repairs:    "Maintenance",
     sec_devices:    "Devices",
-    row_pm_title:   "Preventive Maintenance (PM)",
+    row_pm_title:   "Preventive Maintenance",
     row_pm_sub:     "Daily to annual checklist",
     row_lang:       "Language / زبان",
-    footer_line1:   "Elekta Service — v3.0",
+    footer_line1:   "Elekta Service — v4.0",
     footer_line2:   "Made for iOS",
     item_suffix:    " items",
-    machine_manuals:"manuals",
     manuals_word:   "manuals",
 
     /* ── PM ── */
@@ -265,7 +257,7 @@ const I18N = {
     pm_large:       "PM",
     pm_sub:         "Preventive Maintenance Checklist",
     pm_empty:       "No tasks found",
-    pm_empty_sub:   "No PM tasks for this device in this interval",
+    pm_empty_sub:   "No PM tasks for this device",
     pm_complete:    "Complete",
     pm_done_of:     "of",
     pm_done_word:   "done",
@@ -295,8 +287,6 @@ const I18N = {
     sheet_tools:    "Required Tools",
     sheet_steps:    "Steps",
     sheet_warning:  "Safety Warning",
-    sheet_last_upd: "Last updated:",
-    sheet_steps_wd: "steps",
 
     /* ── QR ── */
     qr_title:       "Scan Device QR",
@@ -307,8 +297,8 @@ const I18N = {
     qr_manual_t:    "Enter device code",
     qr_manual_hint: "Example: ELEKTA-SYN-01",
     qr_ok:          "Confirm",
-    qr_unknown:     "Unknown code: ",
-    qr_device_found:"Device: ",
+    qr_unknown:     "Unknown code",
+    qr_device_found:"Device",
     qr_cam_err:     "Failed to open camera",
     qr_cam_denied:  "Camera access denied",
     qr_no_barcode:  "Auto-scan not supported",
@@ -326,7 +316,7 @@ const I18N = {
     add_dev_lbl:    "Device",
     add_title_req:  "Please enter a title",
     add_no_photo:   "No photo selected",
-    add_saved:      "Photo saved ✓",
+    add_saved:      "Photo saved",
     add_save_err:   "Failed to save photo",
     add_deleted:    "Photo deleted",
     add_del_conf:   "Delete this photo?",
@@ -335,9 +325,8 @@ const I18N = {
     add_img_err:    "Failed to process image",
 
     /* ── Toast ── */
-    t_saved:        "Saved ★",
+    t_saved:        "Saved",
     t_removed:      "Removed",
-    t_copied:       "Copied",
 
     /* ── Gallery Categories ── */
     gcat_all:       "All",
@@ -350,21 +339,19 @@ const I18N = {
     gcat_cooling:   "Cooling",
     gcat_tools:     "Tools",
 
-    /* ── Category Names ── */
-    cat_daily:      "Daily QA",
-    cat_weekly:     "Weekly QA",
-    cat_monthly:    "Monthly QA",
-    cat_mlc:        "MLC & Collimator",
-    cat_calib:      "Calibration",
-    cat_imaging:    "Imaging",
+    /* ── Categories ── */
     cat_replace:    "Parts Replacement",
     cat_trouble:    "Troubleshooting",
-    cat_sbrt:       "SBRT & SRS",
-    cat_invivo:     "In-Vivo Dosimetry",
-    cat_aria:       "ARIA & Network",
-    cat_brachy:     "Brachytherapy",
-    cat_synergy:    "Synergy Specific",
-    cat_infinity:   "Infinity Specific"
+    cat_synergy:    "Synergy",
+    cat_infinity:   "Infinity",
+    cat_rf:         "RF & Waveguide",
+    cat_electronic: "Electronics & Boards",
+    cat_mech:       "Mechanics & Couch",
+    cat_software:   "Software",
+    cat_emergency:  "Emergency & Safety",
+    cat_inventory:  "Inventory & Parts",
+    cat_mlc:        "MLC & Collimator",
+    cat_pm:         "PM & Maintenance"
   }
 };
 
@@ -383,6 +370,7 @@ function setLanguage(lang){
   try { localStorage.setItem("elekta_lang", lang); } catch(e){}
   document.documentElement.lang = lang;
   document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
+
   /* رندر مجدد کل UI */
   if(typeof renderTabbar === "function") renderTabbar();
   if(typeof renderStats === "function") renderStats();
@@ -407,20 +395,21 @@ function setLanguage(lang){
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 
-/* ترجمه خودکار برای عناصر با data-i18n */
+/* ترجمه عناصر با data-i18n */
 function applyStaticTranslations(){
   document.querySelectorAll("[data-i18n]").forEach(function(el){
-    const key = el.getAttribute("data-i18n");
-    el.textContent = t(key);
+    var key = el.getAttribute("data-i18n");
+    var val = t(key);
+    if(val && val !== key) el.textContent = val;
   });
   document.querySelectorAll("[data-i18n-ph]").forEach(function(el){
-    const key = el.getAttribute("data-i18n-ph");
-    el.setAttribute("placeholder", t(key));
+    var key = el.getAttribute("data-i18n-ph");
+    var val = t(key);
+    if(val && val !== key) el.setAttribute("placeholder", val);
   });
 }
 
 window.I18N = I18N;
-window.LANG = LANG;
 window.t = t;
 window.setLanguage = setLanguage;
 window.getLang = getLang;

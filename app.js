@@ -417,7 +417,7 @@ function renderRef(){
 
     return '<div class="ref-card" data-ref-id="' + tt.id + '" style="animation-delay:' + (i*.06) + 's">' +
       '<div class="ref-head" onclick="toggleRef(\'' + tt.id + '\')">' +
-        '<div class تست="ref-icon" style="background:' + grad + '"> ن' + ICONS[tt.icon] + '</div>' +
+        '<div class="ref-icon" style="background:' + grad + '">' + ICONS[tt.icon] + '</div>' +
         '<div class="ref-head-info">' +
           '<div class="ref-title">' + tt.title + '</div>' +
           '<div class="ref-desc">' + tt.desc + '</div>' +

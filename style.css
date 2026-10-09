@@ -1696,3 +1696,50 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   color:var(--label);
   margin-bottom:4px;
 }
+/* ═══════════════════════════════════════
+   Home Mini Cards
+   ═══════════════════════════════════════ */
+
+/* کارت‌های کوچکتر برای ابزارها و پرکاربردها */
+.cat.cat-mini{
+  min-height:120px;
+  padding:16px;
+}
+
+.cat.cat-mini .cat-ic{
+  width:32px;
+  height:32px;
+}
+.cat.cat-mini .cat-ic svg{
+  width:26px;
+  height:26px;
+}
+
+.cat.cat-mini .cat-n{
+  font-size:14px;
+  font-weight:700;
+  line-height:1.3;
+  letter-spacing:-.015em;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  margin-top:auto;
+}
+
+/* Badge کد منوال در گوشه */
+.cat-badge-top{
+  position:absolute;
+  top:14px;
+  left:14px;
+  font-family:ui-monospace,monospace;
+  font-size:10px;
+  font-weight:700;
+  padding:3px 8px;
+  background:rgba(0,0,0,.18);
+  border-radius:100px;
+  color:rgba(0,0,0,.75);
+  letter-spacing:.02em;
+  z-index:4;
+  pointer-events:none;
+}

@@ -177,6 +177,36 @@ const I18N = {
     cat_inventory:  "انبار و قطعات",
     cat_mlc:        "MLC و کولیما",
     cat_pm:         "PM و نگهداری"
+    ,
+
+    /* ── Service Log ── */
+    log_title:          "لاگ سرویس",
+    log_sub:            "تاریخچه سرویس‌های انجام‌شده",
+    log_new:            "ثبت سرویس",
+    log_register:       "ثبت سرویس",
+    log_pdf:            "PDF",
+    log_manual_lbl:     "منوال اجرا شده",
+    log_machine_lbl:    "دستگاه",
+    log_status_lbl:     "وضعیت",
+    log_status_done:    "تکمیل",
+    log_status_partial: "نیمه",
+    log_status_failed:  "ناموفق",
+    log_tech_lbl:       "تکنسین",
+    log_notes_lbl:      "یادداشت",
+    log_notes_ph:       "نکات خاص این منوال...",
+    log_manual_notes:   "یادداشت شخصی",
+    log_saved:          "سرویس ثبت شد ✓",
+    log_empty:          "هنوز سرویسی ثبت نشده",
+    log_empty_sub:      "از داخل هر منوال، دکمه «ثبت سرویس» رو بزن",
+    log_exported:       "دانلود شد",
+    log_reset_check:    "ریست چک‌لیست",
+    log_reset_conf:     "همه تیک‌ها پاک شود؟",
+    log_note_saved:     "یادداشت ذخیره شد",
+    log_printing:       "در حال آماده‌سازی PDF...",
+    log_select_manual:  "منوال انتخاب نشده",
+    sec_service:        "سرویس",
+    row_log_title:      "تاریخچه سرویس",
+    row_log_sub:        "ثبت و مشاهده سرویس‌ها"
   },
 
   en: {
@@ -352,6 +382,35 @@ const I18N = {
     cat_inventory:  "Inventory & Parts",
     cat_mlc:        "MLC & Collimator",
     cat_pm:         "PM & Maintenance"
+    ,
+
+    log_title:          "Service Log",
+    log_sub:            "History of services performed",
+    log_new:            "Register Service",
+    log_register:       "Register",
+    log_pdf:            "PDF",
+    log_manual_lbl:     "Manual performed",
+    log_machine_lbl:    "Device",
+    log_status_lbl:     "Status",
+    log_status_done:    "Complete",
+    log_status_partial: "Partial",
+    log_status_failed:  "Failed",
+    log_tech_lbl:       "Technician",
+    log_notes_lbl:      "Notes",
+    log_notes_ph:       "Specific notes for this manual...",
+    log_manual_notes:   "Personal Notes",
+    log_saved:          "Service saved",
+    log_empty:          "No services logged yet",
+    log_empty_sub:      "Open any manual and tap 'Register'",
+    log_exported:       "Downloaded",
+    log_reset_check:    "Reset Checklist",
+    log_reset_conf:     "Clear all checks?",
+    log_note_saved:     "Note saved",
+    log_printing:       "Preparing PDF...",
+    log_select_manual:  "No manual selected",
+    sec_service:        "Service",
+    row_log_title:      "Service History",
+    row_log_sub:        "Register and view services"
   }
 };
 

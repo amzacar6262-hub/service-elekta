@@ -1,4 +1,4 @@
-const CACHE = "elekta-service-v22";
+const CACHE = "elekta-service-v25";
 const ASSETS = [
   "./",
   "./index.html",

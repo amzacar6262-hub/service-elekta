@@ -215,75 +215,103 @@
     </section>
 
     <!-- ═══ MORE ═══ -->
-    <section id="page-more" class="page">
-      <header class="nav" data-nav>
-        <div class="nav-top"><div class="nav-title-sm" data-i18n="more_title">بیشتر</div></div>
-        <div class="nav-large" data-i18n="more_title">بیشتر</div>
-      </header>
+<section id="page-more" class="page">
+  <header class="nav" data-nav>
+    <div class="nav-top">
+      <div class="nav-title-sm" data-i18n="more_title">بیشتر</div>
+    </div>
+    <div class="nav-large" data-i18n="more_title">بیشتر</div>
+  </header>
 
-      <div class="section" style="margin-top:6px">
-        <div class="card">
-          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_version">نسخه</16div></.div><div5 style="color:var(--label2)"> ۳.۰</3div></div>
-          <.div class="row"><div class="row-body"><div class="row-title" data-i18n="row_manuals">تعداد منوال</div></div><div style="color:var(--label2)" id="abM">—</div></div>
-          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_errors">تعداد کد خطا</div></div><div style="color:var(--label2)" id="abE">—</div></div>
-          <div class="row"><div class="row-body"><div class="row-title" data-i18n="row_status">وضعیت</div></div><div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div></div>
-
-          <!-- 🌐 Language Switch -->
-          <div class="row">
-            <div class="row-icon" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-            </div>
-            <div class="row-body">
-              <div class="row-title" data-i18n="row_lang">زبان / Language</div>
-            </div>
-            <div class="lang-seg" id="langSeg">
-              <button data-lang="fa" onclick="setLanguage('fa')">FA</button>
-              <button data-lang="en" onclick="setLanguage('en')">EN</button>
-            </div>
-          </div>
+  <div class="section" style="margin-top:6px">
+    <div class="card">
+      <div class="row">
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_version">نسخه</div>
+        </div>
+        <div style="color:var(--label2)">۳.۰</div>
+      </div>
+      <div class="row">
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_manuals">تعداد منوال</div>
+        </div>
+        <div style="color:var(--label2)" id="abM">—</div>
+      </div>
+      <div class="row">
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_errors">تعداد کد خطا</div>
+        </div>
+        <div style="color:var(--label2)" id="abE">—</div>
+      </div>
+      <div class="row">
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_status">وضعیت</div>
+        </div>
+        <div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div>
+      </div>
+      <div class="row">
+        <div class="row-icon" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_lang">زبان / Language</div>
+        </div>
+        <div class="lang-seg" id="langSeg">
+          <button data-lang="fa" onclick="setLanguage('fa')">FA</button>
+          <button data-lang="en" onclick="setLanguage('en')">EN</button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="section">
-        <div class="section-h"><div class="section-t" data-i18n="sec_repairs">تعمیرات</div></div>
-        <div class="card">
-          <button class="row" onclick="go('pm')">
-            <div class="row-icon" style="background:linear-gradient(145deg,#32D74B,#248A3D)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 11 12 14 22 4"/>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
-            </div>
-            <div class="row-body">
-              <div class="row-title" data-i18n="row_pm_title">نگهداری پیشگیرانه (PM)</div>
-              <div class="row-sub" data-i18n="row_pm_sub">چک‌لیست روزانه تا سالانه</div>
-            </div>
-            <div class="row-chev">
-              <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)"><polyline points="2 2 6 7 2 12"/></svg>
-            </div>
-          </button>
+  <div class="section">
+    <div class="section-h">
+      <div class="section-t" data-i18n="sec_repairs">تعمیرات</div>
+    </div>
+    <div class="card">
+      <button class="row" onclick="go('pm')">
+        <div class="row-icon" style="background:linear-gradient(145deg,#32D74B,#248A3D)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
         </div>
-      </div>
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_pm_title">نگهداری پیشگیرانه (PM)</div>
+          <div class="row-sub" data-i18n="row_pm_sub">چک‌لیست روزانه تا سالانه</div>
+        </div>
+        <div class="row-chev">
+          <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)">
+            <polyline points="2 2 6 7 2 12"/>
+          </svg>
+        </div>
+      </button>
+    </div>
+  </div>
 
-      <div class="section">
-        <div class="section-h"><div class="section-t" data-i18n="sec_tools">ابزارهای مرجع</div></div>
-        <div class="cat-grid" id="toolGrid"></div>
-      </div>
+  <div class="section">
+    <div class="section-h">
+      <div class="section-t" data-i18n="sec_tools">ابزارهای مرجع</div>
+    </div>
+    <div class="cat-grid" id="toolGrid"></div>
+  </div>
 
-      <div class="section">
-        <div class="section-h"><div class="section-t" data-i18n="sec_devices">دستگاه‌ها</div></div>
-        <div class="card" id="machineList"></div>
-      </div>
+  <div class="section">
+    <div class="section-h">
+      <div class="section-t" data-i18n="sec_devices">دستگاه‌ها</div>
+    </div>
+    <div class="card" id="machineList"></div>
+  </div>
 
-      <div style="text-align:center;color:var(--label3);font-size:12px;padding:24px 16px;line-height:1.6">
-        <span data-i18n="footer_line1">Elekta Service — نسخه ۳.۰</span><br>
-        <span data-i18n="footer_line2">ساخته‌شده برای iOS</span>
-      </div>
-    </section>
+  <div style="text-align:center;color:var(--label3);font-size:12px;padding:24px 16px;line-height:1.6">
+    <span data-i18n="footer_line1">Elekta Service — نسخه ۳.۰</span><br>
+    <span data-i18n="footer_line2">ساخته‌شده برای iOS</span>
+  </div>
+</section>
 
   </main>
   <nav class="tabbar"><div class="tabbar-inner" id="tabbar"></div></nav>

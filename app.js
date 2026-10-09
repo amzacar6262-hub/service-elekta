@@ -247,6 +247,26 @@ function openManual(id){
   var body = $("#sheetBody");
   if(!body) return;
 
+  var checkState = getChecklistState(m.id);
+  var note = getManualNote(m.id);
+
+  var checksum = m.steps.map(function(s, i){
+    return '<div class="step ' + (s.level || '') + (checkState[i] ? ' done' : '') + '" data-step="' + i + '">'
+      + '<div class="step-check" onclick="toggleStep(\'' + m.id + '\', ' + i + ', this)">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      + '</div>'
+      + '<div class="step-body"><div class="step-t">' + s.t + '</div>' + (s.note ? '<div class="step-note">' + s.note + '</div>' : '') + '</div>'
+      + '</div>';
+  }).join("");
+
+  var doneCount = Object.keys(checkState).filter(function(k){ return checkState[k]; }).length;
+  var total = m.steps.length;
+  var progressPct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+
+  var svgPdf = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+  var svgLog = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
+  var svgReset = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
+
   body.innerHTML =
     '<div class="detail-hero" style="background:' + grad + '">'
     + '<div class="detail-cat">' + i18n("cat_" + cat.id, cat.name) + '</div>'
@@ -256,19 +276,36 @@ function openManual(id){
     + '<div class="detail-meta-item">' + ICONS.clock + '<span>' + m.duration + '</span></div>'
     + '<div class="detail-meta-item">' + ICONS.target + '<span>' + m.level + '</span></div>'
     + '</div></div>'
+
+    + '<div class="sheet-actions">'
+    +   '<button class="sheet-action-btn primary" onclick="openLogSheet(\'' + m.id + '\')">' + svgLog + ' ' + i18n("log_register", "ثبت سرویس") + '</button>'
+    +   '<button class="sheet-action-btn" onclick="exportManualPDF()">' + svgPdf + ' ' + i18n("log_pdf", "PDF") + '</button>'
+    + '</div>'
+
     + (m.warn ? '<div class="alert-box">' + ICONS.warn + '<div class="txt"><div class="t">' + i18n("sheet_warning", "هشدار ایمنی") + '</div>' + m.warn + '</div></div>' : "")
+
     + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">' + i18n("sheet_devices", "دستگاه‌های مرتبط") + '</div></div>'
     + '<div class="tags" style="margin-bottom:16px">' + m.machines.map(function(x){ return '<span class="tag">' + x + '</span>'; }).join("") + '</div>'
+
     + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">' + i18n("sheet_tools", "ابزار مورد نیاز") + '</div></div>'
     + '<div class="tags" style="margin-bottom:20px">' + m.tools.map(function(x){ return '<span class="tag">' + x + '</span>'; }).join("") + '</div>'
-    + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">' + i18n("sheet_steps", "مراحل") + ' (' + fa(m.steps.length) + ')</div></div>'
-    + '<div style="background:var(--card);border-radius:14px;padding:4px 16px;margin-bottom:16px">'
-    + m.steps.map(function(s, i){
-      return '<div class="step ' + (s.level || '') + '">'
-        + '<div class="step-n">' + fa(i + 1) + '</div>'
-        + '<div class="step-body"><div class="step-t">' + s.t + '</div>' + (s.note ? '<div class="step-note">' + s.note + '</div>' : '') + '</div>'
-        + '</div>';
-    }).join("")
+
+    + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">'
+    + i18n("sheet_steps", "مراحل") + ' — ' + fa(doneCount) + '/' + fa(total) + ' (' + fa(progressPct) + '%)</div></div>'
+
+    + '<div id="stepsContainer" style="background:var(--card);border-radius:14px;padding:4px 16px;margin-bottom:16px">'
+    + checksum
+    + '</div>'
+
+    + '<div class="sheet-actions" style="grid-template-columns:1fr">'
+    +   '<button class="sheet-action-btn" onclick="resetChecklist(\'' + m.id + '\')">' + svgReset + ' ' + i18n("log_reset_check", "ریست چک‌لیست") + '</button>'
+    + '</div>'
+
+    + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">' + i18n("log_manual_notes", "یادداشت شخصی") + '</div></div>'
+    + '<div class="manual-notes-section">'
+    +   '<textarea id="manualNotesArea" class="manual-notes-area" '
+    +     'placeholder="' + i18n("log_notes_ph", "نکات خاص این منوال...") + '" '
+    +     'onchange="saveManualNote(\'' + m.id + '\', this.value)">' + (note || '') + '</textarea>'
     + '</div>';
 
   $("#backdrop").classList.add("show");
@@ -347,6 +384,7 @@ function go(id){
     renderPMProgress();
     renderPMList();
   }
+  if(id === "log") renderLog();
   if(id === "gallery"){
     if(typeof loadLocalPhotos === "function"){
       loadLocalPhotos().then(function(){
@@ -579,6 +617,250 @@ if("serviceWorker" in navigator){
     grab.addEventListener('touchcancel', onEnd);
   }
 })();
+/* ═══════════════════════════════════════
+   CHECKLIST per Manual
+   ═══════════════════════════════════════ */
+const CHECK_KEY = "elekta_checklist_v1";
+let checklistData = {};
+try { checklistData = JSON.parse(localStorage.getItem(CHECK_KEY) || "{}"); } catch(e){}
+
+function getChecklistState(manualId){
+  return checklistData[manualId] || {};
+}
+function saveChecklist(){
+  try { localStorage.setItem(CHECK_KEY, JSON.stringify(checklistData)); } catch(e){}
+}
+function toggleStep(manualId, stepIndex, el){
+  if(!checklistData[manualId]) checklistData[manualId] = {};
+  if(checklistData[manualId][stepIndex]){
+    delete checklistData[manualId][stepIndex];
+    el.parentElement.classList.remove("done");
+  } else {
+    checklistData[manualId][stepIndex] = Date.now();
+    el.parentElement.classList.add("done");
+    if(navigator.vibrate) navigator.vibrate(8);
+  }
+  saveChecklist();
+  /* به‌روزرسانی شمارنده */
+  var m = MANUALS.find(function(x){ return x.id === manualId; });
+  if(m){
+    var st = getChecklistState(manualId);
+    var doneCount = Object.keys(st).filter(function(k){ return st[k]; }).length;
+    var total = m.steps.length;
+    var pct = total ? Math.round((doneCount/total)*100) : 0;
+    var headerEl = document.querySelector("#sheetBody .section-t");
+    var allHeaders = document.querySelectorAll("#sheetBody .section-t");
+    for(var i=0; i<allHeaders.length; i++){
+      if(allHeaders[i].textContent.indexOf(i18n("sheet_steps", "مراحل")) !== -1){
+        allHeaders[i].textContent = i18n("sheet_steps", "مراحل") + ' — ' + fa(doneCount) + '/' + fa(total) + ' (' + fa(pct) + '%)';
+        break;
+      }
+    }
+  }
+}
+function resetChecklist(manualId){
+  if(!confirm(i18n("log_reset_conf", "همه تیک‌ها پاک شود؟"))) return;
+  delete checklistData[manualId];
+  saveChecklist();
+  openManual(manualId);
+}
+
+/* ═══════════════════════════════════════
+   NOTES per Manual
+   ═══════════════════════════════════════ */
+const NOTE_KEY = "elekta_notes_v1";
+let manualNotes = {};
+try { manualNotes = JSON.parse(localStorage.getItem(NOTE_KEY) || "{}"); } catch(e){}
+
+function getManualNote(manualId){
+  return manualNotes[manualId] || "";
+}
+function saveManualNote(manualId, value){
+  if(value && value.trim()){
+    manualNotes[manualId] = value.trim();
+  } else {
+    delete manualNotes[manualId];
+  }
+  try { localStorage.setItem(NOTE_KEY, JSON.stringify(manualNotes)); } catch(e){}
+  if(typeof toast === "function") toast(i18n("log_note_saved", "یادداشت ذخیره شد"));
+}
+
+/* ═══════════════════════════════════════
+   PDF Export
+   ═══════════════════════════════════════ */
+function exportManualPDF(){
+  if(!curSheetManual) return;
+  if(typeof toast === "function") toast(i18n("log_printing", "در حال آماده‌سازی PDF..."));
+  setTimeout(function(){
+    window.print();
+  }, 300);
+}
+
+/* ═══════════════════════════════════════
+   SERVICE LOG
+   ═══════════════════════════════════════ */
+const LOG_KEY = "elekta_service_log_v1";
+let serviceLog = [];
+try { serviceLog = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch(e){}
+
+let logSelectedManualId = null;
+let logSelectedMachine = "Synergy";
+let logSelectedStatus = "done";
+
+function saveServiceLog(){
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(serviceLog)); } catch(e){}
+}
+
+function openLogSheet(manualId){
+  logSelectedManualId = manualId;
+  logSelectedMachine = (curSheetManual && curSheetManual.machines[0]) || "Synergy";
+  logSelectedStatus = "done";
+
+  var m = MANUALS.find(function(x){ return x.id === manualId; });
+  var disp = document.getElementById("logManualDisplay");
+  if(disp) disp.textContent = m ? (m.code + ' — ' + m.title) : "—";
+
+  var techEl = document.getElementById("logTech");
+  if(techEl) techEl.value = localStorage.getItem("elekta_tech") || "";
+  var notesEl = document.getElementById("logNotes");
+  if(notesEl) notesEl.value = "";
+
+  renderLogMachineChips();
+  renderLogStatusChips();
+
+  var sheet = document.getElementById("logSheet");
+  var backdrop = document.getElementById("logSheetBackdrop");
+  if(sheet) sheet.classList.add("show");
+  if(backdrop) backdrop.classList.add("show");
+}
+
+function closeLogSheet(){
+  var sheet = document.getElementById("logSheet");
+  var backdrop = document.getElementById("logSheetBackdrop");
+  if(sheet) sheet.classList.remove("show");
+  if(backdrop) backdrop.classList.remove("show");
+}
+
+function renderLogMachineChips(){
+  var el = document.getElementById("logMachineChips");
+  if(!el) return;
+  var machines = ["Synergy","Infinity","Versa HD","Unity","Axesse","Precise","Compact","Flexitron"];
+  el.innerHTML = machines.map(function(m){
+    return '<button class="add-photo-cat ' + (logSelectedMachine === m ? 'on' : '') + '" '
+      + 'onclick="selectLogMachine(\'' + m + '\')">' + m + '</button>';
+  }).join("");
+}
+function selectLogMachine(m){
+  logSelectedMachine = m;
+  renderLogMachineChips();
+  if(navigator.vibrate) navigator.vibrate(5);
+}
+function renderLogStatusChips(){
+  var el = document.getElementById("logStatusChips");
+  if(!el) return;
+  var statuses = [
+    { id:"done",    label: i18n("log_status_done", "تکمیل") },
+    { id:"partial", label: i18n("log_status_partial", "نیمه") },
+    { id:"failed",  label: i18n("log_status_failed", "ناموفق") }
+  ];
+  el.innerHTML = statuses.map(function(s){
+    return '<button class="add-photo-cat ' + (logSelectedStatus === s.id ? 'on' : '') + '" '
+      + 'onclick="selectLogStatus(\'' + s.id + '\')">' + s.label + '</button>';
+  }).join("");
+}
+function selectLogStatus(s){
+  logSelectedStatus = s;
+  renderLogStatusChips();
+  if(navigator.vibrate) navigator.vibrate(5);
+}
+
+function saveLogEntry(){
+  if(!logSelectedManualId){
+    if(typeof toast === "function") toast(i18n("log_select_manual", "منوال انتخاب نشده"));
+    return;
+  }
+  var m = MANUALS.find(function(x){ return x.id === logSelectedManualId; });
+  var tech = (document.getElementById("logTech").value || "").trim();
+  var notes = (document.getElementById("logNotes").value || "").trim();
+  var entry = {
+    id: "l_" + Date.now().toString(36),
+    manualId: logSelectedManualId,
+    manualCode: m ? m.code : "",
+    manualTitle: m ? m.title : "",
+    machine: logSelectedMachine,
+    status: logSelectedStatus,
+    tech: tech,
+    notes: notes,
+    at: Date.now()
+  };
+  serviceLog.unshift(entry);
+  saveServiceLog();
+  if(tech) localStorage.setItem("elekta_tech", tech);
+  closeLogSheet();
+  renderLog();
+  if(typeof toast === "function") toast(i18n("log_saved", "سرویس ثبت شد ✓"));
+  if(navigator.vibrate) navigator.vibrate([15, 30, 15]);
+}
+
+function renderLog(){
+  var el = document.getElementById("logList");
+  if(!el) return;
+  if(!serviceLog.length){
+    el.innerHTML = '<div class="log-empty">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>'
+      + '<polyline points="14 2 14 8 20 8"/>'
+      + '</svg>'
+      + '<div class="log-empty-t">' + i18n("log_empty", "هنوز سرویسی ثبت نشده") + '</div>'
+      + '<div>' + i18n("log_empty_sub", "از داخل هر منوال، دکمه «ثبت سرویس» رو بزن") + '</div>'
+      + '</div>';
+    return;
+  }
+  var statusLabels = {
+    done: i18n("log_status_done", "تکمیل"),
+    partial: i18n("log_status_partial", "نیمه"),
+    failed: i18n("log_status_failed", "ناموفق")
+  };
+  el.innerHTML = serviceLog.map(function(entry, i){
+    var date = new Date(entry.at);
+    var dateStr = date.toLocaleDateString("fa-IR") + " — " + date.toLocaleTimeString("fa-IR", { hour:"2-digit", minute:"2-digit" });
+    return '<div class="log-entry" style="animation-delay:' + (i*.03) + 's" onclick="openLogEntry(\'' + entry.manualId + '\')">'
+      + '<div class="log-head">'
+      + '<div class="log-title">' + entry.manualTitle + '</div>'
+      + '<span class="log-status ' + entry.status + '">' + (statusLabels[entry.status] || entry.status) + '</span>'
+      + '</div>'
+      + '<div class="log-meta">'
+      + '<span>🏥 ' + entry.machine + '</span>'
+      + (entry.tech ? '<span>👤 ' + entry.tech + '</span>' : '')
+      + '<span>🕐 ' + dateStr + '</span>'
+      + '<span>📋 ' + entry.manualCode + '</span>'
+      + '</div>'
+      + (entry.notes ? '<div class="log-notes">' + entry.notes + '</div>' : '')
+      + '</div>';
+  }).join("");
+}
+
+function openLogEntry(manualId){
+  var m = MANUALS.find(function(x){ return x.id === manualId; });
+  if(m) openManual(manualId);
+}
+
+function exportLogJSON(){
+  var data = {
+    exported: new Date().toISOString(),
+    log: serviceLog,
+    notes: manualNotes,
+    checklist: checklistData
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "elekta-service-log-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  if(typeof toast === "function") toast(i18n("log_exported", "دانلود شد"));
+}
 
 /* ═══════════════════════════════════════
    EXPORT globals (برای onclick در HTML)
@@ -593,6 +875,18 @@ window.toast = toast;
 window.toggleRef = toggleRef;
 window.renderRef = renderRef;
 window.updateLangSwitch = updateLangSwitch;
+window.toggleStep = toggleStep;
+window.resetChecklist = resetChecklist;
+window.saveManualNote = saveManualNote;
+window.exportManualPDF = exportManualPDF;
+window.openLogSheet = openLogSheet;
+window.closeLogSheet = closeLogSheet;
+window.selectLogMachine = selectLogMachine;
+window.selectLogStatus = selectLogStatus;
+window.saveLogEntry = saveLogEntry;
+window.renderLog = renderLog;
+window.openLogEntry = openLogEntry;
+window.exportLogJSON = exportLogJSON;
 
 /* ═══════════════════════════════════════
    INIT
@@ -608,6 +902,7 @@ renderCodeChips();
 renderCodes();
 renderFavs();
 renderMachineList();
+renderLog();
 if(typeof renderGalleryChips === "function") renderGalleryChips();
 if(typeof renderGallery === "function") renderGallery();
 if(typeof renderPMFreqChips === "function") renderPMFreqChips();

@@ -204,6 +204,52 @@
         <div id="pmList"></div>
       </div>
     </section>
+    <div class="section">
+  <div class="section-h">
+    <div class="section-t" data-i18n="sec_service">سرویس</div>
+  </div>
+  <div class="card">
+    <button class="row" onclick="go('log')">
+      <div class="row-icon" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="16" y2="17"/>
+        </svg>
+      </div>
+      <div class="row-body">
+        <div class="row-title" data-i18n="row_log_title">تاریخچه سرویس</div>
+        <div class="row-sub" data-i18n="row_log_sub">ثبت و مشاهده سرویس‌ها</div>
+      </div>
+      <div class="row-chev">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)">
+          <polyline points="2 2 6 7 2 12"/>
+        </svg>
+      </div>
+    </button>
+  </div>
+</div>
+    <!-- SERVICE LOG -->
+<section id="page-log" class="page">
+  <header class="nav" data-nav>
+    <div class="nav-top">
+      <div class="nav-title-sm" data-i18n="log_title">لاگ سرویس</div>
+      <button class="nav-icon-btn" onclick="exportLogJSON()" aria-label="Export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </button>
+    </div>
+    <div class="nav-large" data-i18n="log_title">لاگ سرویس</div>
+  </header>
+  <div class="health-sub" data-i18n="log_sub">تاریخچه سرویس‌های انجام‌شده</div>
+  <div class="section" style="margin-top:6px">
+    <div class="card" id="logList"></div>
+  </div>
+</section>
 
     <!-- FAVORITES -->
     <section id="page-fav" class="page">
@@ -441,7 +487,36 @@
     <div class="add-photo-machines" id="addPhotoMachines"></div>
   </div>
 </div>
+<!-- SHEET: ثبت سرویس -->
+<div class="sheet-backdrop" id="logSheetBackdrop" onclick="closeLogSheet()"></div>
+<div class="sheet log-sheet" id="logSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="closeLogSheet()" data-i18n="add_cancel">انصراف</button>
+    <div class="sheet-title" data-i18n="log_new">ثبت سرویس</div>
+    <button class="sheet-act" style="font-weight:700;color:var(--blue)" onclick="saveLogEntry()" data-i18n="add_save">ذخیره</button>
+  </div>
+  <div class="sheet-body">
+    <div class="add-photo-label" data-i18n="log_manual_lbl">منوال اجرا شده</div>
+    <div class="log-manual-selected" id="logManualDisplay">—</div>
 
+    <div class="add-photo-label" data-i18n="log_machine_lbl">دستگاه</div>
+    <div class="add-photo-cats" id="logMachineChips"></div>
+
+    <div class="add-photo-label" data-i18n="log_status_lbl">وضعیت</div>
+    <div class="add-photo-cats" id="logStatusChips"></div>
+
+    <div class="add-photo-label" data-i18n="log_tech_lbl">تکنسین</div>
+    <input type="text" id="logTech" class="add-photo-field" placeholder="نام..." autocomplete="off" />
+
+    <div class="add-photo-label">
+      <span data-i18n="log_notes_lbl">یادداشت</span>
+      <span class="opt" data-i18n="add_notes_opt">(اختیاری)</span>
+    </div>
+    <textarea id="logNotes" class="add-photo-field add-photo-textarea"
+              placeholder="جزئیات بیشتر..." rows="3"></textarea>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- SCRIPTS -->

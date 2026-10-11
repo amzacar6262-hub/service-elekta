@@ -207,6 +207,17 @@ const I18N = {
     sec_service:        "سرویس",
     row_log_title:      "تاریخچه سرویس",
     row_log_sub:        "ثبت و مشاهده سرویس‌ها"
+    ,
+
+    /* ── Flowcharts ── */
+    flow_title:     "عیب‌یابی گام‌به‌گام",
+    flow_sub:       "درخت تصمیم برای مشکلات رایج",
+    sec_flow:       "عیب‌یابی سریع",
+    flow_start:     "شروع",
+    flow_restart:   "شروع دوباره",
+    flow_back:      "مرحله قبل",
+    flow_end:       "پایان",
+    flow_continue:  "ادامه"
   },
 
   en: {
@@ -411,6 +422,16 @@ const I18N = {
     sec_service:        "Service",
     row_log_title:      "Service History",
     row_log_sub:        "Register and view services"
+    ,
+
+    flow_title:     "Step-by-Step Troubleshooting",
+    flow_sub:       "Decision tree for common issues",
+    sec_flow:       "Quick Troubleshooting",
+    flow_start:     "Start",
+    flow_restart:   "Restart",
+    flow_back:      "Previous Step",
+    flow_end:       "End",
+    flow_continue:  "Continue"
   }
 };
 

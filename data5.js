@@ -1,0 +1,222 @@
+/* ═══════════════════════════════════════
+   data5.js — Brachytherapy (Flexitron)
+   ═══════════════════════════════════════ */
+
+MANUALS.push(
+{id:"br1",title:"QA روزانه Flexitron",cat:"emergency",machines:["Flexitron"],code:"BRA-QA-01",duration:"۳۰ دقیقه",level:"پیشرفته",
+ summary:"چک‌لیست روزانه دستگاه Brachytherapy Flexitron شامل بررسی منبع، کانال‌ها و ایمنی.",
+ warn:"در صورت هر نقص در منبع یا کابل، درمان متوقف شود.",
+ tools:["چک‌لیست Flexitron","Well Chamber","Survey Meter"],
+ steps:[
+   {t:"بررسی Safe Position منبع Ir-192"},
+   {t:"بررسی Indicatorهای روی پنل"},
+   {t:"تست Emergency Retract"},
+   {t:"اندازه‌گیری فعالیت منبع با Well Chamber",level:"warn",note:"انحراف زیر ۳٪"},
+   {t:"تست موقعیت Transfer Tubes"},
+   {t:"بررسی عملکرد Indexer"},
+   {t:"تست Door Interlock و Radiation Monitor"},
+   {t:"ثبت در دفتر QA"}
+ ]},
+{id:"br2",title:"QA ماهانه Flexitron",cat:"emergency",machines:["Flexitron"],code:"BRA-QA-02",duration:"۹۰ دقیقه",level:"پیشرفته",
+ summary:"QA ماهانه دقت موقعیت منبع، Timer و Source Strength.",
+ tools:["فانتوم QA Brachy","فیلم GafChromic","اسکنر","Stop Watch دقیق"],
+ steps:[
+   {t:"راه‌اندازی فانتوم QA"},
+   {t:"اجرای برنامه Step Position"},
+   {t:"تصویرگیری با فیلم GafChromic"},
+   {t:"تحلیل موقعیت منبع در هر Step",level:"warn",note:"انحراف زیر ۱mm"},
+   {t:"تست Timer — انحراف زیر ۱٪",level:"warn"},
+   {t:"تست Reproducibility با تکرار"},
+   {t:"اندازه‌گیری Source Strength با Well Chamber"},
+   {t:"ثبت در فرم QA"}
+ ]},
+{id:"br3",title:"تعویض منبع Ir-192",cat:"emergency",machines:["Flexitron"],code:"BRA-REP-01",duration:"۲ ساعت",level:"پیشرفته",
+ summary:"تعویض منبع Ir-192 هر ۳–۴ ماه یا در صورت افت فعالیت.",
+ warn:"نیازمند حضور Radiation Safety Officer. رعایت کامل دوزیمتری فردی الزامی است.",
+ tools:["کیت تعویض منبع","Survey Meter","دستکش سربی","پیش‌بند سربی"],
+ steps:[
+   {t:"هماهنگی با RSO و بررسی مجوزها"},
+   {t:"بررسی فعالیت منبع قدیمی و جدید"},
+   {t:"انتقال منبع قدیمی به Safe Storage"},
+   {t:"نصب منبع جدید طبق رویه Elekta",level:"danger",note:"رعایت کامل ایمنی پرتویی"},
+   {t:"تست Safe Position و Sensorهای ایمنی"},
+   {t:"اندازه‌گیری فعالیت منبع جدید"},
+   {t:"اجرای QA روزانه و ماهانه"},
+   {t:"ثبت شماره سریال منبع در دفتر"}
+ ]},
+{id:"br4",title:"تعویض Transfer Tubes",cat:"emergency",machines:["Flexitron"],code:"BRA-REP-02",duration:"۳ ساعت",level:"پیشرفته",
+ summary:"تعویض لوله‌های انتقال کابل که منبع را هدایت می‌کنند.",
+ warn:"قبل از کار، بررسی کن که منبع در Safe Position است.",
+ tools:["کیت تعویض Tube","Survey Meter","آچار مخصوص"],
+ steps:[
+   {t:"بررسی Safe Position منبع"},
+   {t:"باز کردن Indexer و جدا کردن Tube‌ها"},
+   {t:"برچسب‌گذاری Tube‌ها"},
+   {t:"نصب Tube‌های جدید"},
+   {t:"اجرای تست Position Verification"},
+   {t:"اجرای QA ماهانه"},
+   {t:"ثبت در دفتر"}
+ ]},
+{id:"br5",title:"تعویض Indexer",cat:"emergency",machines:["Flexitron"],code:"BRA-REP-03",duration:"۴ ساعت",level:"پیشرفته",
+ summary:"تعویض Indexer که کانال‌ها را برای انتقال منبع انتخاب می‌کند.",
+ warn:"هماهنگی با Elekta Service الزامی است.",
+ tools:["کیت تعویض","Survey Meter","آچار تورک"],
+ steps:[
+   {t:"بررسی Safe Position"},
+   {t:"Backup تنظیمات Indexer"},
+   {t:"جدا کردن کابل‌ها با برچسب"},
+   {t:"باز کردن Indexer قدیمی"},
+   {t:"نصب Indexer جدید"},
+   {t:"اتصال کابل‌ها"},
+   {t:"کالیبراسیون Indexer"},
+   {t:"اجرای QA کامل"}
+ ]},
+{id:"br6",title:"تعویض Well Chamber (منبع‌سنج)",cat:"emergency",machines:["Flexitron"],code:"BRA-REP-04",duration:"۱ ساعت",level:"متوسط",
+ summary:"تعویض اتاقک یونیزاسیون Well که فعالیت منبع را اندازه می‌گیرد.",
+ tools:["Well Chamber جدید","الکترومتر","چک‌لیست"],
+ steps:[
+   {t:"خاموشی سیستم Well Chamber"},
+   {t:"جدا کردن کابل سیگنال"},
+   {t:"خارج کردن Well Chamber قدیمی"},
+   {t:"نصب Well Chamber جدید"},
+   {t:"اتصال کابل"},
+   {t:"کالیبراسیون با منبع مرجع"},
+   {t:"تست فعالیت منبع واقعی"},
+   {t:"ثبت در فرم کالیبراسیون"}
+ ]},
+{id:"br7",title:"Emergency Retract Manual",cat:"emergency",machines:["Flexitron"],code:"BRA-EMG-01",duration:"اورژانسی",level:"پیشرفته",
+ summary:"بازگرداندن اضطراری منبع به Safe با ابزار دستی در صورت گیر کردن.",
+ warn:"هر ثانیه حیاتی است. RSO باید فوراً مطلع شود.",
+ tools:["Manual Retract Tool","Survey Meter","دستکش سربی"],
+ steps:[
+   {t:"فشار Emergency Stop",level:"danger"},
+   {t:"اطلاع فوری به RSO"},
+   {t:"بررسی Source Position Indicator"},
+   {t:"آماده‌سازی Manual Retract Tool"},
+   {t:"اجرای Manual Retract طبق دستور",level:"warn"},
+   {t:"بررسی Safe با Survey Meter"},
+   {t:"بازگشت بیمار به Safe Zone"},
+   {t:"ثبت در دفتر حادثه"}
+ ]},
+{id:"br8",title:"تست Emergency Power System",cat:"emergency",machines:["Flexitron"],code:"BRA-QA-03",duration:"۶۰ دقیقه",level:"متوسط",
+ summary:"تست سیستم برق اضطراری UPS که در صورت قطع برق، بازگرداندن منبع را تضمین می‌کند.",
+ tools:["چک‌لیست UPS","مولتی‌متر"],
+ steps:[
+   {t:"اطمینان از شارژ کامل UPS"},
+   {t:"قطع برق اصلی به صورت تستی"},
+   {t:"بررسی ادامه عملکرد Indexer"},
+   {t:"تست Emergency Retract در حالت UPS"},
+   {t:"بازگشت به برق اصلی"},
+   {t:"بررسی شارژ مجدد UPS"},
+   {t:"ثبت در فرم QA"},
+   {t:"در صورت نقص، تعویض باتری"}
+ ]},
+{id:"br9",title:"تست Radiation Survey اتاق",cat:"emergency",machines:["Flexitron"],code:"BRA-QA-04",duration:"۴۵ دقیقه",level:"متوسط",
+ summary:"بررسی سطح پرتوگیری در محیط اتاق پس از درمان.",
+ warn:"نتیجه باید زیر مقادیر مجاز باشد.",
+ tools:["Survey Meter کالیبره","چک‌لیست"],
+ steps:[
+   {t:"بررسی Safe Position منبع"},
+   {t:"Survey در محل Patient Bed"},
+   {t:"Survey در محل Applicator Storage"},
+   {t:"Survey در محل Door"},
+   {t:"Survey در محل Operator Console"},
+   {t:"مقایسه با استاندارد",note:"زیر ۲ µSv/h"},
+   {t:"ثبت در فرم"}
+ ]},
+{id:"br10",title:"تست Timer System",cat:"emergency",machines:["Flexitron"],code:"BRA-QA-05",duration:"۴۵ دقیقه",level:"متوسط",
+ summary:"کالیبراسیون و تست Timer که مدت زمان هر Position را کنترل می‌کند.",
+ warn:"خطای Timer باعث خطای دز می‌شود.",
+ tools:["Stop Watch دقیق","چک‌لیست"],
+ steps:[
+   {t:"اندازه‌گیری زمان ۱۰، ۳۰، ۶۰ ثانیه با Stop Watch"},
+   {t:"مقایسه با Timer سیستم",note:"اختلاف زیر ۱٪"},
+   {t:"تست در Position‌های مختلف"},
+   {t:"بررسی Accuracy در ۵ دقیقه"},
+   {t:"کالیبراسیون در صورت انحراف"},
+   {t:"ثبت در فرم"}
+ ]},
+{id:"br11",title:"Oncentra — بازسازی Applicator",cat:"emergency",machines:["Flexitron"],code:"BRA-PLAN-01",duration:"۹۰ دقیقه",level:"پیشرفته",
+ summary:"رویه بازسازی Applicator در نرم‌افزار Oncentra Planning.",
+ tools:["نرم‌افزار Oncentra","CT","چک‌لیست Applicator"],
+ steps:[
+   {t:"ورود CT بیمار به Oncentra"},
+   {t:"تعریف Applicator (Tandem/Ovoid یا Fletcher)"},
+   {t:"بازسازی (Reconstruction) موقعیت Applicator"},
+   {t:"بررسی تطابق با تصویر CT",level:"warn"},
+   {t:"تعریف کانال‌ها و Dwell Positions"},
+   {t:"تأیید موقعیت‌ها"},
+   {t:"ذخیره Reconstruction"}
+ ]},
+{id:"br12",title:"Oncentra — بهینه‌سازی پلن",cat:"emergency",machines:["Flexitron"],code:"BRA-PLAN-02",duration:"۶۰ دقیقه",level:"پیشرفته",
+ summary:"بهینه‌سازی پلن Brachytherapy با اهداف دز مشخص.",
+ tools:["نرم‌افزار Oncentra"],
+ steps:[
+   {t:"تعریف PTV و OARs"},
+   {t:"تنظیم Dose Prescription"},
+   {t:"بررسی Point A و Point B"},
+   {t:"بررسی دز در Rectum و Bladder",level:"warn"},
+   {t:"بهینه‌سازی Dwell Times"},
+   {t:"بررسی DVH اندام‌های حساس"},
+   {t:"تأیید نهایی توسط فیزیک‌دان"},
+   {t:"ارسال پلن به Flexitron"}
+ ]},
+{id:"br13",title:"راه‌اندازی Applicator Fletcher",cat:"emergency",machines:["Flexitron"],code:"BRA-SETUP-01",duration:"۴۵ دقیقه",level:"پیشرفته",
+ summary:"راه‌اندازی Applicator Fletcher برای Brachytherapy دهانه رحم.",
+ tools:["Fletcher Set","Tandem","Ovoids","Source Simulator"],
+ steps:[
+   {t:"آماده‌سازی Applicator استریل"},
+   {t:"بررسی سالم بودن Tandem و Ovoids"},
+   {t:"اتصال Transfer Tubes به کانال‌ها"},
+   {t:"اجرای Source Simulator برای بررسی مسیر"},
+   {t:"بررسی موقعیت Applicator با فلوروسکوپی"},
+   {t:"تصحیح در صورت نیاز"},
+   {t:"تأیید نهایی توسط فیزیک‌دان"},
+   {t:"شروع درمان"}
+ ]},
+{id:"br14",title:"بررسی Patient Discharge Criteria",cat:"emergency",machines:["Flexitron"],code:"BRA-DIS-01",duration:"۳۰ دقیقه",level:"متوسط",
+ summary:"شرایط ترخیص بیمار پس از Brachytherapy.",
+ tools:["Survey Meter","چک‌لیست ترخیص"],
+ steps:[
+   {t:"بررسی فعالیت باقیمانده در بیمار"},
+   {t:"Survey در فاصله ۱ متر از بیمار"},
+   {t:"بررسی مقدار در Safe Level",note:"زیر ۵ µSv/h"},
+   {t:"بررسی فعالیت Applicator (در صورت باقی ماندن)"},
+   {t:"تأیید RSO"},
+   {t:"توضیحات به بیمار درباره نکات ایمنی"},
+   {t:"ثبت در پرونده"}
+ ]},
+{id:"br15",title:"Disposal منبع Ir-192 قدیمی",cat:"emergency",machines:["Flexitron"],code:"BRA-DIS-02",duration:"رویه",level:"پیشرفته",
+ summary:"رویه بازگرداندن منبع قدیمی به تولیدکننده یا دفع ایمن.",
+ warn:"منبع باید در Safe Storage با شیلد مناسب نگهداری شود.",
+ tools:["شیلد حمل","مستندات حمل","هماهنگی با RSO"],
+ steps:[
+   {t:"بازرسی شیلد حمل"},
+   {t:"بارگیری منبع در شیلد طبق رویه",level:"danger"},
+   {t:"بررسی دز سطح شیلد"},
+   {t:"ثبت شماره سریال"},
+   {t:"هماهنگی با شرکت حمل مجاز"},
+   {t:"تکمیل مستندات حمل"},
+   {t:"اطلاع به RSO و مقامات"}
+ ]}
+);
+
+ERRORS.push(
+{code:"BRA-001",sev:"red",machine:"Flexitron",title:"Source Stuck in Canal",act:"Manual Retract فوری — اطلاع RSO"},
+{code:"BRA-002",sev:"orange",machine:"Flexitron",title:"Indexer Communication Error",act:"بررسی کابل و ری‌استارت"},
+{code:"BRA-003",sev:"red",machine:"Flexitron",title:"Door Interlock Failure",act:"توقف فوری — بررسی میکروسوئیچ"},
+{code:"BRA-004",sev:"orange",machine:"Flexitron",title:"Timer Mismatch",act:"کالیبراسیون Timer"},
+{code:"BRA-005",sev:"blue",machine:"Flexitron",title:"Source Decay Warning",act:"برنامه‌ریزی تعویض منبع"},
+{code:"BRA-006",sev:"orange",machine:"Flexitron",title:"Tube Position Error",act:"بررسی Transfer Tube و Indexer"},
+{code:"BRA-007",sev:"red",machine:"Flexitron",title:"Emergency Power Failure",act:"بررسی UPS و باتری"},
+{code:"BRA-008",sev:"orange",machine:"Flexitron",title:"Indexer Motor Overload",act:"بررسی بار و Motor"},
+{code:"BRA-009",sev:"blue",machine:"Flexitron",title:"Well Chamber Drift",act:"کالیبراسیون Well Chamber"},
+{code:"BRA-010",sev:"orange",machine:"Flexitron",title:"Tube Bend Warning",act:"بررسی مسیر Tube — تعویض در صورت آسیب"},
+{code:"BRA-011",sev:"red",machine:"Flexitron",title:"Source Position Fail",act:"توقف درمان — بررسی Source Path"},
+{code:"BRA-012",sev:"orange",machine:"Flexitron",title:"Radiation Monitor Alarm",act:"بررسی Survey — اطلاع RSO"},
+{code:"BRA-013",sev:"blue",machine:"Flexitron",title:"Applicator Type Mismatch",act:"بررسی Setup در Oncentra"},
+{code:"BRA-014",sev:"red",machine:"Flexitron",title:"Safe Sensor Failure",act:"توقف فوری — تعویض سنسور"},
+{code:"BRA-015",sev:"orange",machine:"Flexitron",title:"Dwell Time Deviation",act:"کالیبراسیون Timer"}
+);
+
+console.log("✅ data5.js — Brachytherapy loaded (15 manuals, 15 errors)");

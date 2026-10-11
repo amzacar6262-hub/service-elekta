@@ -60,6 +60,26 @@ function renderCats(){
       + '</button>';
   }).join("");
 }
+function renderHomeFlow(){
+  var el = document.getElementById("homeFlowGrid");
+  if(!el) return;
+  if(typeof FLOWCHARTS === "undefined" || !FLOWCHARTS.length){
+    el.parentElement.style.display = "none";
+    return;
+  }
+  var ids = ["fc-beam", "fc-mlc"];
+  var list = ids.map(function(id){
+    return FLOWCHARTS.find(function(f){ return f.id === id; });
+  }).filter(Boolean);
+  el.innerHTML = list.map(function(fc, i){
+    return '<button class="cat cat-mini" ' +
+      'style="background:linear-gradient(145deg,' + fc.c1 + ' 0%,' + fc.c2 + ' 100%);animation-delay:' + (i*.04) + 's" ' +
+      'onclick="openFlowchart(\'' + fc.id + '\')">' +
+      '<div class="cat-ic">' + (ICONS[fc.icon] || ICONS.warn) + '</div>' +
+      '<div class="cat-n">' + fc.title + '</div>' +
+    '</button>';
+  }).join("");
+}
 
 function renderToolGrid(){
   var tools = [
@@ -385,6 +405,7 @@ function go(id){
     renderPMList();
   }
   if(id === "log") renderLog();
+  if(id === "flow" && typeof renderFlowList === "function") renderFlowList();
   if(id === "gallery"){
     if(typeof loadLocalPhotos === "function"){
       loadLocalPhotos().then(function(){
@@ -875,6 +896,7 @@ window.toast = toast;
 window.toggleRef = toggleRef;
 window.renderRef = renderRef;
 window.updateLangSwitch = updateLangSwitch;
+window.renderHomeFlow = renderHomeFlow;
 window.toggleStep = toggleStep;
 window.resetChecklist = resetChecklist;
 window.saveManualNote = saveManualNote;
@@ -902,6 +924,7 @@ renderCodeChips();
 renderCodes();
 renderFavs();
 renderMachineList();
+renderHomeFlow();
 renderLog();
 if(typeof renderGalleryChips === "function") renderGalleryChips();
 if(typeof renderGallery === "function") renderGallery();

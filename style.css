@@ -2325,3 +2325,84 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding: 3px 8px !important;
   letter-spacing: 0.03em !important;
 }
+/* ═══════════════════════════════════════
+   UNIFIED HEIGHT — همه کارت‌ها یکسان
+   ═══════════════════════════════════════ */
+
+/* کارت‌های دسته‌بندی اصلی (Home Categories) */
+.cat-grid > .cat:not(.cat-mini){
+  height: 130px !important;
+  min-height: 130px !important;
+  max-height: 130px !important;
+}
+
+/* کارت‌های mini (عیب‌یابی سریع، ابزارها، پرتکرارترین) */
+.cat-grid > .cat.cat-mini{
+  height: 130px !important;
+  min-height: 130px !important;
+  max-height: 130px !important;
+  padding: 14px 16px !important;
+  display: block !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* آیکون گوشه بالا-راست برای همه */
+.cat-grid > .cat.cat-mini .cat-ic{
+  position: absolute !important;
+  top: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: auto !important;
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+}
+.cat-grid > .cat.cat-mini .cat-ic svg{
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* عنوان پایین کارت برای mini */
+.cat-grid > .cat.cat-mini .cat-n{
+  position: absolute !important;
+  bottom: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: 16px !important;
+  top: auto !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.015em !important;
+  max-height: 3.75em !important;
+  -webkit-line-clamp: 3 !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+  text-align: start !important;
+}
+
+/* badge کد گوشه بالا-چپ برای mini */
+.cat-grid > .cat.cat-mini .cat-badge-top{
+  position: absolute !important;
+  top: 14px !important;
+  inset-inline-end: 14px !important;
+  inset-inline-start: auto !important;
+  background: rgba(0, 0, 0, 0.22) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-family: ui-monospace, "SF Mono", monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 100px !important;
+  letter-spacing: 0.03em !important;
+  white-space: nowrap !important;
+  max-width: 55% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}

@@ -83,9 +83,38 @@
         <div class="section-h"><div class="section-t" data-i18n="sec_categories">دسته‌بندی‌ها</div></div>
         <div class="cat-grid" id="catGrid"></div>
       </div>
-
+<div class="section">
+  <div class="section-h">
+    <div class="section-t" data-i18n="sec_flow">عیب‌یابی سریع</div>
+  </div>
+  <div class="card">
+    <button class="row" onclick="go('flow')">
+      <div class="row-icon" style="background:linear-gradient(145deg,#FF9500,#FF3B30)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+      </div>
+      <div class="row-body">
+        <div class="row-title" data-i18n="flow_title">عیب‌یابی گام‌به‌گام</div>
+        <div class="row-sub" data-i18n="flow_sub">درخت تصمیم برای مشکلات رایج</div>
+      </div>
+      <div class="row-chev">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transform:scaleX(-1)">
+          <polyline points="2 2 6 7 2 12"/>
+        </svg>
+      </div>
+    </button>
+  </div>
+</div>
       <div class="section">
         <div class="section-h"><div class="section-t" data-i18n="sec_tools">ابزارهای مرجع</div></div>
+        <div class="section">
+  <div class="section-h">
+    <div class="section-t" data-i18n="sec_flow">عیب‌یابی سریع</div>
+  </div>
+  <div class="cat-grid" id="homeFlowGrid"></div>
+</div>
         <div class="cat-grid" id="homeToolGrid"></div>
       </div>
 
@@ -248,6 +277,25 @@
   <div class="health-sub" data-i18n="log_sub">تاریخچه سرویس‌های انجام‌شده</div>
   <div class="section" style="margin-top:6px">
     <div class="card" id="logList"></div>
+  </div>
+</section>
+<!-- FLOWCHARTS -->
+<section id="page-flow" class="page">
+  <header class="nav" data-nav>
+    <div class="nav-top">
+      <button class="nav-back" onclick="go('more')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span data-i18n="more_title">بیش‌تر</span>
+      </button>
+      <div class="nav-title-sm" data-i18n="flow_title">عیب‌یابی گام‌به‌گام</div>
+    </div>
+    <div class="nav-large" data-i18n="flow_title">فلوچارت</div>
+  </header>
+  <div class="health-sub" data-i18n="flow_sub">درخت تصمیم برای مشکلات رایج</div>
+  <div class="section" style="margin-top:14px">
+    <div class="cat-grid" id="flowList"></div>
   </div>
 </section>
 
@@ -517,6 +565,17 @@
               placeholder="جزئیات بیشتر..." rows="3"></textarea>
   </div>
 </div>
+<!-- SHEET: Flowchart -->
+<div class="sheet-backdrop" id="flowSheetBackdrop" onclick="closeFlowchart()"></div>
+<div class="sheet flow-sheet" id="flowSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="closeFlowchart()">بستن</button>
+    <div class="sheet-title" id="flowTitle">فلوچارت</div>
+    <button class="sheet-act" onclick="restartFlowchart()" style="color:var(--blue)">شروع</button>
+  </div>
+  <div class="sheet-body" id="flowBody"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- SCRIPTS -->
@@ -524,6 +583,8 @@
 <script src="data.js"></script>
 <script src="data3.js"></script>
 <script src="data4.js"></script>
+<script src="data5.js"></script>
+<script src="flowcharts.js"></script>
 <script src="app.js"></script>
 <script src="qr.js"></script>
 <script src="gallery.js"></script>

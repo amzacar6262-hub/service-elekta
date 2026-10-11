@@ -2258,3 +2258,70 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   z-index: 2 !important;
   text-align: start !important;
 }
+/* ═══════════════════════════════════════
+   FIX: Main Category Cards Equal Height
+   ═══════════════════════════════════════ */
+
+/* ارتفاع ثابت برای کارت‌های اصلی دسته‌بندی */
+.cat-grid > .cat:not(.cat-mini){
+  height: 130px !important;
+  min-height: 130px !important;
+  max-height: 130px !important;
+  padding: 14px 16px !important;
+  display: block !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* آیکون گوشه بالا-راست (RTL) */
+.cat-grid > .cat:not(.cat-mini) .cat-ic{
+  position: absolute !important;
+  top: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: auto !important;
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+}
+.cat-grid > .cat:not(.cat-mini) .cat-ic svg{
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* عنوان در پایین کارت */
+.cat-grid > .cat:not(.cat-mini) .cat-n{
+  position: absolute !important;
+  bottom: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: 16px !important;
+  top: auto !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+  max-height: 3.75em !important;
+  -webkit-line-clamp: 3 !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+  text-align: start !important;
+}
+
+/* ═══════════════════════════════════════
+   FIX: Home Flow + Popular badge overlap
+   ═══════════════════════════════════════ */
+
+/* در کارت‌های پرتکرار — badge کد و آیکون ستاره تداخل نکنن */
+.cat.cat-mini .cat-badge-top{
+  background: rgba(0, 0, 0, 0.22) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-family: ui-monospace, "SF Mono", monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  letter-spacing: 0.03em !important;
+}

@@ -22,10 +22,10 @@ const I18N = {
     sec_popular:    "پرتکرارترین",
 
     /* ── Tools ── */
-    tool_ref:       "جداول مرجع",
-    tool_pm:        "PM چک‌لیست",
+    tool_ref:       "مرجع",
+    tool_pm:        "PM",
     tool_gallery:   "گالری",
-    tool_qr:        "اسکن QR",
+    tool_qr:        "QR",
 
     /* ── Library ── */
     lib_title:      "کتابخانه",
@@ -170,15 +170,14 @@ const I18N = {
     cat_trouble:    "عیب‌یابی",
     cat_synergy:    "Synergy",
     cat_infinity:   "Infinity",
-    cat_rf:         "RF و Waveguide",
-    cat_electronic: "الکترونیک و برد",
-    cat_mech:       "مکانیک و میز",
+    cat_rf:         "RF",
+    cat_electronic: "الکترونیک",
+    cat_mech:       "مکانیک",
     cat_software:   "نرم‌افزار",
-    cat_emergency:  "اضطراری و ایمنی",
-    cat_inventory:  "انبار و قطعات",
-    cat_mlc:        "MLC و کولیما",
-    cat_pm:         "PM و نگهداری"
-    ,
+    cat_emergency:  "اضطراری",
+    cat_inventory:  "انبار",
+    cat_mlc:        "MLC",
+    cat_pm:         "PM",
 
     /* ── Service Log ── */
     log_title:          "لاگ سرویس",
@@ -205,10 +204,8 @@ const I18N = {
     log_note_saved:     "یادداشت ذخیره شد",
     log_printing:       "در حال آماده‌سازی PDF...",
     log_select_manual:  "منوال انتخاب نشده",
-    sec_service:        "سرویس",
     row_log_title:      "تاریخچه سرویس",
-    row_log_sub:        "ثبت و مشاهده سرویس‌ها"
-    ,
+    row_log_sub:        "ثبت و مشاهده سرویس‌ها",
 
     /* ── Flowcharts ── */
     flow_title:     "عیب‌یابی گام‌به‌گام",
@@ -239,10 +236,10 @@ const I18N = {
     sec_popular:    "Most Used",
 
     /* ── Tools ── */
-    tool_ref:       "Reference Tables",
-    tool_pm:        "PM Checklist",
+    tool_ref:       "Reference",
+    tool_pm:        "PM",
     tool_gallery:   "Gallery",
-    tool_qr:        "Scan QR",
+    tool_qr:        "QR",
 
     /* ── Library ── */
     lib_title:      "Library",
@@ -383,20 +380,20 @@ const I18N = {
     gcat_tools:     "Tools",
 
     /* ── Categories ── */
-    cat_replace:    "Parts Replacement",
-    cat_trouble:    "Troubleshooting",
+    cat_replace:    "Parts",
+    cat_trouble:    "Diagnostics",
     cat_synergy:    "Synergy",
     cat_infinity:   "Infinity",
-    cat_rf:         "RF & Waveguide",
-    cat_electronic: "Electronics & Boards",
-    cat_mech:       "Mechanics & Couch",
+    cat_rf:         "RF",
+    cat_electronic: "Electronics",
+    cat_mech:       "Mechanics",
     cat_software:   "Software",
-    cat_emergency:  "Emergency & Safety",
-    cat_inventory:  "Inventory & Parts",
-    cat_mlc:        "MLC & Collimator",
-    cat_pm:         "PM & Maintenance"
-    ,
+    cat_emergency:  "Emergency",
+    cat_inventory:  "Inventory",
+    cat_mlc:        "MLC",
+    cat_pm:         "PM",
 
+    /* ── Service Log ── */
     log_title:          "Service Log",
     log_sub:            "History of services performed",
     log_new:            "Register Service",
@@ -421,11 +418,10 @@ const I18N = {
     log_note_saved:     "Note saved",
     log_printing:       "Preparing PDF...",
     log_select_manual:  "No manual selected",
-    sec_service:        "Service",
     row_log_title:      "Service History",
-    row_log_sub:        "Register and view services"
-    ,
+    row_log_sub:        "Register and view services",
 
+    /* ── Flowcharts ── */
     flow_title:     "Step-by-Step Troubleshooting",
     flow_sub:       "Decision tree for common issues",
     sec_flow:       "Quick Troubleshooting",

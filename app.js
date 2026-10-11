@@ -1,8 +1,5 @@
 /* ═══════════════════════════════════════
    app.js — منطق و رندر
-   داده‌ها از data.js / data2.js / data3.js
-   QR در qr.js — Gallery در gallery.js — PM در pm.js
-   ترجمه در i18n.js
    ═══════════════════════════════════════ */
 
 /* ═══ ICONS ═══ */
@@ -60,11 +57,13 @@ function renderCats(){
       + '</button>';
   }).join("");
 }
+
 function renderHomeFlow(){
   var el = document.getElementById("homeFlowGrid");
   if(!el) return;
   if(typeof FLOWCHARTS === "undefined" || !FLOWCHARTS.length){
-    el.parentElement.style.display = "none";
+    var section = el.closest(".section");
+    if(section) section.style.display = "none";
     return;
   }
   var ids = ["fc-beam", "fc-mlc"];
@@ -586,7 +585,6 @@ if("serviceWorker" in navigator){
   var sheetBody = document.getElementById('sheetBody');
   var sheet = document.getElementById('sheet');
 
-  /* دکمه بستن در پایین */
   if(sheetBody){
     var obs = new MutationObserver(function(){
       if(sheetBody.children.length > 0 &&
@@ -601,7 +599,6 @@ if("serviceWorker" in navigator){
     obs.observe(sheetBody, { childList: true });
   }
 
-  /* Swipe-down روی دستگیره */
   var grab = sheet ? sheet.querySelector('.sheet-grab') : null;
   if(sheet && grab){
     var startY = 0, startT = 0, drag = false, dy = 0;
@@ -638,6 +635,7 @@ if("serviceWorker" in navigator){
     grab.addEventListener('touchcancel', onEnd);
   }
 })();
+
 /* ═══════════════════════════════════════
    CHECKLIST per Manual
    ═══════════════════════════════════════ */
@@ -662,14 +660,12 @@ function toggleStep(manualId, stepIndex, el){
     if(navigator.vibrate) navigator.vibrate(8);
   }
   saveChecklist();
-  /* به‌روزرسانی شمارنده */
   var m = MANUALS.find(function(x){ return x.id === manualId; });
   if(m){
     var st = getChecklistState(manualId);
     var doneCount = Object.keys(st).filter(function(k){ return st[k]; }).length;
     var total = m.steps.length;
     var pct = total ? Math.round((doneCount/total)*100) : 0;
-    var headerEl = document.querySelector("#sheetBody .section-t");
     var allHeaders = document.querySelectorAll("#sheetBody .section-t");
     for(var i=0; i<allHeaders.length; i++){
       if(allHeaders[i].textContent.indexOf(i18n("sheet_steps", "مراحل")) !== -1){
@@ -884,7 +880,7 @@ function exportLogJSON(){
 }
 
 /* ═══════════════════════════════════════
-   EXPORT globals (برای onclick در HTML)
+   EXPORT globals
    ═══════════════════════════════════════ */
 window.openManual = openManual;
 window.closeSheet = closeSheet;

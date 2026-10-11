@@ -456,6 +456,7 @@ function setLanguage(lang){
   if(typeof renderStats === "function") renderStats();
   if(typeof renderCats === "function") renderCats();
   if(typeof renderToolGrid === "function") renderToolGrid();
+  if(typeof renderHomeFlow === "function") renderHomeFlow();
   if(typeof renderHomePop === "function") renderHomePop();
   if(typeof renderLibChips === "function") renderLibChips();
   if(typeof renderLib === "function") renderLib();

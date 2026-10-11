@@ -2185,3 +2185,76 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .cat-full .cat-n{
   font-size: 16px;
 }
+/* ═══════════════════════════════════════
+   FIX: Mini Card Heights & Icon Overlap
+   ═══════════════════════════════════════ */
+
+/* ارتفاع ثابت برای همه کارت‌های mini */
+.cat.cat-mini{
+  height: 150px !important;
+  min-height: 150px !important;
+  max-height: 150px !important;
+  padding: 14px 16px !important;
+  display: block !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* آیکون در گوشه بالا-راست (RTL) */
+.cat.cat-mini .cat-ic{
+  position: absolute !important;
+  top: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: auto !important;
+  width: 26px !important;
+  height: 26px !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+}
+.cat.cat-mini .cat-ic svg{
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* badge_top در گوشه بالا-چپ (RTL) */
+.cat.cat-mini .cat-badge-top{
+  position: absolute !important;
+  top: 14px !important;
+  inset-inline-end: 14px !important;
+  inset-inline-start: auto !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 100px !important;
+  background: rgba(0, 0, 0, 0.18) !important;
+  color: rgba(0, 0, 0, 0.75) !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+  max-width: 50% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+/* عنوان در پایین کارت */
+.cat.cat-mini .cat-n{
+  position: absolute !important;
+  bottom: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: 16px !important;
+  top: auto !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.015em !important;
+  max-height: 3.75em !important;
+  -webkit-line-clamp: 3 !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+  text-align: start !important;
+}

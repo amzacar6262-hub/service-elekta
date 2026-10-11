@@ -2175,3 +2175,13 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .cat[data-brachy] .cat-ic{
   color:#fff;
 }
+/* ═══════════════════════════════════════
+   Full-width cat-mini (اگر خواستی تک کارت)
+   ═══════════════════════════════════════ */
+.cat-full{
+  grid-column: 1 / -1;
+  min-height: 90px;
+}
+.cat-full .cat-n{
+  font-size: 16px;
+}

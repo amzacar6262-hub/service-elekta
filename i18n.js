@@ -471,6 +471,7 @@ function setLanguage(lang){
   if(typeof renderPMList === "function") renderPMList();
   if(typeof applyStaticTranslations === "function") applyStaticTranslations();
   if(typeof updateLangSwitch === "function") updateLangSwitch();
+  if(typeof updateOnline === "function") updateOnline();
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 

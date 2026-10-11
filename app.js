@@ -21,7 +21,14 @@ const ICONS = {
 };
 
 /* ═══ Helpers ═══ */
-const fa = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+function fa(n){
+  var lang = (typeof getLang === "function") ? getLang() : "fa";
+  var s = String(n);
+  if(lang === "fa"){
+    return s.replace(/\d/g, function(d){ return "۰۱۲۳۴۵۶۷۸۹"[d]; });
+  }
+  return s;
+}
 const $ = s => document.querySelector(s);
 function i18n(key, fallback){
   if(typeof t === "function"){ return t(key); }

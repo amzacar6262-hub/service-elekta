@@ -139,6 +139,14 @@ function renderHomePop(){
   }).join("");
 }
 
+function levelClass(level){
+  if(!level) return "mid";
+  var s = String(level);
+  if(s.indexOf("پیشرفته") !== -1 || /advanced/i.test(s)) return "high";
+  if(s.indexOf("مبتدی") !== -1 || s.indexOf("پایه") !== -1 || /beginner/i.test(s)) return "low";
+  return "mid";
+}
+
 function manualCard(m, compact, delay){
   if(delay === undefined) delay = 0;
   var cat = CATS.find(function(c){ return c.id === m.cat; }) || CATS[0];
@@ -150,9 +158,9 @@ function manualCard(m, compact, delay){
     + '<div class="manual-title">' + m.title + '</div>'
     + (compact ? '' : '<div class="manual-sub">' + m.summary + '</div>')
     + '<div class="manual-meta">'
-    + '<span class="badge">' + m.code + '</span>'
-    + '<span>' + m.duration + '</span>'
-    + '<span>' + m.level + '</span>'
+    + '<span class="badge badge-code">' + m.code + '</span>'
+    + (m.duration ? '<span class="badge badge-time">' + m.duration + '</span>' : '')
+    + (m.level ? '<span class="badge badge-level badge-level-' + levelClass(m.level) + '">' + m.level + '</span>' : '')
     + '</div></div>'
     + '<button class="manual-fav ' + (isFav ? 'on' : '') + '" onclick="event.stopPropagation();toggleFav(\'' + m.id + '\')">'
     + (isFav ? ICONS.starFill : ICONS.star)

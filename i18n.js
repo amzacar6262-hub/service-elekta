@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════
    i18n.js — دوزبانه (فارسی / English)
-   نسخه ۴.۰ — سرویس‌محور
+   نسخه ۵.۰ — با آموزش
    ═══════════════════════════════════════ */
 
 const I18N = {
@@ -70,15 +70,21 @@ const I18N = {
     sec_repairs:    "تعمیرات",
     sec_devices:    "دستگاه‌ها",
     sec_service:    "سرویس",
+    sec_settings:   "تنظیمات",
+    sec_learning:   "آموزش",
     row_pm_title:   "نگهداری پیشگیرانه (PM)",
     row_pm_sub:     "چک‌لیست روزانه تا سالانه",
     row_lang:       "زبان / Language",
     row_theme:      "تم",
     row_font:       "فونت",
-    footer_line1:   "Elekta Service — نسخه ۴.۰",
+    footer_line1:   "Elekta Service — نسخه ۵.۰",
     footer_line2:   "ساخته‌شده برای iOS",
     item_suffix:    " مورد",
     manuals_word:   "منوال",
+
+    /* ── Learning ── */
+    learn_title:    "آموزش",
+    learn_sub:      "مسیرهای یادگیری سرویس",
 
     /* ── PM ── */
     pm_title:       "نگهداری",
@@ -286,15 +292,21 @@ const I18N = {
     sec_repairs:    "Maintenance",
     sec_devices:    "Devices",
     sec_service:    "Service",
+    sec_settings:   "Settings",
+    sec_learning:   "Learning",
     row_pm_title:   "Preventive Maintenance",
     row_pm_sub:     "Daily to annual checklist",
     row_lang:       "Language / زبان",
     row_theme:      "Theme",
     row_font:       "Font",
-    footer_line1:   "Elekta Service — v4.0",
+    footer_line1:   "Elekta Service — v5.0",
     footer_line2:   "Made for iOS",
     item_suffix:    " items",
     manuals_word:   "manuals",
+
+    /* ── Learning ── */
+    learn_title:    "Learning",
+    learn_sub:      "Service learning paths",
 
     /* ── PM ── */
     pm_title:       "Maintenance",
@@ -453,7 +465,6 @@ function setLanguage(lang){
   document.documentElement.lang = lang;
   document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
 
-  /* رندر مجدد کل UI */
   if(typeof renderTabbar === "function") renderTabbar();
   if(typeof renderStats === "function") renderStats();
   if(typeof renderCats === "function") renderCats();
@@ -473,13 +484,13 @@ function setLanguage(lang){
   if(typeof renderPMMachineChips === "function") renderPMMachineChips();
   if(typeof renderPMProgress === "function") renderPMProgress();
   if(typeof renderPMList === "function") renderPMList();
+  if(typeof renderLearnPaths === "function") renderLearnPaths();
   if(typeof applyStaticTranslations === "function") applyStaticTranslations();
   if(typeof updateLangSwitch === "function") updateLangSwitch();
   if(typeof updateOnline === "function") updateOnline();
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 
-/* ترجمه عناصر با data-i18n */
 function applyStaticTranslations(){
   document.querySelectorAll("[data-i18n]").forEach(function(el){
     var key = el.getAttribute("data-i18n");

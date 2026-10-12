@@ -18,7 +18,7 @@
 <div id="app">
   <main id="main">
 
-    <!-- HOME -->
+    <!-- ═══════════════ HOME ═══════════════ -->
     <section id="page-home" class="page on">
       <header class="nav nav-compact" data-nav>
         <div class="nav-top">
@@ -100,7 +100,7 @@
       </div>
     </section>
 
-    <!-- LIBRARY -->
+    <!-- ═══════════════ LIBRARY ═══════════════ -->
     <section id="page-lib" class="page">
       <header class="nav" data-nav>
         <div class="nav-top"><div class="nav-title-sm" data-i18n="lib_title">کتابخانه</div></div>
@@ -116,7 +116,7 @@
       <div class="section" style="margin-top:0"><div id="libList"></div></div>
     </section>
 
-    <!-- ERROR CODES -->
+    <!-- ═══════════════ ERROR CODES ═══════════════ -->
     <section id="page-codes" class="page">
       <header class="nav" data-nav>
         <div class="nav-top"><div class="nav-title-sm" data-i18n="codes_title">کدهای خطا</div></div>
@@ -132,7 +132,7 @@
       <div class="section" style="margin-top:0"><div class="card" id="codeList"></div></div>
     </section>
 
-    <!-- REFERENCE -->
+    <!-- ═══════════════ REFERENCE ═══════════════ -->
     <section id="page-ref" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
@@ -160,7 +160,7 @@
       </div>
     </section>
 
-    <!-- GALLERY -->
+    <!-- ═══════════════ GALLERY ═══════════════ -->
     <section id="page-gallery" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
@@ -179,7 +179,7 @@
       <div class="gallery-grid" id="galleryGrid"></div>
     </section>
 
-    <!-- PM -->
+    <!-- ═══════════════ PM ═══════════════ -->
     <section id="page-pm" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
@@ -210,7 +210,7 @@
       </div>
     </section>
 
-    <!-- SERVICE LOG -->
+    <!-- ═══════════════ SERVICE LOG ═══════════════ -->
     <section id="page-log" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
@@ -231,7 +231,7 @@
       </div>
     </section>
 
-    <!-- FLOWCHARTS -->
+    <!-- ═══════════════ FLOWCHARTS ═══════════════ -->
     <section id="page-flow" class="page">
       <header class="nav" data-nav>
         <div class="nav-top">
@@ -251,7 +251,7 @@
       </div>
     </section>
 
-    <!-- FAVORITES -->
+    <!-- ═══════════════ FAVORITES ═══════════════ -->
     <section id="page-fav" class="page">
       <header class="nav" data-nav>
         <div class="nav-top"><div class="nav-title-sm" data-i18n="fav_title">ذخیره‌شده</div></div>
@@ -260,13 +260,14 @@
       <div class="section" style="margin-top:6px"><div id="favList"></div></div>
     </section>
 
-    <!-- MORE -->
+    <!-- ═══════════════ MORE ═══════════════ -->
     <section id="page-more" class="page">
       <header class="nav" data-nav>
         <div class="nav-top"><div class="nav-title-sm" data-i18n="more_title">بیشتر</div></div>
         <div class="nav-large" data-i18n="more_title">بیشتر</div>
       </header>
 
+      <!-- اطلاعات برنامه -->
       <div class="section" style="margin-top:6px">
         <div class="card">
           <div class="row">
@@ -285,6 +286,13 @@
             <div class="row-body"><div class="row-title" data-i18n="row_status">وضعیت</div></div>
             <div style="color:var(--green);font-weight:600" id="onlineStatus">آفلاین ✓</div>
           </div>
+        </div>
+      </div>
+
+      <!-- تنظیمات -->
+      <div class="section">
+        <div class="section-h"><div class="section-t" data-i18n="sec_settings">تنظیمات</div></div>
+        <div class="card">
           <div class="row">
             <div class="row-icon" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -298,41 +306,39 @@
               <button data-lang="fa" onclick="setLanguage('fa')">FA</button>
               <button data-lang="en" onclick="setLanguage('en')">EN</button>
             </div>
-            <!-- انتخاب تم -->
-      <div class="row">
-        <div class="row-icon" style="background:linear-gradient(145deg,#1C1C1E,#2C2C2E)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </div>
-        <div class="row-body"><div class="row-title" data-i18n="row_theme">تم</div></div>
-        <div class="lang-seg" id="themeSeg">
-          <button data-theme="auto" onclick="setTheme('auto')">A</button>
-          <button data-theme="light" onclick="setTheme('light')">☀</button>
-          <button data-theme="dark" onclick="setTheme('dark')">☾</button>
-        </div>
-      </div>
-
-      <!-- اندازه فونت -->
-      <div class="row">
-        <div class="row-icon" style="background:linear-gradient(145deg,#BF5AF2,#5856D6)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="4 7 4 4 20 4 20 7"/>
-            <line x1="9" y1="20" x2="15" y2="20"/>
-            <line x1="12" y1="4" x2="12" y2="20"/>
-          </svg>
-        </div>
-        <div class="row-body"><div class="row-title" data-i18n="row_font">اندازه فونت</div></div>
-        <div class="lang-seg" id="fontSeg">
-          <button data-font="sm" onclick="setFontSize('sm')">A</button>
-          <button data-font="md" onclick="setFontSize('md')">A</button>
-          <button data-font="lg" onclick="setFontSize('lg')">A</button>
-        </div>
-      </div>
+          </div>
+          <div class="row">
+            <div class="row-icon" style="background:linear-gradient(145deg,#1C1C1E,#2C2C2E)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </div>
+            <div class="row-body"><div class="row-title" data-i18n="row_theme">تم</div></div>
+            <div class="lang-seg" id="themeSeg">
+              <button data-theme="auto" onclick="setTheme('auto')">A</button>
+              <button data-theme="light" onclick="setTheme('light')">☀</button>
+              <button data-theme="dark" onclick="setTheme('dark')">☾</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row-icon" style="background:linear-gradient(145deg,#BF5AF2,#5856D6)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 7 4 4 20 4 20 7"/>
+                <line x1="9" y1="20" x2="15" y2="20"/>
+                <line x1="12" y1="4" x2="12" y2="20"/>
+              </svg>
+            </div>
+            <div class="row-body"><div class="row-title" data-i18n="row_font">اندازه فونت</div></div>
+            <div class="lang-seg" id="fontSeg">
+              <button data-font="sm" onclick="setFontSize('sm')">A</button>
+              <button data-font="md" onclick="setFontSize('md')">A</button>
+              <button data-font="lg" onclick="setFontSize('lg')">A</button>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- سرویس -->
       <div class="section">
         <div class="section-h"><div class="section-t" data-i18n="sec_service">سرویس</div></div>
         <div class="cat-grid">
@@ -354,7 +360,7 @@
                 <line x1="4" y1="22" x2="4" y2="15"/>
               </svg>
             </div>
-            <div class="cat-n" data-i18n="flow_title">عیب‌یابی گام‌به‌گام</div>
+            <div class="cat-n" data-i18n="flow_title">عیب‌یابی</div>
           </button>
           <button class="cat cat-mini" style="background:linear-gradient(145deg,#32D74B,#248A3D)" onclick="go('pm')">
             <div class="cat-ic">
@@ -363,7 +369,7 @@
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>
             </div>
-            <div class="cat-n" data-i18n="tool_pm">PM چک‌لیست</div>
+            <div class="cat-n" data-i18n="tool_pm">PM</div>
           </button>
           <button class="cat cat-mini" style="background:linear-gradient(145deg,#FF3B30,#AF52DE)" onclick="go('ref')">
             <div class="cat-ic">
@@ -373,11 +379,12 @@
                 <circle cx="12" cy="12" r="2"/>
               </svg>
             </div>
-            <div class="cat-n" data-i18n="tool_ref">جداول مرجع</div>
+            <div class="cat-n" data-i18n="tool_ref">مرجع</div>
           </button>
         </div>
       </div>
 
+      <!-- دستگاه‌ها -->
       <div class="section">
         <div class="section-h"><div class="section-t" data-i18n="sec_devices">دستگاه‌ها</div></div>
         <div class="card" id="machineList"></div>
@@ -393,7 +400,7 @@
   <nav class="tabbar"><div class="tabbar-inner" id="tabbar"></div></nav>
 </div>
 
-<!-- SHEET -->
+<!-- ═══════════════ SHEET: Manual ═══════════════ -->
 <div class="sheet-backdrop" id="backdrop" onclick="closeSheet()"></div>
 <div class="sheet" id="sheet">
   <div class="sheet-grab"></div>
@@ -405,7 +412,7 @@
   <div class="sheet-body" id="sheetBody"></div>
 </div>
 
-<!-- QR SCANNER -->
+<!-- ═══════════════ QR SCANNER ═══════════════ -->
 <div class="scan-overlay" id="scanOverlay">
   <div class="scan-top">
     <button class="scan-btn" onclick="stopScan()" data-i18n="qr_cancel">انصراف</button>
@@ -434,7 +441,7 @@
   </div>
 </div>
 
-<!-- MANUAL QR INPUT -->
+<!-- ═══════════════ MANUAL QR INPUT ═══════════════ -->
 <div class="qr-input-overlay" id="qrInputOverlay">
   <div class="qr-input-box">
     <div class="qr-input-title" data-i18n="qr_manual_t">کد دستگاه را وارد کنید</div>
@@ -449,7 +456,7 @@
   </div>
 </div>
 
-<!-- LIGHTBOX -->
+<!-- ═══════════════ LIGHTBOX ═══════════════ -->
 <div class="lightbox" id="lightbox">
   <div class="lightbox-top">
     <button class="lightbox-delete" id="lightboxDeleteBtn" onclick="deleteCurrentPhoto()" style="display:none">
@@ -481,10 +488,10 @@
   </div>
 </div>
 
-<!-- INPUT file -->
+<!-- ═══════════════ INPUT FILE (گالری) ═══════════════ -->
 <input type="file" id="galleryFileInput" accept="image/*" style="display:none" />
 
-<!-- SHEET ADD PHOTO -->
+<!-- ═══════════════ SHEET: Add Photo ═══════════════ -->
 <div class="sheet-backdrop" id="addPhotoBackdrop" onclick="closeAddPhotoSheet()"></div>
 <div class="sheet add-photo-sheet" id="addPhotoSheet">
   <div class="sheet-grab"></div>
@@ -518,7 +525,7 @@
   </div>
 </div>
 
-<!-- SHEET: Service Log -->
+<!-- ═══════════════ SHEET: Service Log ═══════════════ -->
 <div class="sheet-backdrop" id="logSheetBackdrop" onclick="closeLogSheet()"></div>
 <div class="sheet log-sheet" id="logSheet">
   <div class="sheet-grab"></div>
@@ -545,7 +552,7 @@
   </div>
 </div>
 
-<!-- SHEET: Flowchart -->
+<!-- ═══════════════ SHEET: Flowchart ═══════════════ -->
 <div class="sheet-backdrop" id="flowSheetBackdrop" onclick="closeFlowchart()"></div>
 <div class="sheet flow-sheet" id="flowSheet">
   <div class="sheet-grab"></div>
@@ -559,7 +566,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- SCRIPTS -->
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="settings.js"></script>
 <script src="i18n.js"></script>
 <script src="data.js"></script>

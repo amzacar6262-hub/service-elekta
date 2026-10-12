@@ -449,7 +449,9 @@ const I18N = {
   }
 };
 
-let LANG = (typeof localStorage !== "undefined" && localStorage.getItem("elekta_lang")) || "fa";
+let LANG = (window.Elekta && Elekta.storage)
+  ? Elekta.storage.getRaw("elekta_lang", "fa")
+  : ((typeof localStorage !== "undefined" && localStorage.getItem("elekta_lang")) || "fa");
 
 function t(key){
   const dict = I18N[LANG] || I18N.fa;
@@ -461,7 +463,8 @@ function getLang(){ return LANG; }
 function setLanguage(lang){
   if(lang !== "fa" && lang !== "en") lang = "fa";
   LANG = lang;
-  try { localStorage.setItem("elekta_lang", lang); } catch(e){}
+  if (window.Elekta && Elekta.storage) Elekta.storage.setRaw("elekta_lang", lang);
+  else try { localStorage.setItem("elekta_lang", lang); } catch(e){}
   document.documentElement.lang = lang;
   document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
 

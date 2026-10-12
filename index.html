@@ -250,6 +250,25 @@
         <div class="cat-grid" id="flowList"></div>
       </div>
     </section>
+    <!-- ═══════════════ LEARNING ═══════════════ -->
+<section id="page-learn" class="page">
+  <header class="nav" data-nav>
+    <div class="nav-top">
+      <button class="nav-back" onclick="go('more')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span data-i18n="more_title">بیش‌تر</span>
+      </button>
+      <div class="nav-title-sm" data-i18n="learn_title">آموزش</div>
+    </div>
+    <div class="nav-large" data-i18n="learn_title">آموزش</div>
+  </header>
+  <div class="health-sub" data-i18n="learn_sub">مسیرهای یادگیری سرویس</div>
+  <div class="section" style="margin-top:14px">
+    <div class="learn-paths" id="learnPathsGrid"></div>
+  </div>
+</section>
 
     <!-- ═══════════════ FAVORITES ═══════════════ -->
     <section id="page-fav" class="page">
@@ -338,9 +357,24 @@
         </div>
       </div>
 
-      <!-- سرویس -->
+  
+          <!-- سرویس -->
       <div class="section">
         <div class="section-h"><div class="section-t" data-i18n="sec_service">سرویس</div></div>
+        <div class="section">
+  <div class="section-h"><div class="section-t" data-i18n="sec_learning">آموزش</div></div>
+  <div class="cat-grid">
+    <button class="cat cat-mini" style="background:linear-gradient(145deg,#FF375F,#5856D6)" onclick="go('learn')">
+      <div class="cat-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+      <div class="cat-n" data-i18n="learn_title">آموزش</div>
+    </button>
+  </div>
+</div>
         <div class="cat-grid">
           <button class="cat cat-mini" style="background:linear-gradient(145deg,#5AC8FA,#0A84FF)" onclick="go('log')">
             <div class="cat-ic">
@@ -563,7 +597,22 @@
   </div>
   <div class="sheet-body" id="flowBody"></div>
 </div>
-
+<!-- SHEET: Learning -->
+<div class="sheet-backdrop" id="learnSheetBackdrop" onclick="closeLearnSheet()"></div>
+<div class="sheet learn-sheet" id="learnSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="learnBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;transform:scaleX(-1)">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      بازگشت
+    </button>
+    <div class="sheet-title" id="learnSheetTitle">آموزش</div>
+    <button class="sheet-act" onclick="closeLearnSheet()">بستن</button>
+  </div>
+  <div class="sheet-body" id="learnSheetBody"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
@@ -575,6 +624,7 @@
 <script src="data5.js"></script>
 <script src="data6.js"></script>
 <script src="flowcharts.js"></script>
+<script src="learn.js"></script>
 <script src="app.js"></script>
 <script src="qr.js"></script>
 <script src="gallery.js"></script>

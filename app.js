@@ -378,11 +378,12 @@ function renderTabbar(){
   var current = document.querySelector(".page.on");
   var cur = current ? current.id.replace("page-", "") : "home";
   var tabs = [
-    { id:"home",    label:i18n("tab_home",    "خانه"),     icon:ICONS.home },
-    { id:"lib",     label:i18n("tab_lib",     "کتابخانه"), icon:ICONS.book },
-    { id:"gallery", label:i18n("tab_gallery", "گالری"),    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>' },
-    { id:"codes",   label:i18n("tab_codes",   "کد خطا"),   icon:ICONS.warn },
-    { id:"fav",     label:i18n("tab_fav",     "ذخیره"),    icon:ICONS.star }
+    { id:"home",    label:i18n("tab_home",     "خانه"),      icon:ICONS.home },
+    { id:"lib",     label:i18n("tab_lib",      "کتابخانه"),  icon:ICONS.book },
+    { id:"gallery", label:i18n("tab_gallery",  "گالری"),     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>' },
+    { id:"codes",   label:i18n("tab_codes",    "کد خطا"),    icon:ICONS.warn },
+    { id:"fav",     label:i18n("tab_fav",      "ذخیره"),     icon:ICONS.star },
+    { id:"more",    label:i18n("tab_settings", "تنظیمات"),   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>' }
   ];
   var bar = document.getElementById("tabbar");
   if(!bar) return;

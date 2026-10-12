@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    Elekta Service — style.css
-   نسخه ۵.۰ — بازخوانی کامل
+   نسخه ۶.۰ — ۵ تب + تم + فونت
    ═══════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════
@@ -92,7 +92,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 .nav-back:active{background:var(--fill)}
 .nav-back svg{width:20px;height:20px}
 
-/* Compact Nav + Brand */
 .nav-compact{padding:6px var(--pad) 10px !important}
 .nav-compact .nav-large{display:none}
 .nav-brand{display:flex;align-items:center;gap:8px;flex:1;
@@ -121,7 +120,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 .section-a{font-size:15px;color:var(--blue);font-weight:500}
 .card{background:var(--card);border-radius:14px;overflow:hidden}
 
-/* ─── Row ─── */
 .row{display:flex;align-items:center;gap:12px;padding:14px 16px;
   min-height:52px;position:relative;width:100%}
 .row+.row::before{content:"";position:absolute;top:0;right:16px;left:0;
@@ -152,7 +150,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
    ═══════════════════════════════════════ */
 .cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;align-items:stretch}
 
-/* ─── Base Category Card ─── */
 .cat{
   border-radius:22px;padding:14px 16px;
   height:130px;min-height:130px;max-height:130px;
@@ -173,7 +170,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 .cat:active{transform:scale(.94)}
 .cat:active::before{opacity:1}
 
-/* Icon (top-right in RTL) */
 .cat .cat-ic{
   position:absolute;top:14px;
   inset-inline-start:16px;inset-inline-end:auto;
@@ -182,7 +178,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 }
 .cat .cat-ic svg{width:26px;height:26px;stroke-width:1.9}
 
-/* Title (bottom) */
 .cat .cat-n{
   position:absolute;bottom:14px;
   inset-inline-start:16px;inset-inline-end:16px;
@@ -195,7 +190,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
   margin:0;z-index:2;text-align:start;
 }
 
-/* ─── Mini Cards (same height as main) ─── */
 .cat.cat-mini{
   height:130px;min-height:130px;max-height:130px;
   padding:14px 16px;
@@ -204,7 +198,6 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 .cat.cat-mini .cat-ic svg{width:26px;height:26px}
 .cat.cat-mini .cat-n{font-size:14px;-webkit-line-clamp:3}
 
-/* ─── Badge Top (code) ─── */
 .cat-badge-top{
   position:absolute;top:14px;
   inset-inline-end:14px;inset-inline-start:auto;
@@ -243,12 +236,12 @@ html[data-theme="light"] .nav{background:rgba(242,242,247,.82)}
 .manual-fav svg{width:18px;height:18px}
 
 /* ═══════════════════════════════════════
-   9. TAB BAR (6 tabs)
+   9. TAB BAR (5 tabs)
    ═══════════════════════════════════════ */
 .tabbar{
   position:fixed;bottom:calc(14px + var(--safe-b));
   left:50%;transform:translateX(-50%);z-index:30;
-  width:calc(100% - 24px);max-width:440px;border-radius:32px;
+  width:calc(100% - 32px);max-width:420px;border-radius:32px;
   overflow:hidden;isolation:isolate;
   background:rgba(28,28,30,.48);
   backdrop-filter:blur(34px) saturate(180%) brightness(.9);
@@ -281,17 +274,29 @@ html[data-theme="light"] .tabbar{
   background:radial-gradient(ellipse 80% 60% at 50% 0%,
     rgba(255,255,255,.08) 0%,transparent 70%);
   pointer-events:none;z-index:1}
-.tabbar-inner{display:grid;grid-template-columns:repeat(6,1fr);height:66px;
-  padding:4px;position:relative;z-index:3;gap:1px}
 
-.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;
+/* ─── 5 تب یکسان ─── */
+.tabbar-inner{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  height:66px;
+  padding:6px 8px;
+  position:relative;
+  z-index:3;
+  gap:2px;
+}
+
+.tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;color:var(--label2);font-size:9px;font-weight:500;
-  letter-spacing:-.01em;border-radius:24px;position:relative;
+  letter-spacing:-.01em;border-radius:20px;position:relative;
+  margin:2px 1px;
   transition:color .25s cubic-bezier(.32,.72,0,1),
     transform .1s cubic-bezier(.34,1.56,.64,1),
     background .3s cubic-bezier(.32,.72,0,1);
-  -webkit-tap-highlight-color:transparent;overflow:hidden}
-.tab svg{width:21px;height:21px;
+  -webkit-tap-highlight-color:transparent;overflow:hidden;
+}
+.tab svg{width:22px;height:22px;
   transition:transform .35s cubic-bezier(.34,1.56,.64,1);
   position:relative;z-index:2;stroke-width:2}
 .tab.active{color:var(--blue);
@@ -316,9 +321,6 @@ html[data-theme="light"] .tabbar{
   transform:scale(0);animation:rippleExpand .6s cubic-bezier(.32,.72,0,1);
   pointer-events:none;z-index:1}
 @keyframes rippleExpand{to{transform:scale(2.5);opacity:0}}
-@media (min-width:600px){
-  .tabbar{bottom:calc(20px + var(--safe-b));max-width:420px}
-}
 
 /* ═══════════════════════════════════════
    10. SHEET
@@ -382,7 +384,6 @@ html[data-theme="light"] .tabbar{
 .detail-meta-item{display:flex;align-items:center;gap:6px;font-size:12px}
 .detail-meta-item svg{width:14px;height:14px}
 
-/* ─── Steps ─── */
 .step{display:flex;gap:14px;padding:14px 0;position:relative;
   animation:stepSlide .45s cubic-bezier(.34,1.4,.64,1) backwards}
 .step:nth-child(1){animation-delay:.05s}
@@ -410,7 +411,6 @@ html[data-theme="light"] .tabbar{
 .step.danger .step-n{background:var(--red)}
 .step.danger .step-note{border-right-color:var(--red)}
 
-/* ─── Step Checkbox ─── */
 .step-check{width:22px;height:22px;border-radius:50%;
   border:2px solid var(--label3);flex-shrink:0;
   display:grid;place-items:center;margin-top:3px;cursor:pointer;
@@ -423,7 +423,6 @@ html[data-theme="light"] .tabbar{
 .step.done .step-t{color:var(--label2);text-decoration:line-through;
   text-decoration-color:var(--label3)}
 
-/* ─── Alert Box ─── */
 .alert-box{display:flex;gap:12px;padding:14px;border-radius:12px;
   margin-bottom:14px;background:rgba(255,159,10,.12);
   border:.5px solid rgba(255,159,10,.3)}
@@ -431,12 +430,10 @@ html[data-theme="light"] .tabbar{
 .alert-box .txt{font-size:14px;line-height:1.5}
 .alert-box .t{font-weight:600;margin-bottom:3px}
 
-/* ─── Tags ─── */
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tag{padding:5px 10px;background:var(--fill);border-radius:100px;
   font-size:12px;color:var(--label2)}
 
-/* ─── Sheet Actions ─── */
 .sheet-actions{display:grid;grid-template-columns:1fr 1fr;
   gap:10px;margin-bottom:16px}
 .sheet-action-btn{padding:12px;border-radius:12px;background:var(--fill);
@@ -447,7 +444,6 @@ html[data-theme="light"] .tabbar{
 .sheet-action-btn.primary{background:var(--blue);color:#fff}
 .sheet-action-btn svg{width:16px;height:16px}
 
-/* ─── Manual Notes ─── */
 .manual-notes-section{background:var(--card);border-radius:14px;
   padding:4px 16px 16px;margin-bottom:16px}
 .manual-notes-area{width:100%;min-height:70px;padding:12px;
@@ -926,7 +922,7 @@ html[data-theme="light"] .tabbar{
 .flow-back svg{width:16px;height:16px}
 
 /* ═══════════════════════════════════════
-   25. COMPACT SEGMENTS (Settings rows)
+   25. SETTINGS ROWS (page-more)
    ═══════════════════════════════════════ */
 #page-more .row{flex-wrap:nowrap !important;gap:10px !important;
   padding:12px 16px !important}
@@ -994,7 +990,6 @@ html[data-theme="light"] .tabbar{
   to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 }
 
-/* Card stagger delays */
 .cat:nth-child(1){animation-delay:.04s}
 .cat:nth-child(2){animation-delay:.08s}
 .cat:nth-child(3){animation-delay:.12s}
@@ -1004,7 +999,6 @@ html[data-theme="light"] .tabbar{
 .cat:nth-child(7){animation-delay:.28s}
 .cat:nth-child(8){animation-delay:.32s}
 
-/* Icon bounce on tap */
 .cat:active .cat-ic{animation:iconBounce .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes iconBounce{
   0%{transform:scale(1)}
@@ -1012,7 +1006,6 @@ html[data-theme="light"] .tabbar{
   100%{transform:scale(1)}
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{
     animation-duration:.01ms !important;
@@ -1067,42 +1060,4 @@ html[data-theme="light"] .tabbar{
   .sheet-body .detail-hero{color:#000 !important;background:#f0f0f0 !important;
     box-shadow:none !important}
   .sheet-body .step-n{background:#000 !important;color:#fff !important}
-}
-/* ═══════════════════════════════════════
-   FIX: Tab bar spacing + Active pill padding
-   ═══════════════════════════════════════ */
-
-/* فاصله بیشتر از لبه‌های صفحه */
-.tabbar{
-  width: calc(100% - 32px) !important;
-  max-width: 420px !important;
-}
-
-/* فضای داخلی بیشتر تا پیل به لبه نچسبه */
-.tabbar-inner{
-  padding: 6px 8px !important;
-  gap: 2px !important;
-}
-
-/* هر تب فاصله کم از خودش */
-.tab{
-  margin: 2px 1px !important;
-  border-radius: 20px !important;
-}
-
-/* پیل تب فعال — با حاشیه بیشتر */
-.tab.active{
-  border-radius: 20px !important;
-  margin: 2px 1px !important;
-}
-
-/* آیکون‌ها — کمی کوچیک‌تر برای تناسب */
-.tab svg{
-  width: 22px !important;
-  height: 22px !important;
-}
-
-/* برچسب‌ها */
-.tab span{
-  font-size: 9px !important;
 }

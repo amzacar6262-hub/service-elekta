@@ -53,17 +53,15 @@
         </div>
       </header>
 
-      <div class="hero-banner">
+     <div class="hero-banner hero-compact">
         <img src="./hero.png" alt="Elekta" />
         <div class="hero-overlay">
-          <div class="hero-badge">Elekta Service</div>
-          <div class="hero-caption" data-i18n="home_sub">پایگاه دانش سرویس و نگهداری</div>
+          <div class="hero-badge">ELEKTA SERVICE</div>
+          <div class="hero-caption" data-i18n="home_sub">سرویس، تعمیر و نگهداری</div>
         </div>
       </div>
 
-      <div class="health-sub" data-i18n="home_sub">سرویس، تعمیر و نگهداری</div>
-
-      <div class="section" style="margin-top:14px">
+      <div class="section section-tight">
         <div class="stat-row">
           <div class="stat" style="animation-delay:.02s">
             <div class="stat-v" style="color:var(--blue)" id="stM">۰</div>
@@ -356,8 +354,28 @@
           <button data-font="lg" onclick="setFontSize('lg')">A</button>
         </div>
       </div>
+      <div class="row glass-row">
+        <div class="row-icon" style="background:linear-gradient(135deg,#5AC8FA,#0A84FF)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3c4 3 6 6.5 6 9s-2 6-6 9c-4-3-6-6.5-6-9s2-6 6-9z" fill="rgba(255,255,255,.25)"/>
+          </svg>
+        </div>
+        <div class="row-body">
+          <div class="row-title" data-i18n="row_glass">شیشه مایع</div>
+          <div class="row-sub" data-i18n="row_glass_sub">شفاف ← مات</div>
+        </div>
+      </div>
+      <div class="glass-slider-wrap">
+        <span class="glass-slider-label" data-i18n="glass_clear">شفاف</span>
+        <input type="range" id="glassSlider" class="glass-slider" min="0" max="100" value="55"
+               oninput="setGlassIntensity(this.value)" />
+        <span class="glass-slider-label" data-i18n="glass_tinted">مات</span>
+      </div>
     </div>
   </div>
+
+  <!-- سرویس -->
 
   <!-- سرویس -->
   <div class="section">

@@ -551,8 +551,8 @@ html[data-theme="light"] .tabbar{
 /* ═══════════════════════════════════════
    16. HERO BANNER
    ═══════════════════════════════════════ */
-.hero-banner{position:relative;margin:8px var(--pad) 20px;
-  border-radius:22px;overflow:hidden;height:200px;
+.hero-banner{position:relative;margin:6px var(--pad) 12px;
+  border-radius:var(--radius-lg);overflow:hidden;height:200px;
   box-shadow:0 12px 40px rgba(94,92,230,.35),0 4px 12px rgba(0,0,0,.4),
     inset 0 1px 0 rgba(255,255,255,.2);
   animation:cardSpring .7s cubic-bezier(.34,1.4,.64,1) backwards;
@@ -1548,4 +1548,81 @@ html[data-theme="light"] .tabbar{
   background:rgba(235,235,245,.28) !important;
   width:40px !important;height:5px !important;
   margin:8px auto 4px !important;
+}
+
+
+/* ═══════════════════════════════════════
+   Home compact + badges + glass slider
+   ═══════════════════════════════════════ */
+.hero-banner.hero-compact{
+  height:112px;
+  margin:4px var(--pad) 8px;
+  border-radius:var(--radius-md);
+  box-shadow:0 6px 20px rgba(94,92,230,.28),0 2px 8px rgba(0,0,0,.3);
+}
+.hero-compact .hero-overlay{padding:10px 14px;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,.72) 100%)}
+.hero-compact .hero-badge{font-size:9px;padding:3px 8px;margin-bottom:4px}
+.hero-compact .hero-caption{font-size:13px;font-weight:600}
+
+.section-tight{margin-top:8px !important}
+.section-tight + .section{margin-top:18px}
+
+/* Stat row tighter */
+.section-tight .stat-row{gap:8px}
+.section-tight .stat{padding:10px 8px;border-radius:var(--radius-sm)}
+.section-tight .stat-v{font-size:22px}
+.section-tight .stat-l{font-size:11px}
+
+/* Manual meta badges */
+.manual-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:var(--radius-pill);
+  font-size:11px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.badge-code{background:var(--fill);color:var(--label2);font-variant-numeric:tabular-nums}
+.badge-time{background:rgba(10,132,255,.15);color:var(--blue)}
+.badge-level{color:#fff}
+.badge-level-low{background:rgba(50,215,75,.85);color:#003a10}
+.badge-level-mid{background:rgba(255,159,10,.9);color:#3a2000}
+.badge-level-high{background:rgba(255,69,58,.9);color:#fff}
+
+html[data-theme="light"] .badge-code{background:rgba(120,120,128,.12);color:rgba(60,60,67,.7)}
+html[data-theme="light"] .badge-time{background:rgba(0,122,255,.12);color:#007AFF}
+
+/* Glass intensity slider (Settings) */
+.glass-row{border-bottom:none !important}
+.glass-slider-wrap{
+  display:flex;align-items:center;gap:10px;
+  padding:4px 16px 16px;margin-top:-4px;
+}
+.glass-slider-label{
+  font-size:12px;color:var(--label2);font-weight:500;
+  flex-shrink:0;min-width:2.5em;
+}
+.glass-slider-wrap .glass-slider-label:last-child{text-align:end}
+.glass-slider{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:4px;border-radius:100px;
+  background:linear-gradient(90deg,
+    rgba(90,200,250,.5) 0%,
+    rgba(10,132,255,.7) 50%,
+    rgba(94,92,230,.85) 100%);
+  outline:none;
+}
+.glass-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:26px;height:26px;border-radius:50%;
+  background:var(--glass-bg-strong);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:2px solid rgba(255,255,255,.5);
+  box-shadow:0 2px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.4);
+  cursor:pointer;
+}
+.glass-slider::-moz-range-thumb{
+  width:26px;height:26px;border-radius:50%;
+  background:#2c2c2e;border:2px solid rgba(255,255,255,.5);
+  box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;
+}
+html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
+  background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.1);
 }

@@ -2479,3 +2479,66 @@ html[data-font="lg"] .cat-n{ font-size: 15px !important; }
 #fontSeg button[data-font="sm"]{ font-size: 12px !important; }
 #fontSeg button[data-font="md"]{ font-size: 15px !important; }
 #fontSeg button[data-font="lg"]{ font-size: 18px !important; }
+/* ═══════════════════════════════════════
+   Compact Segments — تنگ‌تر و هم‌ردیف
+   ═══════════════════════════════════════ */
+
+/* ردیف‌های تنظیمات: در یک خط بمونن */
+#page-more .row{
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  padding: 12px 16px !important;
+}
+
+#page-more .row .row-body{
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+#page-more .row .row-title{
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 15px !important;
+}
+
+/* سگمنت‌های کوچک — فشرده */
+.lang-seg{
+  flex-shrink: 0 !important;
+  padding: 2px !important;
+  margin: 0 !important;
+}
+
+.lang-seg button{
+  min-width: 30px !important;
+  padding: 6px 9px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+/* سگمنت تم — دکمه‌ها کمی بزرگ‌تر از فونت */
+#themeSeg button{
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+  min-width: 34px !important;
+}
+
+/* سگمنت فونت — دکمه‌ها با A با اندازه‌های مختلف */
+#fontSeg button{
+  min-width: 34px !important;
+  padding: 6px 10px !important;
+}
+#fontSeg button[data-font="sm"]{ font-size: 11px !important; }
+#fontSeg button[data-font="md"]{ font-size: 14px !important; }
+#fontSeg button[data-font="lg"]{ font-size: 17px !important; }
+
+/* آیکون‌های تنظیمات هم کمی کوچک‌تر */
+#page-more .row .row-icon{
+  width: 28px !important;
+  height: 28px !important;
+}
+#page-more .row .row-icon svg{
+  width: 16px !important;
+  height: 16px !important;
+}

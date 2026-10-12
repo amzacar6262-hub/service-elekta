@@ -35,10 +35,47 @@ function i18n(key, fallback){
   return fallback || key;
 }
 
-/* ═══ State ═══ */
-let libFilter = "all", libQ = "", codeFilter = "all", codeQ = "", refQ = "";
-let favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]"));
-let curSheetManual = null;
+/* ═══ State (از core.js) ═══ */
+// proxy به Elekta.state برای سازگاری با کد موجود
+var _S = (window.Elekta && Elekta.state) ? Elekta.state : {
+  libFilter:"all", libQ:"", codeFilter:"all", codeQ:"", refQ:"",
+  favs: new Set(), curSheetManual: null,
+  checklistData: {}, manualNotes: {}, serviceLog: []
+};
+// getters/setters برای متغیرهای قدیمی
+Object.defineProperty(window, "libFilter", {
+  get: function(){ return _S.libFilter; },
+  set: function(v){ _S.libFilter = v; },
+  configurable: true
+});
+Object.defineProperty(window, "libQ", {
+  get: function(){ return _S.libQ; },
+  set: function(v){ _S.libQ = v; },
+  configurable: true
+});
+Object.defineProperty(window, "codeFilter", {
+  get: function(){ return _S.codeFilter; },
+  set: function(v){ _S.codeFilter = v; },
+  configurable: true
+});
+Object.defineProperty(window, "codeQ", {
+  get: function(){ return _S.codeQ; },
+  set: function(v){ _S.codeQ = v; },
+  configurable: true
+});
+Object.defineProperty(window, "refQ", {
+  get: function(){ return _S.refQ; },
+  set: function(v){ _S.refQ = v; },
+  configurable: true
+});
+// favs و curSheetManual را مستقیم از state می‌گیریم
+var favs = _S.favs;
+var curSheetManual = null;
+Object.defineProperty(window, "curSheetManual", {
+  get: function(){ return _S.curSheetManual; },
+  set: function(v){ _S.curSheetManual = v; curSheetManual = v; },
+  configurable: true
+});
 
 /* ═══════════════════════════════════════
    RENDER FUNCTIONS
@@ -331,7 +368,7 @@ function openManual(id){
     + '<div class="manual-notes-section">'
     +   '<textarea id="manualNotesArea" class="manual-notes-area" '
     +     'placeholder="' + i18n("log_notes_ph", "نکات خاص این منوال...") + '" '
-    +     'onchange="saveManualNote(\'' + m.id + '\', this.value)">' + (note || '') + '</textarea>'
+    +     'onchange="saveManualNote(\'' + m.id + '\', this.value)">' + escapeHtml(note || '') + '</textarea>'
     + '</div>';
 
   $("#backdrop").classList.add("show");
@@ -346,7 +383,12 @@ function closeSheet(){
 function toggleFav(id){
   if(favs.has(id)){ favs.delete(id); toast(i18n("t_removed", "حذف شد")); }
   else { favs.add(id); toast(i18n("t_saved", "ذخیره شد ★")); }
-  localStorage.setItem("favs", JSON.stringify([...favs]));
+  if (window.Elekta && Elekta.saveFavs) {
+    if (Elekta.state) Elekta.state.favs = favs;
+    Elekta.saveFavs();
+  } else {
+    try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch(e){}
+  }
   renderStats(); renderHomePop(); renderLib(); renderFavs();
   if(curSheetManual){
     var fb = $("#sheetFav");
@@ -646,15 +688,14 @@ if("serviceWorker" in navigator){
 /* ═══════════════════════════════════════
    CHECKLIST per Manual
    ═══════════════════════════════════════ */
-const CHECK_KEY = "elekta_checklist_v1";
-let checklistData = {};
-try { checklistData = JSON.parse(localStorage.getItem(CHECK_KEY) || "{}"); } catch(e){}
-
+/* checklist — از Elekta.state */
+var checklistData = (window.Elekta && Elekta.state) ? Elekta.state.checklistData : {};
 function getChecklistState(manualId){
   return checklistData[manualId] || {};
 }
 function saveChecklist(){
-  try { localStorage.setItem(CHECK_KEY, JSON.stringify(checklistData)); } catch(e){}
+  if (window.Elekta && Elekta.saveChecklist) Elekta.saveChecklist();
+  else try { localStorage.setItem("elekta_checklist_v1", JSON.stringify(checklistData)); } catch(e){}
 }
 function toggleStep(manualId, stepIndex, el){
   if(!checklistData[manualId]) checklistData[manualId] = {};
@@ -692,10 +733,8 @@ function resetChecklist(manualId){
 /* ═══════════════════════════════════════
    NOTES per Manual
    ═══════════════════════════════════════ */
-const NOTE_KEY = "elekta_notes_v1";
-let manualNotes = {};
-try { manualNotes = JSON.parse(localStorage.getItem(NOTE_KEY) || "{}"); } catch(e){}
-
+/* notes — از Elekta.state */
+var manualNotes = (window.Elekta && Elekta.state) ? Elekta.state.manualNotes : {};
 function getManualNote(manualId){
   return manualNotes[manualId] || "";
 }
@@ -705,7 +744,8 @@ function saveManualNote(manualId, value){
   } else {
     delete manualNotes[manualId];
   }
-  try { localStorage.setItem(NOTE_KEY, JSON.stringify(manualNotes)); } catch(e){}
+  if (window.Elekta && Elekta.saveNotes) Elekta.saveNotes();
+  else try { localStorage.setItem("elekta_notes_v1", JSON.stringify(manualNotes)); } catch(e){}
   if(typeof toast === "function") toast(i18n("log_note_saved", "یادداشت ذخیره شد"));
 }
 
@@ -723,16 +763,22 @@ function exportManualPDF(){
 /* ═══════════════════════════════════════
    SERVICE LOG
    ═══════════════════════════════════════ */
-const LOG_KEY = "elekta_service_log_v1";
-let serviceLog = [];
-try { serviceLog = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch(e){}
+/* service log — از Elekta.state */
+var serviceLog = (window.Elekta && Elekta.state) ? Elekta.state.serviceLog : [];
+if (!Array.isArray(serviceLog)) serviceLog = [];
 
 let logSelectedManualId = null;
 let logSelectedMachine = "Synergy";
 let logSelectedStatus = "done";
 
 function saveServiceLog(){
-  try { localStorage.setItem(LOG_KEY, JSON.stringify(serviceLog)); } catch(e){}
+  if (window.Elekta && Elekta.saveLog) {
+    // sync back to state
+    if (Elekta.state) Elekta.state.serviceLog = serviceLog;
+    Elekta.saveLog();
+  } else {
+    try { localStorage.setItem("elekta_service_log_v1", JSON.stringify(serviceLog)); } catch(e){}
+  }
 }
 
 function openLogSheet(manualId){
@@ -859,7 +905,7 @@ function renderLog(){
       + '<span>🕐 ' + dateStr + '</span>'
       + '<span>📋 ' + entry.manualCode + '</span>'
       + '</div>'
-      + (entry.notes ? '<div class="log-notes">' + entry.notes + '</div>' : '')
+      + (entry.notes ? '<div class="log-notes">' + escapeHtml(entry.notes) + '</div>' : '')
       + '</div>';
   }).join("");
 }
@@ -914,27 +960,39 @@ window.openLogEntry = openLogEntry;
 window.exportLogJSON = exportLogJSON;
 
 /* ═══════════════════════════════════════
-   INIT
+   INIT (با محافظت از خطا)
    ═══════════════════════════════════════ */
-renderTabbar();
-renderStats();
-renderCats();
-renderToolGrid();
-renderHomePop();
-renderLibChips();
-renderLib();
-renderCodeChips();
-renderCodes();
-renderFavs();
-renderMachineList();
-renderHomeFlow();
-renderLog();
-if(typeof renderGalleryChips === "function") renderGalleryChips();
-if(typeof renderGallery === "function") renderGallery();
-if(typeof renderPMFreqChips === "function") renderPMFreqChips();
-if(typeof renderPMMachineChips === "function") renderPMMachineChips();
-if(typeof renderPMProgress === "function") renderPMProgress();
-if(typeof renderPMList === "function") renderPMList();
-if(typeof applyStaticTranslations === "function") applyStaticTranslations();
-updateLangSwitch();
-updateOnline();
+function _doInit(){
+  // sync favs از state
+  if (window.Elekta && Elekta.state && Elekta.state.favs) {
+    favs = Elekta.state.favs;
+  }
+  renderTabbar();
+  renderStats();
+  renderCats();
+  renderToolGrid();
+  renderHomePop();
+  renderLibChips();
+  renderLib();
+  renderCodeChips();
+  renderCodes();
+  renderFavs();
+  renderMachineList();
+  renderHomeFlow();
+  renderLog();
+  if(typeof renderGalleryChips === "function") renderGalleryChips();
+  if(typeof renderGallery === "function") renderGallery();
+  if(typeof renderPMFreqChips === "function") renderPMFreqChips();
+  if(typeof renderPMMachineChips === "function") renderPMMachineChips();
+  if(typeof renderPMProgress === "function") renderPMProgress();
+  if(typeof renderPMList === "function") renderPMList();
+  if(typeof applyStaticTranslations === "function") applyStaticTranslations();
+  updateLangSwitch();
+  updateOnline();
+}
+
+if (window.Elekta && typeof Elekta.safeInit === "function") {
+  Elekta.safeInit(_doInit);
+} else {
+  try { _doInit(); } catch(e){ console.error("Init error:", e); }
+}

@@ -35,47 +35,19 @@ function i18n(key, fallback){
   return fallback || key;
 }
 
-/* ═══ State (از core.js) ═══ */
-// proxy به Elekta.state برای سازگاری با کد موجود
-var _S = (window.Elekta && Elekta.state) ? Elekta.state : {
-  libFilter:"all", libQ:"", codeFilter:"all", codeQ:"", refQ:"",
-  favs: new Set(), curSheetManual: null,
-  checklistData: {}, manualNotes: {}, serviceLog: []
-};
-// getters/setters برای متغیرهای قدیمی
-Object.defineProperty(window, "libFilter", {
-  get: function(){ return _S.libFilter; },
-  set: function(v){ _S.libFilter = v; },
-  configurable: true
-});
-Object.defineProperty(window, "libQ", {
-  get: function(){ return _S.libQ; },
-  set: function(v){ _S.libQ = v; },
-  configurable: true
-});
-Object.defineProperty(window, "codeFilter", {
-  get: function(){ return _S.codeFilter; },
-  set: function(v){ _S.codeFilter = v; },
-  configurable: true
-});
-Object.defineProperty(window, "codeQ", {
-  get: function(){ return _S.codeQ; },
-  set: function(v){ _S.codeQ = v; },
-  configurable: true
-});
-Object.defineProperty(window, "refQ", {
-  get: function(){ return _S.refQ; },
-  set: function(v){ _S.refQ = v; },
-  configurable: true
-});
-// favs و curSheetManual را مستقیم از state می‌گیریم
-var favs = _S.favs;
+/* ═══ State ═══ */
+var libFilter = "all", libQ = "", codeFilter = "all", codeQ = "", refQ = "";
+var favs = new Set();
+try {
+  if (window.Elekta && Elekta.state && Elekta.state.favs instanceof Set) {
+    favs = Elekta.state.favs;
+  } else {
+    var _favArr = [];
+    try { _favArr = JSON.parse(localStorage.getItem("favs") || "[]"); } catch(_e){}
+    favs = new Set(Array.isArray(_favArr) ? _favArr : []);
+  }
+} catch(_e){ favs = new Set(); }
 var curSheetManual = null;
-Object.defineProperty(window, "curSheetManual", {
-  get: function(){ return _S.curSheetManual; },
-  set: function(v){ _S.curSheetManual = v; curSheetManual = v; },
-  configurable: true
-});
 
 /* ═══════════════════════════════════════
    RENDER FUNCTIONS
@@ -439,7 +411,7 @@ function go(id){
   document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("on"); });
   var target = document.getElementById("page-" + id);
   if(target) target.classList.add("on");
-  document.getElementById("main").scrollTop = 0;
+  var _main = document.getElementById("main"); if(_main) _main.scrollTop = 0;
   document.querySelectorAll("[data-nav]").forEach(function(n){ n.classList.remove("scrolled"); });
   renderTabbar();
   if(id === "fav") renderFavs();
@@ -581,12 +553,16 @@ function updateLangSwitch(){
 /* ═══════════════════════════════════════
    SCROLL — Nav Compact
    ═══════════════════════════════════════ */
-document.getElementById("main").addEventListener("scroll", function(e){
-  var top = e.target.scrollTop;
-  var nav = document.querySelector(".page.on [data-nav]");
-  if(!nav) return;
-  nav.classList.toggle("scrolled", top > 24);
-});
+(function(){
+  var mainEl = document.getElementById("main");
+  if(!mainEl) return;
+  mainEl.addEventListener("scroll", function(e){
+    var top = e.target.scrollTop;
+    var nav = document.querySelector(".page.on [data-nav]");
+    if(!nav) return;
+    nav.classList.toggle("scrolled", top > 24);
+  });
+})();
 
 /* ═══════════════════════════════════════
    TAB RIPPLE
@@ -689,7 +665,14 @@ if("serviceWorker" in navigator){
    CHECKLIST per Manual
    ═══════════════════════════════════════ */
 /* checklist — از Elekta.state */
-var checklistData = (window.Elekta && Elekta.state) ? Elekta.state.checklistData : {};
+var checklistData = {};
+try {
+  if (window.Elekta && Elekta.state && Elekta.state.checklistData && typeof Elekta.state.checklistData === "object") {
+    checklistData = Elekta.state.checklistData;
+  } else {
+    try { checklistData = JSON.parse(localStorage.getItem("elekta_checklist_v1") || "{}") || {}; } catch(_e){ checklistData = {}; }
+  }
+} catch(_e){ checklistData = {}; }
 function getChecklistState(manualId){
   return checklistData[manualId] || {};
 }
@@ -734,7 +717,14 @@ function resetChecklist(manualId){
    NOTES per Manual
    ═══════════════════════════════════════ */
 /* notes — از Elekta.state */
-var manualNotes = (window.Elekta && Elekta.state) ? Elekta.state.manualNotes : {};
+var manualNotes = {};
+try {
+  if (window.Elekta && Elekta.state && Elekta.state.manualNotes && typeof Elekta.state.manualNotes === "object") {
+    manualNotes = Elekta.state.manualNotes;
+  } else {
+    try { manualNotes = JSON.parse(localStorage.getItem("elekta_notes_v1") || "{}") || {}; } catch(_e){ manualNotes = {}; }
+  }
+} catch(_e){ manualNotes = {}; }
 function getManualNote(manualId){
   return manualNotes[manualId] || "";
 }
@@ -764,8 +754,16 @@ function exportManualPDF(){
    SERVICE LOG
    ═══════════════════════════════════════ */
 /* service log — از Elekta.state */
-var serviceLog = (window.Elekta && Elekta.state) ? Elekta.state.serviceLog : [];
-if (!Array.isArray(serviceLog)) serviceLog = [];
+var serviceLog = [];
+try {
+  if (window.Elekta && Elekta.state && Array.isArray(Elekta.state.serviceLog)) {
+    serviceLog = Elekta.state.serviceLog;
+  } else {
+    var _rawLog = null;
+    try { _rawLog = JSON.parse(localStorage.getItem("elekta_service_log_v1") || "[]"); } catch(_e){}
+    serviceLog = Array.isArray(_rawLog) ? _rawLog : [];
+  }
+} catch(_e){ serviceLog = []; }
 
 let logSelectedManualId = null;
 let logSelectedMachine = "Synergy";
@@ -875,6 +873,7 @@ function saveLogEntry(){
 function renderLog(){
   var el = document.getElementById("logList");
   if(!el) return;
+  if(!serviceLog || !Array.isArray(serviceLog)) serviceLog = [];
   if(!serviceLog.length){
     el.innerHTML = '<div class="log-empty">'
       + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
@@ -963,10 +962,6 @@ window.exportLogJSON = exportLogJSON;
    INIT (با محافظت از خطا)
    ═══════════════════════════════════════ */
 function _doInit(){
-  // sync favs از state
-  if (window.Elekta && Elekta.state && Elekta.state.favs) {
-    favs = Elekta.state.favs;
-  }
   renderTabbar();
   renderStats();
   renderCats();

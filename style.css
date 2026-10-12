@@ -2406,3 +2406,76 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   z-index: 3 !important;
   pointer-events: none !important;
 }
+/* ═══════════════════════════════════════
+   Theme Override — Light / Dark / Auto
+   ═══════════════════════════════════════ */
+
+/* تم روشن اجباری */
+html[data-theme="light"]{
+  --bg: #F2F2F7 !important;
+  --card: #FFFFFF !important;
+  --card-2: #F2F2F7 !important;
+  --label: #000000 !important;
+  --label2: rgba(60,60,67,.6) !important;
+  --label3: rgba(60,60,67,.3) !important;
+  --sep: rgba(60,60,67,.18) !important;
+  --fill: rgba(120,120,128,.12) !important;
+}
+
+/* تم تاریک اجباری */
+html[data-theme="dark"]{
+  --bg: #000000 !important;
+  --card: #1C1C1E !important;
+  --card-2: #2C2C2E !important;
+  --label: #FFFFFF !important;
+  --label2: rgba(235,235,245,.6) !important;
+  --label3: rgba(235,235,245,.3) !important;
+  --sep: rgba(84,84,88,.65) !important;
+  --fill: rgba(120,120,128,.36) !important;
+}
+
+/* ═══════════════════════════════════════
+   Font Size Override
+   ═══════════════════════════════════════ */
+
+html[data-font="sm"] body{
+  font-size: 15px !important;
+}
+html[data-font="md"] body{
+  font-size: 17px !important;
+}
+html[data-font="lg"] body{
+  font-size: 19px !important;
+}
+
+/* عناوین بر اساس اندازه فونت */
+html[data-font="sm"] .nav-large{ font-size: 30px !important; }
+html[data-font="lg"] .nav-large{ font-size: 38px !important; }
+
+html[data-font="sm"] .section-t{ font-size: 20px !important; }
+html[data-font="lg"] .section-t{ font-size: 24px !important; }
+
+html[data-font="sm"] .cat-n{ font-size: 13px !important; }
+html[data-font="lg"] .cat-n{ font-size: 15px !important; }
+
+/* ═══════════════════════════════════════
+   Theme Segmented — تم رنگی برای دکمه فعال
+   ═══════════════════════════════════════ */
+
+#themeSeg button[data-theme="light"].on{
+  background: #FFD60A !important;
+  color: #000 !important;
+}
+#themeSeg button[data-theme="dark"].on{
+  background: #5E5CE6 !important;
+  color: #fff !important;
+}
+#themeSeg button[data-theme="auto"].on{
+  background: var(--blue) !important;
+  color: #fff !important;
+}
+
+/* اندازه فونت — دکمه‌های بزرگ‌تر برای تمایز */
+#fontSeg button[data-font="sm"]{ font-size: 12px !important; }
+#fontSeg button[data-font="md"]{ font-size: 15px !important; }
+#fontSeg button[data-font="lg"]{ font-size: 18px !important; }

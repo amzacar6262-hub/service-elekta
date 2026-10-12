@@ -5,8 +5,12 @@
 const THEME_KEY = "elekta_theme";
 const FONT_KEY = "elekta_font";
 
-let currentTheme = localStorage.getItem(THEME_KEY) || "auto";
-let currentFont = localStorage.getItem(FONT_KEY) || "md";
+let currentTheme = (window.Elekta && Elekta.storage)
+  ? Elekta.storage.getRaw(THEME_KEY, "auto")
+  : (localStorage.getItem(THEME_KEY) || "auto");
+let currentFont = (window.Elekta && Elekta.storage)
+  ? Elekta.storage.getRaw(FONT_KEY, "md")
+  : (localStorage.getItem(FONT_KEY) || "md");
 
 /* ── تم ── */
 function applyTheme(theme){
@@ -28,7 +32,8 @@ function applyTheme(theme){
 
 function setTheme(theme){
   currentTheme = theme;
-  try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
+  if (window.Elekta && Elekta.storage) Elekta.storage.setRaw(THEME_KEY, theme);
+  else try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
   applyTheme(theme);
   updateThemeSwitch();
   if(navigator.vibrate) navigator.vibrate(8);
@@ -55,7 +60,8 @@ function applyFontSize(size){
 
 function setFontSize(size){
   currentFont = size;
-  try { localStorage.setItem(FONT_KEY, size); } catch(e){}
+  if (window.Elekta && Elekta.storage) Elekta.storage.setRaw(FONT_KEY, size);
+  else try { localStorage.setItem(FONT_KEY, size); } catch(e){}
   applyFontSize(size);
   updateFontSwitch();
   if(navigator.vibrate) navigator.vibrate(8);

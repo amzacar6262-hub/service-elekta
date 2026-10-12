@@ -1068,3 +1068,41 @@ html[data-theme="light"] .tabbar{
     box-shadow:none !important}
   .sheet-body .step-n{background:#000 !important;color:#fff !important}
 }
+/* ═══════════════════════════════════════
+   FIX: Tab bar spacing + Active pill padding
+   ═══════════════════════════════════════ */
+
+/* فاصله بیشتر از لبه‌های صفحه */
+.tabbar{
+  width: calc(100% - 32px) !important;
+  max-width: 420px !important;
+}
+
+/* فضای داخلی بیشتر تا پیل به لبه نچسبه */
+.tabbar-inner{
+  padding: 6px 8px !important;
+  gap: 2px !important;
+}
+
+/* هر تب فاصله کم از خودش */
+.tab{
+  margin: 2px 1px !important;
+  border-radius: 20px !important;
+}
+
+/* پیل تب فعال — با حاشیه بیشتر */
+.tab.active{
+  border-radius: 20px !important;
+  margin: 2px 1px !important;
+}
+
+/* آیکون‌ها — کمی کوچیک‌تر برای تناسب */
+.tab svg{
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* برچسب‌ها */
+.tab span{
+  font-size: 9px !important;
+}

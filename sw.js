@@ -25,6 +25,7 @@ const ASSETS = [
   "./learn.js",
   "./sync.js",
   "./pdfs.js",
+  "./pdfviewer-plus.js",
   "./app.js",
   "./qr.js",
   "./gallery.js",

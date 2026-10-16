@@ -1723,78 +1723,103 @@ html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
 }
 .pdf-act.danger { color: #FF453A; }
 .pdf-hint { font-size: 12px; color: var(--label2); margin-top: 12px; line-height: 1.45; }
+/* PDF viewer — هدر خوانا، ارتفاع متعادل */
 .pdf-viewer-sheet {
-  height: 96vh !important;
-  max-height: 96vh !important;
+  height: 88vh !important;
+  max-height: 88vh !important;
   display: flex !important;
   flex-direction: column !important;
   z-index: 80 !important;
+  border-radius: 16px 16px 0 0 !important;
+  overflow: hidden !important;
+  background: #1c1c1e !important;
 }
 .pdf-viewer-sheet.show { transform: translateY(0); }
 .pdf-viewer-sheet .sheet-grab {
   flex-shrink: 0;
   position: relative;
   z-index: 30;
+  padding-top: 10px;
+  background: #1c1c1e;
 }
 .pdf-viewer-sheet .sheet-head {
   flex-shrink: 0 !important;
   position: relative !important;
   z-index: 30 !important;
-  background: rgba(22,22,24,.96) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #1c1c1e !important;
   pointer-events: auto !important;
-  min-height: 52px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  min-height: 56px;
+  padding: 8px 12px 12px !important;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  gap: 8px;
+}
+.pdf-viewer-sheet .sheet-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #f2f2f7 !important;
+  opacity: 1 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 46vw;
 }
 .pdf-viewer-sheet .sheet-act {
   pointer-events: auto !important;
   position: relative;
   z-index: 31;
-  min-width: 64px;
+  min-width: 56px;
   min-height: 44px;
-  padding: 10px 14px !important;
-  font-size: 17px !important;
+  padding: 8px 12px !important;
+  font-size: 16px !important;
   font-weight: 700 !important;
+  color: #0A84FF !important;
+  background: rgba(10,132,255,.15) !important;
+  border-radius: 10px !important;
+  opacity: 1 !important;
+}
+.pdf-viewer-sheet .sheet-act.accent {
+  color: #FF9F0A !important;
+  background: rgba(255,159,10,.18) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 .pdf-viewer-body {
   padding: 0 !important;
   flex: 1 1 auto !important;
-  height: auto !important;
   min-height: 0 !important;
   overflow: hidden !important;
   position: relative;
   z-index: 1;
-  -webkit-overflow-scrolling: touch;
+  background: #000;
 }
 .pdf-viewer-body iframe,
 .pdf-viewer-body object,
 .pdf-viewer-body embed {
   width: 100% !important;
   height: 100% !important;
-  min-height: 60vh;
+  min-height: 50vh;
   border: 0;
   background: #111;
   display: block;
-  position: relative;
-  z-index: 1;
 }
-/* دکمه شناور بستن — همیشه روی PDF */
 .pdf-close-fab {
   position: fixed !important;
-  top: calc(10px + env(safe-area-inset-top, 0px));
-  inset-inline-start: 12px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  inset-inline-start: 14px;
   z-index: 120 !important;
-  min-width: 72px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 22px;
-  border: none;
-  background: rgba(0,0,0,.75);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  min-width: 88px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 24px;
+  border: 2px solid rgba(255,255,255,.35);
+  background: #0A84FF !important;
+  color: #fff !important;
+  font-size: 17px;
+  font-weight: 800 !important;
+  letter-spacing: 0;
+  box-shadow: 0 6px 24px rgba(0,0,0,.55);
   pointer-events: auto !important;
   display: none;
   align-items: center;
@@ -1803,6 +1828,13 @@ html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
 .pdf-close-fab.show {
   display: flex !important;
 }
+#pdfViewerBackdrop.show,
+#pdfViewerSheetBackdrop.show {
+  z-index: 79 !important;
+  background: rgba(0,0,0,.55) !important;
+  pointer-events: auto !important;
+}
+
 #pdfViewerSheetBackdrop.show,
 #pdfViewerBackdrop.show {
   z-index: 79 !important;

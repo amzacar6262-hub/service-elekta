@@ -1763,27 +1763,31 @@ html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
   white-space: nowrap;
   max-width: 46vw;
 }
-.pdf-viewer-sheet .sheet-act {
+.pdf-viewer-sheet .sheet-act,
+.pdf-viewer-sheet .sheet-act.accent,
+.pdf-viewer-sheet a.sheet-act {
   pointer-events: auto !important;
   position: relative;
   z-index: 31;
-  min-width: 56px;
-  min-height: 44px;
-  padding: 8px 12px !important;
-  font-size: 16px !important;
-  font-weight: 700 !important;
-  color: #0A84FF !important;
-  background: rgba(10,132,255,.15) !important;
-  border-radius: 10px !important;
+  min-width: 72px;
+  min-height: 40px;
+  padding: 8px 14px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #f2f2f7 !important;
+  background: rgba(255,255,255,.12) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
   opacity: 1 !important;
-}
-.pdf-viewer-sheet .sheet-act.accent {
-  color: #FF9F0A !important;
-  background: rgba(255,159,10,.18) !important;
   text-decoration: none !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  box-shadow: none !important;
+}
+.pdf-viewer-sheet .sheet-act:active,
+.pdf-viewer-sheet a.sheet-act:active {
+  background: rgba(255,255,255,.22) !important;
 }
 .pdf-viewer-body {
   padding: 0 !important;
@@ -1809,21 +1813,23 @@ html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
   top: calc(14px + env(safe-area-inset-top, 0px));
   inset-inline-start: 14px;
   z-index: 120 !important;
-  min-width: 88px;
-  height: 48px;
-  padding: 0 18px;
-  border-radius: 24px;
-  border: 2px solid rgba(255,255,255,.35);
-  background: #0A84FF !important;
-  color: #fff !important;
-  font-size: 17px;
-  font-weight: 800 !important;
+  min-width: 80px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(28,28,30,.92) !important;
+  color: #f2f2f7 !important;
+  font-size: 15px;
+  font-weight: 600 !important;
   letter-spacing: 0;
-  box-shadow: 0 6px 24px rgba(0,0,0,.55);
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
   pointer-events: auto !important;
   display: none;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .pdf-close-fab.show {
   display: flex !important;

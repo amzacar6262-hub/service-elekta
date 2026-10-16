@@ -1,4 +1,4 @@
-const CACHE = "elekta-service-v83";
+const CACHE = "elekta-service-v84";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./hero.png",
   "./style.css",
   "./settings.js",
+  "./core.js",
   "./i18n.js",
   "./data.js",
   "./data3.js",
@@ -15,9 +16,15 @@ const ASSETS = [
   "./data6.js",
   "./data7.js",
   "./data8.js",
+  "./data9.js",
+  "./data10.js",
+  "./data11.js",
+  "./data12.js",
+  "./illustrations.js",
   "./flowcharts.js",
   "./learn.js",
   "./sync.js",
+  "./pdfs.js",
   "./app.js",
   "./qr.js",
   "./gallery.js",
@@ -37,11 +44,11 @@ self.addEventListener("activate", e => {
     ).then(() => self.clients.claim())
   );
 });
+
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
   if (url.pathname.includes("/sync")) return;
-
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(res => {
@@ -57,14 +64,14 @@ self.addEventListener("fetch", e => {
 });
 
 self.addEventListener("push", e => {
-  const data = e.data ? e.data.json() : { title: "سرویس الکتا", body: "یادآور QA" };
+  const data = e.data ? e.data.json() : { title: "Elekta Service", body: "یادآور QA" };
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: "./icon-192.png",
       badge: "./icon-192.png",
       vibrate: [200, 100, 200],
-      tag: "elekta-qa",
+      tag: "elekta-qa"
     })
   );
 });

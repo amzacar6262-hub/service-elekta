@@ -325,6 +325,23 @@ async function savePendingPdf() {
   }
 }
 
+function ensurePdfCloseFab() {
+  var fab = document.getElementById("pdfCloseFab");
+  if (fab) return fab;
+  fab = document.createElement("button");
+  fab.id = "pdfCloseFab";
+  fab.type = "button";
+  fab.className = "pdf-close-fab";
+  fab.textContent = "بستن ✕";
+  fab.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closePdfViewer();
+  });
+  document.body.appendChild(fab);
+  return fab;
+}
+
 async function openPdfViewer(id) {
   try {
     var rec = await pdfGet(id);
@@ -340,18 +357,21 @@ async function openPdfViewer(id) {
     var frame = document.getElementById("pdfViewerFrame");
     var title = document.getElementById("pdfViewerTitle");
     var sheet = document.getElementById("pdfViewerSheet");
-    var back = document.getElementById("pdfViewerBackdrop");
+    var back = document.getElementById("pdfViewerBackdrop") || document.getElementById("pdfViewerSheetBackdrop");
     if (title) title.textContent = rec.title || rec.name;
     if (frame) {
       frame.src = url;
+      frame.style.pointerEvents = "auto";
     }
     var dl = document.getElementById("pdfViewerDownload");
     if (dl) {
       dl.href = url;
-      dl.download = rec.name || "document.pdf";
+      dl.setAttribute("download", rec.name || "document.pdf");
     }
     if (sheet) sheet.classList.add("show");
     if (back) back.classList.add("show");
+    var fab = ensurePdfCloseFab();
+    fab.classList.add("show");
   } catch (e) {
     console.error(e);
     pdfToast("خطا در باز کردن PDF");
@@ -359,16 +379,24 @@ async function openPdfViewer(id) {
 }
 
 function closePdfViewer() {
-  var frame = document.getElementById("pdfViewerFrame");
-  var sheet = document.getElementById("pdfViewerSheet");
-  var back = document.getElementById("pdfViewerBackdrop");
-  if (frame) frame.src = "about:blank";
-  if (pdfViewerObjectUrl) {
-    try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
-    pdfViewerObjectUrl = null;
+  try {
+    var frame = document.getElementById("pdfViewerFrame");
+    var sheet = document.getElementById("pdfViewerSheet");
+    var back = document.getElementById("pdfViewerBackdrop") || document.getElementById("pdfViewerSheetBackdrop");
+    if (frame) {
+      try { frame.src = "about:blank"; } catch (e) {}
+    }
+    if (pdfViewerObjectUrl) {
+      try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
+      pdfViewerObjectUrl = null;
+    }
+    if (sheet) sheet.classList.remove("show");
+    if (back) back.classList.remove("show");
+    var fab = document.getElementById("pdfCloseFab");
+    if (fab) fab.classList.remove("show");
+  } catch (e) {
+    console.error(e);
   }
-  if (sheet) sheet.classList.remove("show");
-  if (back) back.classList.remove("show");
 }
 
 function confirmDeletePdf(id) {

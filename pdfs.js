@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════
-   pdfs.js — کتابخانه PDF (IndexedDB)
-   نسخه ۳ — اسکرول پیوسته
+   pdfs.js — v4 با اسکرول پیوسته + زوم دو انگشتی + هایلایت
    ═══════════════════════════════════════ */
 
 var PDF_CATS = [
@@ -300,7 +299,7 @@ async function savePendingPdf() {
 
 
 /* ═══════════════════════════════════════
-   PDF Viewer — اسکرول پیوسته
+   PDF Viewer — v4
    ═══════════════════════════════════════ */
 
 var pdfJsDoc = null;
@@ -309,6 +308,7 @@ var pdfSearchHits = [];
 var pdfSearchHitIdx = 0;
 var pdfCurrentBlobUrl = null;
 var pdfCurrentPage = 1;
+var pdfCurrentQuery = "";
 var pdfRenderedPages = {};
 var pdfPageObserver = null;
 
@@ -334,7 +334,6 @@ function getPdfCanvasHost() {
   if (!body) return null;
   var host = document.getElementById("pdfCanvasHost");
   if (!host) {
-    /* حذف هر leftover */
     var oldNav = document.getElementById("pdfPageNav");
     if (oldNav && oldNav.parentNode) oldNav.parentNode.removeChild(oldNav);
     var oldHost = document.getElementById("pdfCanvasHost");
@@ -346,7 +345,6 @@ function getPdfCanvasHost() {
     body.innerHTML = "";
     body.appendChild(host);
   }
-  /* حذف Nav Bar قبلی */
   var nav = document.getElementById("pdfPageNav");
   if (nav && nav.parentNode) nav.parentNode.removeChild(nav);
 
@@ -355,6 +353,7 @@ function getPdfCanvasHost() {
   return host;
 }
 
+/* ═══ Render همه صفحات با aspect-ratio دقیق ═══ */
 async function renderAllPdfPages() {
   if (!pdfJsDoc) return;
   var host = getPdfCanvasHost();
@@ -363,28 +362,24 @@ async function renderAllPdfPages() {
   pdfRenderedPages = {};
 
   var totalPages = pdfJsDoc.numPages;
-  var hostW = host.clientWidth || window.innerWidth || 360;
 
-  /* تخمین ارتفاع از صفحه اول */
+  /* aspect-ratio دقیق از صفحه اول */
   var firstPage = await pdfJsDoc.getPage(1);
   var vp1 = firstPage.getViewport({ scale: 1 });
-  var scale0 = (hostW - 16) / vp1.width;
-  var estHeight = Math.floor(vp1.height * scale0);
+  var aspectStr = vp1.width + " / " + vp1.height;
 
-  /* ساخت placeholder برای همه صفحات */
   var frag = document.createDocumentFragment();
   for (var i = 1; i <= totalPages; i++) {
     var wrap = document.createElement("div");
     wrap.className = "pdf-page-wrapper";
     wrap.id = "pdfPage_" + i;
     wrap.dataset.pageNum = i;
-    wrap.style.minHeight = estHeight + "px";
+    wrap.style.aspectRatio = aspectStr;
     wrap.innerHTML = '<div class="pdf-page-placeholder">صفحه ' + i + '</div>';
     frag.appendChild(wrap);
   }
   host.appendChild(frag);
 
-  /* IntersectionObserver برای lazy render */
   if (pdfPageObserver) {
     try { pdfPageObserver.disconnect(); } catch(e){}
   }
@@ -405,22 +400,20 @@ async function renderAllPdfPages() {
     });
   }, {
     root: host,
-    rootMargin: "400px 0px",
+    rootMargin: "800px 0px",
     threshold: 0.01
   });
 
-  var wrappers = host.querySelectorAll(".pdf-page-wrapper");
-  wrappers.forEach(function(w) { pdfPageObserver.observe(w); });
-
-  /* Scroll listener برای به‌روزرسانی شماره صفحه جاری */
+  host.querySelectorAll(".pdf-page-wrapper").forEach(function(w) { pdfPageObserver.observe(w); });
   host.addEventListener("scroll", onPdfScroll, { passive: true });
+  setupPinchZoom(host);
 
-  console.log("pvp: rendered " + totalPages + " placeholders");
+  console.log("pdf v4: " + totalPages + " pages, aspect=" + aspectStr);
 }
 
 async function renderPageInto(pageNum, wrapper) {
-  if (!pdfJsDoc || pdfRenderedPages[pageNum]) return;
-  pdfRenderedPages[pageNum] = true;
+  if (!pdfJsDoc || pdfRenderedPages[pageNum] === "rendering" || pdfRenderedPages[pageNum] === true) return;
+  pdfRenderedPages[pageNum] = "rendering";
 
   try {
     var page = await pdfJsDoc.getPage(pageNum);
@@ -435,8 +428,9 @@ async function renderPageInto(pageNum, wrapper) {
     canvas.className = "pdf-page-canvas";
     canvas.width = Math.floor(viewport.width * outputScale);
     canvas.height = Math.floor(viewport.height * outputScale);
-    canvas.style.width = Math.floor(viewport.width) + "px";
-    canvas.style.height = Math.floor(viewport.height) + "px";
+    canvas.style.width = "100%";
+    canvas.style.height = "auto";
+    canvas.style.display = "block";
 
     var ctx = canvas.getContext("2d");
     var transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
@@ -447,12 +441,98 @@ async function renderPageInto(pageNum, wrapper) {
       transform: transform
     }).promise;
 
+    /* HighLight در صورت وجود search */
+    if (pdfCurrentQuery) {
+      try { await drawSearchHighlights(page, canvas, viewport, outputScale, pdfCurrentQuery); } catch(e){}
+    }
+
     wrapper.innerHTML = "";
     wrapper.appendChild(canvas);
-    wrapper.style.minHeight = "";
+    wrapper.style.aspectRatio = "";
+    pdfRenderedPages[pageNum] = true;
   } catch (e) {
     console.warn("render page " + pageNum, e);
+    pdfRenderedPages[pageNum] = false;
   }
+}
+
+/* ═══ هایلایت جستجو ═══ */
+async function drawSearchHighlights(page, canvas, viewport, outputScale, query) {
+  if (!query || !window.pdfjsLib) return 0;
+  var textContent = await page.getTextContent();
+  var q = query.toLowerCase();
+  var ctx = canvas.getContext("2d");
+  var count = 0;
+
+  textContent.items.forEach(function(item) {
+    if (!item.str) return;
+    var itemStr = item.str.toLowerCase();
+    if (itemStr.indexOf(q) === -1) return;
+
+    try {
+      var tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+      var fontHeight = Math.hypot(tx[2], tx[3]);
+      var x = tx[4];
+      var y = tx[5] - fontHeight;
+      var width = item.width * viewport.scale;
+      var height = fontHeight;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 214, 10, 0.5)";
+      ctx.fillRect(
+        x * outputScale,
+        y * outputScale,
+        width * outputScale,
+        height * outputScale
+      );
+      ctx.restore();
+      count++;
+    } catch (e) {}
+  });
+
+  return count;
+}
+
+/* ═══ Pinch to Zoom ═══ */
+function setupPinchZoom(host) {
+  if (host.__pinchBound) return;
+  host.__pinchBound = true;
+
+  var initialDist = 0;
+  var initialZoom = 1;
+  var pinching = false;
+
+  function getDist(t1, t2) {
+    var dx = t2.clientX - t1.clientX;
+    var dy = t2.clientY - t1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  host.addEventListener("touchstart", function(e) {
+    if (e.touches.length === 2) {
+      pinching = true;
+      initialDist = getDist(e.touches[0], e.touches[1]);
+      initialZoom = (typeof pvpZoomLevel !== "undefined") ? pvpZoomLevel : 1;
+      host.style.transition = "none";
+    }
+  }, { passive: true });
+
+  host.addEventListener("touchmove", function(e) {
+    if (!pinching || e.touches.length !== 2) return;
+    e.preventDefault();
+    var dist = getDist(e.touches[0], e.touches[1]);
+    var newZoom = initialZoom * (dist / initialDist);
+    newZoom = Math.max(0.5, Math.min(4.0, newZoom));
+    host.style.zoom = newZoom;
+    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = newZoom;
+    var lbl = document.getElementById("pvpZoomLabel");
+    if (lbl) lbl.textContent = Math.round(newZoom * 100) + "%";
+  }, { passive: false });
+
+  host.addEventListener("touchend", function(e) {
+    if (e.touches.length < 2) pinching = false;
+  });
+  host.addEventListener("touchcancel", function() { pinching = false; });
 }
 
 var pdfScrollTimer = null;
@@ -467,10 +547,7 @@ function onPdfScroll() {
     for (var i = 0; i < wrappers.length; i++) {
       var w = wrappers[i];
       var dist = Math.abs(w.offsetTop - scrollTop);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestPage = parseInt(w.dataset.pageNum, 10);
-      }
+      if (dist < bestDist) { bestDist = dist; bestPage = parseInt(w.dataset.pageNum, 10); }
     }
     pdfCurrentPage = bestPage;
     if (typeof window.pvpUpdateBookmarkBtn === "function") {
@@ -479,7 +556,6 @@ function onPdfScroll() {
   }, 100);
 }
 
-/* Jump to a specific page — با scroll */
 async function renderPdfPage(num) {
   if (!pdfJsDoc) return;
   num = Math.max(1, Math.min(num, pdfJsDoc.numPages));
@@ -488,11 +564,33 @@ async function renderPdfPage(num) {
   if (!host) return;
   var wrapper = document.getElementById("pdfPage_" + num);
   if (!wrapper) return;
-  /* اگه رندر نشده، رندر کن */
-  if (!pdfRenderedPages[num]) {
+  if (!pdfRenderedPages[num] || pdfRenderedPages[num] === "rendering") {
     await renderPageInto(num, wrapper);
   }
-  host.scrollTo({ top: wrapper.offsetTop - 8, behavior: "smooth" });
+  var topPos = wrapper.offsetTop - 8;
+  host.scrollTo({ top: topPos, behavior: "smooth" });
+}
+
+/* ═══ Re-render visible for highlight ═══ */
+async function refreshSearchHighlights() {
+  if (!pdfJsDoc || !pdfCurrentQuery) return;
+  var host = document.getElementById("pdfCanvasHost");
+  if (!host) return;
+
+  var hostRect = host.getBoundingClientRect();
+  var wrappers = host.querySelectorAll(".pdf-page-wrapper");
+
+  for (var i = 0; i < wrappers.length; i++) {
+    var w = wrappers[i];
+    var n = parseInt(w.dataset.pageNum, 10);
+    var rect = w.getBoundingClientRect();
+    /* فقط صفحات دیده‌شده */
+    if (rect.bottom < hostRect.top - 100 || rect.top > hostRect.bottom + 100) continue;
+    if (pdfRenderedPages[n] !== true) continue;
+    /* Re-render */
+    pdfRenderedPages[n] = false;
+    await renderPageInto(n, w);
+  }
 }
 
 async function openPdfWithEngine(blobUrl) {
@@ -554,6 +652,7 @@ async function indexPdfText(blobUrl) {
   } catch (e) { pdfJsPagesText = null; return null; }
 }
 
+/* ═══ Search Bar با آیکون‌ها ═══ */
 function ensurePdfSearchBar() {
   var sheet = document.getElementById("pdfViewerSheet");
   if (!sheet) return null;
@@ -565,10 +664,14 @@ function ensurePdfSearchBar() {
   bar.innerHTML =
     '<input type="search" id="pdfSearchInput" placeholder="جستجو در PDF..." enterkeyhint="search" />' +
     '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
-    '<button type="button" id="pdfSearchPrev">قبلی</button>' +
-    '<button type="button" id="pdfSearchNext">بعدی</button>';
+    '<button type="button" id="pdfSearchPrev" class="pdf-search-nav" aria-label="قبلی">' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+    '</button>' +
+    '<button type="button" id="pdfSearchNext" class="pdf-search-nav" aria-label="بعدی">' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+    '</button>';
+
   var body = sheet.querySelector(".pdf-viewer-body");
-  /* درج قبل از toolbar اگه هست، وگرنه قبل از body */
   var tb = document.getElementById("pvpToolbar");
   if (tb && tb.parentNode === sheet) sheet.insertBefore(bar, tb);
   else if (body) sheet.insertBefore(bar, body);
@@ -592,7 +695,13 @@ function ensurePdfSearchBar() {
 async function runPdfSearch(q, reverse) {
   q = (q || "").trim();
   var meta = document.getElementById("pdfSearchMeta");
-  if (!q) { pdfSearchHits = []; if (meta) meta.textContent = ""; return; }
+  pdfCurrentQuery = q;
+  if (!q) {
+    pdfSearchHits = [];
+    if (meta) meta.textContent = "";
+    refreshSearchHighlights();
+    return;
+  }
   if (!pdfJsPagesText) {
     if (meta) meta.textContent = "…";
     if (pdfJsDoc) await indexPdfTextFromDoc(pdfJsDoc);
@@ -604,7 +713,12 @@ async function runPdfSearch(q, reverse) {
   for (var i = 0; i < pdfJsPagesText.length; i++) {
     if (pdfJsPagesText[i].toLowerCase().indexOf(low) !== -1) pdfSearchHits.push(i + 1);
   }
-  if (!pdfSearchHits.length) { if (meta) meta.textContent = "۰"; pdfToast("موردی یافت نشد"); return; }
+  if (!pdfSearchHits.length) {
+    if (meta) meta.textContent = "۰";
+    pdfToast("موردی یافت نشد");
+    refreshSearchHighlights();
+    return;
+  }
   pdfSearchHitIdx = reverse ? pdfSearchHits.length - 1 : 0;
   goPdfSearchHit(0);
 }
@@ -615,7 +729,9 @@ function goPdfSearchHit(delta) {
   var page = pdfSearchHits[pdfSearchHitIdx];
   var meta = document.getElementById("pdfSearchMeta");
   if (meta) meta.textContent = (pdfSearchHitIdx + 1) + "/" + pdfSearchHits.length;
-  renderPdfPage(page);
+  renderPdfPage(page).then(function(){
+    setTimeout(refreshSearchHighlights, 400);
+  });
 }
 
 function jumpPdfToPage(page) { renderPdfPage(page); }
@@ -644,6 +760,7 @@ async function openPdfViewer(id) {
     pdfSearchHits = [];
     pdfSearchHitIdx = 0;
     pdfJsPagesText = null;
+    pdfCurrentQuery = "";
     var meta = document.getElementById("pdfSearchMeta");
     if (meta) meta.textContent = "";
     var sin = document.getElementById("pdfSearchInput");
@@ -664,7 +781,7 @@ function closePdfViewer() {
     if (pdfPageObserver) { try { pdfPageObserver.disconnect(); } catch(e){} pdfPageObserver = null; }
     pdfRenderedPages = {};
     var host = document.getElementById("pdfCanvasHost");
-    if (host) host.innerHTML = "";
+    if (host) { host.innerHTML = ""; host.style.zoom = ""; }
     pdfJsDoc = null;
     pdfCurrentPage = 1;
     if (pdfViewerObjectUrl) { try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {} pdfViewerObjectUrl = null; }
@@ -673,6 +790,7 @@ function closePdfViewer() {
     pdfCurrentBlobUrl = null;
     pdfJsPagesText = null;
     pdfSearchHits = [];
+    pdfCurrentQuery = "";
     pdfJsDoc = null;
   } catch (e) { console.error(e); }
 }
@@ -723,4 +841,4 @@ if (typeof document !== "undefined") {
   }
 }
 
-console.log("✅ pdfs.js v3 ready — continuous scroll");
+console.log("✅ pdfs.js v4 ready — scroll + pinch + highlights");

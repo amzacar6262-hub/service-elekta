@@ -292,6 +292,40 @@ const FLOWCHARTS = [
   }
 }
 
+,
+{
+  id:"fc-agl-dlg",
+  title:"Agility — مشکل DLG",
+  subtitle:"DLG movement / 8022",
+  icon:"grid",
+  c1:"#30D158", c2:"#0A84FF",
+  nodes:{
+    n1:{ type:"q", text:"فرمان حرکت به DLG می‌رسد؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"q", text:"موتور DLG جریان و ولتاژ دارد؟",
+      options:[{label:"بله",next:"n4"},{label:"نه",next:"n5"}] },
+    n3:{ type:"q", text:"ارتباط DLG Control با Router برقرار است؟",
+      options:[{label:"بله",next:"n6"},{label:"نه",next:"n7"}] },
+    n4:{ type:"end", text:"گیر مکانیکی، ترمز یا اسلاید — موتور/ترمز DLG را بررسی کن.", severity:"warn", next:null },
+    n5:{ type:"end", text:"DLG Control PCB یا کابل موتور را تعویض/بررسی کن.", severity:"warn", next:null },
+    n6:{ type:"end", text:"خطای پتانسیومتر DLG (8030/8031) — کابل و Intermediate PCB.", severity:"warn", next:null },
+    n7:{ type:"end", text:"Router، کابل سریال یا تعویض DLG Control PCB.", severity:"danger", next:null }
+  }
+},
+{
+  id:"fc-agl-com",
+  title:"Agility — خطای ارتباطات",
+  subtitle:"76xx / 77xx CAN",
+  icon:"warn",
+  c1:"#FF9F0A", c2:"#FF453A",
+  nodes:{
+    n1:{ type:"q", text:"خطا مربوط به CAN است؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"end", text:"مسیر Router تا TCS و کابل CAN را با loop-back تست کن.", severity:"warn", next:null },
+    n3:{ type:"end", text:"مسیر Router تا PCBهای BLD، کابل‌های تست و Watchdog را بررسی کن.", severity:"warn", next:null }
+  }
+}
+
 ];
 
 /* ═══ State ═══ */

@@ -193,6 +193,105 @@ const FLOWCHARTS = [
       severity:"warn", next:null }
   }
 }
+,
+{
+  id:"fc-agl-acc",
+  title:"Agility — Accessory شناخته نشد",
+  subtitle:"Accessory not recognised",
+  icon:"grid",
+  c1:"#FF9F0A", c2:"#FF453A",
+  nodes:{
+    n1:{ type:"q", text:"اپلیکاتور وصل است؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"q", text:"مشکل روی همه اپلیکاتورهاست؟",
+      options:[{label:"بله",next:"n4"},{label:"نه",next:"n5"}] },
+    n3:{ type:"q", text:"Shadow tray وصل است؟",
+      options:[{label:"بله",next:"n6"},{label:"نه",next:"n4"}] },
+    n4:{ type:"q", text:"سوکت Accessory معیوب است؟",
+      options:[{label:"بله",next:"n7"},{label:"نه",next:"n8"}] },
+    n5:{ type:"q", text:"Coding switch معیوب است؟",
+      options:[{label:"بله",next:"n9"},{label:"نه",next:"n10"}] },
+    n6:{ type:"action", text:"Coding switch، پلاگ و سیم‌کشی shadow tray را بررسی کن.", next:"n11" },
+    n7:{ type:"end", text:"سوکت Accessory را تعمیر کن.", severity:"warn", next:null },
+    n8:{ type:"q", text:"Flexi PCB معیوب است؟",
+      options:[{label:"بله",next:"n12"},{label:"نه",next:"n13"}] },
+    n9:{ type:"end", text:"Coding switch روی اپلیکاتور را تعمیر کن.", severity:"warn", next:null },
+    n10:{ type:"q", text:"پلاگ Accessory معیوب است؟",
+      options:[{label:"بله",next:"n14"},{label:"نه",next:"n15"}] },
+    n11:{ type:"end", text:"در صورت نیاز Flexi PCB یا Touchguard Accessory PCB را تعویض کن.", severity:"info", next:null },
+    n12:{ type:"end", text:"Flexi PCB را تعویض کن.", severity:"warn", next:null },
+    n13:{ type:"end", text:"Touchguard Accessory PCB را تعویض کن.", severity:"warn", next:null },
+    n14:{ type:"end", text:"پلاگ Accessory روی اپلیکاتور را تعمیر کن.", severity:"warn", next:null },
+    n15:{ type:"end", text:"سیم‌کشی از switch تا plug را بررسی کن.", severity:"info", next:null }
+  }
+},
+{
+  id:"fc-agl-dia",
+  title:"Agility — Diaphragm به موقعیت نمی‌رسد",
+  subtitle:"Diaphragm 7470 / 7480",
+  icon:"warn",
+  c1:"#BF5AF2", c2:"#5856D6",
+  nodes:{
+    n1:{ type:"q", text:"فرمان حرکت به Diaphragm می‌رسد؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"q", text:"حرکت در جهت فرمان است؟",
+      options:[{label:"بله",next:"n4"},{label:"نه",next:"n5"}] },
+    n3:{ type:"q", text:"تغذیه ۲۴V به Control PCB می‌رسد؟ (7414)",
+      options:[{label:"بله",next:"n6"},{label:"نه",next:"n7"}] },
+    n4:{ type:"q", text:"حرکت خیلی کند است؟",
+      options:[{label:"بله",next:"n8"},{label:"نه",next:"n9"}] },
+    n5:{ type:"end", text:"کابل پتانسیومتر یا سیم‌کشی موتور را چک کن (جهت اشتباه).", severity:"warn", next:null },
+    n6:{ type:"q", text:"جریان موتور وجود دارد؟",
+      options:[{label:"بله",next:"n10"},{label:"نه",next:"n11"}] },
+    n7:{ type:"end", text:"مسیر ۲۴V از BLD retractile power PCB را بررسی کن.", severity:"danger", next:null },
+    n8:{ type:"end", text:"موتور، ترمز یا گیر مکانیکی اسلاید را بررسی کن.", severity:"warn", next:null },
+    n9:{ type:"end", text:"گِین سروو و readout موقعیت را در Service بررسی کن.", severity:"info", next:null },
+    n10:{ type:"end", text:"موتور را تعویض یا اسلاید را آزاد کن.", severity:"warn", next:null },
+    n11:{ type:"q", text:"ولتاژ موتور هست؟",
+      options:[{label:"بله",next:"n12"},{label:"نه",next:"n13"}] },
+    n12:{ type:"end", text:"مدار باز بین Control PCB و موتور را پیدا کن.", severity:"warn", next:null },
+    n13:{ type:"end", text:"Diaphragm Control PCB را تعویض کن.", severity:"warn", next:null }
+  }
+},
+{
+  id:"fc-agl-leaf",
+  title:"Agility — Leaf حرکت نمی‌کند",
+  subtitle:"Leaf 7300 / 7310 / 8020",
+  icon:"grid",
+  c1:"#FF375F", c2:"#FF9F0A",
+  nodes:{
+    n1:{ type:"q", text:"کد خطا شماره Leaf را نشان می‌دهد؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"q", text:"کانال درایو براده یا کلید آسیب‌دیده دارد؟",
+      options:[{label:"بله",next:"n4"},{label:"نه",next:"n5"}] },
+    n3:{ type:"action", text:"لاگ Service و LEDهای LMD PCB را بررسی کن.", next:"n2" },
+    n4:{ type:"end", text:"کلید آسیب‌دیده را عوض و کانال را تمیز کن؛ سپس تست حرکت.", severity:"warn", next:null },
+    n5:{ type:"q", text:"موتور جریان می‌کشد؟",
+      options:[{label:"بله",next:"n6"},{label:"نه",next:"n7"}] },
+    n6:{ type:"end", text:"احتمال گیر مکانیکی یا موتور معیوب — موتور Leaf را تعویض کن.", severity:"warn", next:null },
+    n7:{ type:"end", text:"LMD PCB یا کابل موتور را بررسی/تعویض کن.", severity:"warn", next:null }
+  }
+},
+{
+  id:"fc-agl-ruby",
+  title:"Agility — از دست رفتن Leaf Ruby",
+  subtitle:"Lost ruby / 7800",
+  icon:"warn",
+  c1:"#5AC8FA", c2:"#BF5AF2",
+  nodes:{
+    n1:{ type:"q", text:"تصویر ویدئو نویزی است؟",
+      options:[{label:"بله",next:"n2"},{label:"نه",next:"n3"}] },
+    n2:{ type:"end", text:"کابل ویدئو، CCU و مسیر تا Router/LCS را بررسی کن (7800).", severity:"warn", next:null },
+    n3:{ type:"q", text:"شدت روبی خیلی کم است؟",
+      options:[{label:"بله",next:"n4"},{label:"نه",next:"n5"}] },
+    n4:{ type:"end", text:"تمیزکاری اپتیک؛ LED/دوربین/آسیب تشعشع را بررسی کن.", severity:"warn", next:null },
+    n5:{ type:"q", text:"شدت روبی خیلی زیاد است؟",
+      options:[{label:"بله",next:"n6"},{label:"نه",next:"n7"}] },
+    n6:{ type:"end", text:"دیافراگم لنز، گین ویدئو LIB یا تنظیم LED را اصلاح کن.", severity:"info", next:null },
+    n7:{ type:"end", text:"فوکوس دوربین را تنظیم کن؛ در صورت نیاز روبی را تعویض کن.", severity:"info", next:null }
+  }
+}
+
 ];
 
 /* ═══ State ═══ */

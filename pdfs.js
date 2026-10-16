@@ -325,21 +325,285 @@ async function savePendingPdf() {
   }
 }
 
-function ensurePdfCloseFab() {
-  var fab = document.getElementById("pdfCloseFab");
-  if (fab) return fab;
-  fab = document.createElement("button");
-  fab.id = "pdfCloseFab";
-  fab.type = "button";
-  fab.className = "pdf-close-fab";
-  fab.textContent = "✕ بستن";
-  fab.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    closePdfViewer();
+
+
+/* ── نمایش کامل PDF با PDF.js (صفحه‌به‌صفحه) ── */
+var pdfJsDoc = null;
+var pdfJsPagesText = null;
+var pdfSearchHits = [];
+var pdfSearchHitIdx = 0;
+var pdfCurrentBlobUrl = null;
+var pdfCurrentPage = 1;
+var pdfRenderTask = null;
+
+function loadPdfJs() {
+  return new Promise(function (resolve, reject) {
+    if (window.pdfjsLib) {
+      resolve(window.pdfjsLib);
+      return;
+    }
+    var script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.onload = function () {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        resolve(window.pdfjsLib);
+      } else reject(new Error("pdfjs missing"));
+    };
+    script.onerror = function () { reject(new Error("pdfjs load fail")); };
+    document.head.appendChild(script);
   });
-  document.body.appendChild(fab);
-  return fab;
+}
+
+function getPdfCanvasHost() {
+  var body = document.querySelector("#pdfViewerSheet .pdf-viewer-body");
+  if (!body) return null;
+  var host = document.getElementById("pdfCanvasHost");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "pdfCanvasHost";
+    host.className = "pdf-canvas-host";
+    body.innerHTML = "";
+    body.appendChild(host);
+  }
+  /* iframe را مخفی نگه دار برای fallback */
+  var frame = document.getElementById("pdfViewerFrame");
+  if (frame) frame.style.display = "none";
+  return host;
+}
+
+function ensurePdfNavBar() {
+  var sheet = document.getElementById("pdfViewerSheet");
+  if (!sheet) return;
+  var nav = document.getElementById("pdfPageNav");
+  if (nav) return nav;
+  nav = document.createElement("div");
+  nav.id = "pdfPageNav";
+  nav.className = "pdf-page-nav";
+  nav.innerHTML =
+    '<button type="button" id="pdfPagePrev">‹ قبلی</button>' +
+    '<span id="pdfPageLabel">۱ / ۱</span>' +
+    '<button type="button" id="pdfPageNext">بعدی ›</button>';
+  var body = sheet.querySelector(".pdf-viewer-body");
+  if (body) sheet.insertBefore(nav, body);
+  else sheet.appendChild(nav);
+  document.getElementById("pdfPagePrev").onclick = function () {
+    if (pdfCurrentPage > 1) renderPdfPage(pdfCurrentPage - 1);
+  };
+  document.getElementById("pdfPageNext").onclick = function () {
+    if (pdfJsDoc && pdfCurrentPage < pdfJsDoc.numPages)
+      renderPdfPage(pdfCurrentPage + 1);
+  };
+  return nav;
+}
+
+async function renderPdfPage(num) {
+  if (!pdfJsDoc) return;
+  num = Math.max(1, Math.min(num, pdfJsDoc.numPages));
+  pdfCurrentPage = num;
+  var label = document.getElementById("pdfPageLabel");
+  if (label) label.textContent = num + " / " + pdfJsDoc.numPages;
+
+  var host = getPdfCanvasHost();
+  if (!host) return;
+  host.innerHTML = '<div class="pdf-loading">در حال نمایش صفحه ' + num + "…</div>";
+
+  try {
+    if (pdfRenderTask) {
+      try { pdfRenderTask.cancel(); } catch (e) {}
+    }
+    var page = await pdfJsDoc.getPage(num);
+    var hostW = host.clientWidth || window.innerWidth || 360;
+    var unscaled = page.getViewport({ scale: 1 });
+    var scale = (hostW - 8) / unscaled.width;
+    /* کیفیت بهتر روی گوشی‌های رتینا */
+    var outputScale = Math.min(window.devicePixelRatio || 1, 2);
+    var viewport = page.getViewport({ scale: scale });
+
+    var canvas = document.createElement("canvas");
+    canvas.className = "pdf-page-canvas";
+    canvas.width = Math.floor(viewport.width * outputScale);
+    canvas.height = Math.floor(viewport.height * outputScale);
+    canvas.style.width = Math.floor(viewport.width) + "px";
+    canvas.style.height = Math.floor(viewport.height) + "px";
+
+    var ctx = canvas.getContext("2d");
+    var transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+    pdfRenderTask = page.render({
+      canvasContext: ctx,
+      viewport: viewport,
+      transform: transform
+    });
+    await pdfRenderTask.promise;
+    host.innerHTML = "";
+    host.appendChild(canvas);
+    host.scrollTop = 0;
+  } catch (e) {
+    if (e && e.name === "RenderingCancelledException") return;
+    console.error(e);
+    host.innerHTML = '<div class="pdf-loading">خطا در نمایش صفحه</div>';
+  }
+}
+
+async function openPdfWithEngine(blobUrl) {
+  var host = getPdfCanvasHost();
+  if (host) host.innerHTML = '<div class="pdf-loading">در حال بارگذاری PDF…</div>';
+  try {
+    var pdfjsLib = await loadPdfJs();
+    var doc = await pdfjsLib.getDocument({
+      url: blobUrl,
+      rangeChunkSize: 65536,
+      disableAutoFetch: false
+    }).promise;
+    pdfJsDoc = doc;
+    ensurePdfNavBar();
+    await renderPdfPage(1);
+    /* ایندکس متن برای جستجو در پس‌زمینه */
+    indexPdfTextFromDoc(doc);
+  } catch (e) {
+    console.error("openPdfWithEngine", e);
+    /* fallback: iframe */
+    fallbackIframe(blobUrl);
+    pdfToast("نمایش پیشرفته در دسترس نیست — حالت ساده");
+  }
+}
+
+function fallbackIframe(blobUrl) {
+  var body = document.querySelector("#pdfViewerSheet .pdf-viewer-body");
+  if (!body) return;
+  body.innerHTML = "";
+  var frame = document.createElement("iframe");
+  frame.id = "pdfViewerFrame";
+  frame.title = "PDF";
+  frame.src = blobUrl;
+  body.appendChild(frame);
+}
+
+async function indexPdfTextFromDoc(doc) {
+  try {
+    var texts = [];
+    var maxPages = Math.min(doc.numPages, 500);
+    for (var i = 1; i <= maxPages; i++) {
+      var page = await doc.getPage(i);
+      var tc = await page.getTextContent();
+      texts.push(tc.items.map(function (it) { return it.str; }).join(" "));
+    }
+    pdfJsPagesText = texts;
+    var meta = document.getElementById("pdfSearchMeta");
+    if (meta && meta.textContent === "…") meta.textContent = "✓";
+  } catch (e) {
+    console.warn("index text", e);
+  }
+}
+
+async function indexPdfText(blobUrl) {
+  /* سازگاری با کد قبلی */
+  if (pdfJsDoc) {
+    await indexPdfTextFromDoc(pdfJsDoc);
+    return pdfJsPagesText;
+  }
+  try {
+    var pdfjsLib = await loadPdfJs();
+    var doc = await pdfjsLib.getDocument({ url: blobUrl }).promise;
+    pdfJsDoc = doc;
+    await indexPdfTextFromDoc(doc);
+    return pdfJsPagesText;
+  } catch (e) {
+    pdfJsPagesText = null;
+    return null;
+  }
+}
+
+function ensurePdfSearchBar() {
+  var sheet = document.getElementById("pdfViewerSheet");
+  if (!sheet) return null;
+  var bar = document.getElementById("pdfSearchBar");
+  if (bar) return bar;
+  bar = document.createElement("div");
+  bar.id = "pdfSearchBar";
+  bar.className = "pdf-search-bar";
+  bar.innerHTML =
+    '<input type="search" id="pdfSearchInput" placeholder="جستجو در PDF..." enterkeyhint="search" />' +
+    '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
+    '<button type="button" id="pdfSearchPrev">قبلی</button>' +
+    '<button type="button" id="pdfSearchNext">بعدی</button>';
+  var body = sheet.querySelector(".pdf-viewer-body");
+  var nav = document.getElementById("pdfPageNav");
+  if (nav) sheet.insertBefore(bar, nav);
+  else if (body) sheet.insertBefore(bar, body);
+  else sheet.appendChild(bar);
+
+  var input = bar.querySelector("#pdfSearchInput");
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      runPdfSearch(input.value, false);
+    }
+  });
+  bar.querySelector("#pdfSearchNext").addEventListener("click", function () {
+    if (pdfSearchHits.length) goPdfSearchHit(1);
+    else runPdfSearch(input.value, false);
+  });
+  bar.querySelector("#pdfSearchPrev").addEventListener("click", function () {
+    if (pdfSearchHits.length) goPdfSearchHit(-1);
+    else runPdfSearch(input.value, true);
+  });
+  return bar;
+}
+
+async function runPdfSearch(q, reverse) {
+  q = (q || "").trim();
+  var meta = document.getElementById("pdfSearchMeta");
+  if (!q) {
+    pdfSearchHits = [];
+    if (meta) meta.textContent = "";
+    return;
+  }
+  if (!pdfJsPagesText) {
+    if (meta) meta.textContent = "…";
+    if (pdfJsDoc) await indexPdfTextFromDoc(pdfJsDoc);
+    else if (pdfCurrentBlobUrl) await indexPdfText(pdfCurrentBlobUrl);
+  }
+  if (!pdfJsPagesText) {
+    if (meta) meta.textContent = "—";
+    pdfToast("جستجو آماده نیست");
+    return;
+  }
+  var low = q.toLowerCase();
+  pdfSearchHits = [];
+  for (var i = 0; i < pdfJsPagesText.length; i++) {
+    if (pdfJsPagesText[i].toLowerCase().indexOf(low) !== -1)
+      pdfSearchHits.push(i + 1);
+  }
+  if (!pdfSearchHits.length) {
+    if (meta) meta.textContent = "۰";
+    pdfToast("موردی یافت نشد");
+    return;
+  }
+  pdfSearchHitIdx = reverse ? pdfSearchHits.length - 1 : 0;
+  goPdfSearchHit(0);
+}
+
+function goPdfSearchHit(delta) {
+  if (!pdfSearchHits.length) return;
+  pdfSearchHitIdx = (pdfSearchHitIdx + delta + pdfSearchHits.length) % pdfSearchHits.length;
+  var page = pdfSearchHits[pdfSearchHitIdx];
+  var meta = document.getElementById("pdfSearchMeta");
+  if (meta) meta.textContent = (pdfSearchHitIdx + 1) + "/" + pdfSearchHits.length;
+  renderPdfPage(page);
+}
+
+function jumpPdfToPage(page) {
+  renderPdfPage(page);
+}
+
+function ensurePdfCloseFab() {
+  /* دیگر استفاده نمی‌شود — دکمه‌های تکراری حذف */
+  var fab = document.getElementById("pdfCloseFab");
+  if (fab && fab.parentNode) fab.parentNode.removeChild(fab);
+  return null;
 }
 
 async function openPdfViewer(id) {
@@ -360,8 +624,7 @@ async function openPdfViewer(id) {
     var back = document.getElementById("pdfViewerBackdrop") || document.getElementById("pdfViewerSheetBackdrop");
     if (title) title.textContent = rec.title || rec.name;
     if (frame) {
-      frame.src = url;
-      frame.style.pointerEvents = "auto";
+      frame.style.display = "none";
     }
     var dl = document.getElementById("pdfViewerDownload");
     if (dl) {
@@ -370,8 +633,17 @@ async function openPdfViewer(id) {
     }
     if (sheet) sheet.classList.add("show");
     if (back) back.classList.add("show");
-    var fab = ensurePdfCloseFab();
-    fab.classList.add("show");
+    ensurePdfSearchBar();
+    /* FAB حذف شد — فقط دکمه بستن هدر */
+    pdfCurrentBlobUrl = url;
+    pdfSearchHits = [];
+    pdfSearchHitIdx = 0;
+    pdfJsPagesText = null;
+    var meta = document.getElementById("pdfSearchMeta");
+    if (meta) meta.textContent = "";
+    var sin = document.getElementById("pdfSearchInput");
+    if (sin) sin.value = "";
+    openPdfWithEngine(url);
   } catch (e) {
     console.error(e);
     pdfToast("خطا در باز کردن PDF");
@@ -386,6 +658,14 @@ function closePdfViewer() {
     if (frame) {
       try { frame.src = "about:blank"; } catch (e) {}
     }
+    if (pdfRenderTask) {
+      try { pdfRenderTask.cancel(); } catch (e) {}
+      pdfRenderTask = null;
+    }
+    var host = document.getElementById("pdfCanvasHost");
+    if (host) host.innerHTML = "";
+    pdfJsDoc = null;
+    pdfCurrentPage = 1;
     if (pdfViewerObjectUrl) {
       try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
       pdfViewerObjectUrl = null;
@@ -393,7 +673,11 @@ function closePdfViewer() {
     if (sheet) sheet.classList.remove("show");
     if (back) back.classList.remove("show");
     var fab = document.getElementById("pdfCloseFab");
-    if (fab) fab.classList.remove("show");
+    if (fab) { fab.classList.remove("show"); fab.style.display = "none"; }
+    pdfCurrentBlobUrl = null;
+    pdfJsPagesText = null;
+    pdfSearchHits = [];
+    pdfJsDoc = null;
   } catch (e) {
     console.error(e);
   }
@@ -449,3 +733,5 @@ if (typeof document !== "undefined") {
 }
 
 console.log("✅ pdfs.js ready (sheet class: show)");
+
+window.runPdfSearch = runPdfSearch;

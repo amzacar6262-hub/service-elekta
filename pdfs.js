@@ -332,7 +332,7 @@ function ensurePdfCloseFab() {
   fab.id = "pdfCloseFab";
   fab.type = "button";
   fab.className = "pdf-close-fab";
-  fab.textContent = "بستن ✕";
+  fab.textContent = "✕ بستن";
   fab.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();

@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════
-   pdfs.js — کتابخانه PDF اصلی
-   ذخیره محلی در IndexedDB (آفلاین)
+   pdfs.js — کتابخانه PDF (IndexedDB)
+   شیت‌ها با کلاس show باز می‌شوند (مثل بقیه برنامه)
    ═══════════════════════════════════════ */
 
-const PDF_CATS = [
+var PDF_CATS = [
   { id: "all", name: "pdfcat_all" },
   { id: "cmm", name: "pdfcat_cmm" },
   { id: "service", name: "pdfcat_service" },
@@ -13,19 +13,33 @@ const PDF_CATS = [
   { id: "other", name: "pdfcat_other" }
 ];
 
-const PDF_DB_NAME = "elekta-pdfs-db";
-const PDF_STORE = "pdfs";
-const PDF_MAX_MB = 120; /* iOS Safari quota varies; keep under practical limit */
+var PDF_DB_NAME = "elekta-pdfs-db";
+var PDF_STORE = "pdfs";
+var PDF_MAX_MB = 80;
+
+var pdfDB = null;
+var localPdfs = [];
+var pdfFilter = "all";
+var pendingPdfFile = null;
+var pendingPdfQueue = [];
+var pdfViewerObjectUrl = null;
 
 function pdfToast(msg) {
-  if (typeof toast === "function") toast(msg);
-  else if (typeof showToast === "function") showToast(msg);
+  try {
+    if (typeof toast === "function") toast(msg);
+    else if (typeof showToast === "function") showToast(msg);
+    else window.alert(msg);
+  } catch (e) {
+    window.alert(msg);
+  }
 }
 
-let pdfDB = null;
-let localPdfs = [];
-let pdfFilter = "all";
-let pendingPdfFile = null;
+function pdfT(key, fallback) {
+  if (typeof t === "function") {
+    try { return t(key) || fallback; } catch (e) {}
+  }
+  return fallback;
+}
 
 function openPdfDB() {
   return new Promise(function (resolve, reject) {
@@ -43,7 +57,7 @@ function openPdfDB() {
       pdfDB = e.target.result;
       resolve(pdfDB);
     };
-    req.onerror = function () { reject(req.error); };
+    req.onerror = function () { reject(req.error || new Error("IDB open failed")); };
   });
 }
 
@@ -51,9 +65,12 @@ function pdfSave(rec) {
   return openPdfDB().then(function (db) {
     return new Promise(function (resolve, reject) {
       var tx = db.transaction(PDF_STORE, "readwrite");
-      tx.objectStore(PDF_STORE).put(rec);
+      var store = tx.objectStore(PDF_STORE);
+      var req = store.put(rec);
+      req.onsuccess = function () {};
       tx.oncomplete = function () { resolve(); };
-      tx.onerror = function () { reject(tx.error); };
+      tx.onerror = function () { reject(tx.error || new Error("save failed")); };
+      tx.onabort = function () { reject(tx.error || new Error("save aborted (quota?)")); };
     });
   });
 }
@@ -94,7 +111,7 @@ function pdfGet(id) {
 async function loadLocalPdfs() {
   try {
     var arr = await pdfGetAll();
-    localPdfs = arr.sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
+    localPdfs = (arr || []).sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
   } catch (e) {
     console.warn("loadLocalPdfs failed:", e);
     localPdfs = [];
@@ -111,7 +128,9 @@ function formatPdfSize(bytes) {
 function pdfCatLabel(id) {
   var c = PDF_CATS.find(function (x) { return x.id === id; });
   if (!c) return id || "";
-  if (typeof t === "function") return t(c.name);
+  if (typeof t === "function") {
+    try { var v = t(c.name); if (v) return v; } catch (e) {}
+  }
   var fa = {
     pdfcat_all: "همه", pdfcat_cmm: "CMM / تعمیر", pdfcat_service: "سرویس",
     pdfcat_accept: "پذیرش", pdfcat_pm: "PM", pdfcat_error: "کد خطا", pdfcat_other: "سایر"
@@ -123,8 +142,8 @@ function renderPdfCats() {
   var el = document.getElementById("pdfCats");
   if (!el) return;
   el.innerHTML = PDF_CATS.map(function (c) {
-    return '<button class="gallery-chip ' + (pdfFilter === c.id ? "on" : "") + '" onclick="setPdfFilter(\'' + c.id + '\')">' +
-      pdfCatLabel(c.id) + "</button>";
+    return '<button type="button" class="gallery-chip ' + (pdfFilter === c.id ? "on" : "") +
+      '" onclick="setPdfFilter(\'' + c.id + '\')">' + pdfCatLabel(c.id) + "</button>";
   }).join("");
 }
 
@@ -134,22 +153,29 @@ function setPdfFilter(id) {
   renderPdfList();
 }
 
+function escapePdf(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function renderPdfList() {
   var el = document.getElementById("pdfList");
   var sub = document.getElementById("pdfSub");
   if (!el) return;
   var list = pdfFilter === "all" ? localPdfs : localPdfs.filter(function (p) { return p.cat === pdfFilter; });
   if (sub) {
-    var n = localPdfs.length;
-    sub.textContent = (typeof t === "function" ? t("pdf_count") : "تعداد PDF") + ": " + n;
+    sub.textContent = pdfT("pdf_count", "تعداد PDF") + ": " + localPdfs.length;
   }
   if (!list.length) {
     el.innerHTML =
-      '<div class="gallery-empty">' +
-      '<div class="gallery-empty-t">' + (typeof t === "function" ? t("pdf_empty") : "هنوز PDFای نیست") + "</div>" +
-      '<div class="gallery-empty-s">' + (typeof t === "function" ? t("pdf_empty_s") : "با دکمه + فایل اصلی را اضافه کن") + "</div>" +
-      '<button class="btn-primary" style="margin-top:14px" onclick="pickPdfFile()">' +
-      (typeof t === "function" ? t("pdf_add") : "افزودن PDF") + "</button></div>";
+      '<div class="gallery-empty" style="padding:32px 16px;text-align:center">' +
+      '<div class="gallery-empty-t" style="font-weight:600;margin-bottom:8px">' +
+      pdfT("pdf_empty", "هنوز PDFای نیست") + "</div>" +
+      '<div class="gallery-empty-s" style="color:var(--label2);margin-bottom:16px">' +
+      pdfT("pdf_empty_s", "با دکمه + فایل را اضافه کن") + "</div>" +
+      '<button type="button" class="btn-primary" style="padding:12px 20px;border-radius:12px;background:var(--blue);color:#fff;font-weight:600;border:0" onclick="pickPdfFile()">' +
+      pdfT("pdf_add", "افزودن PDF") + "</button></div>";
     return;
   }
   el.innerHTML = list.map(function (p) {
@@ -164,55 +190,52 @@ function renderPdfList() {
       '<div class="pdf-card-title">' + escapePdf(p.title || p.name) + "</div>" +
       '<div class="pdf-card-meta">' +
       '<span class="pdf-chip">' + pdfCatLabel(p.cat) + "</span>" +
-      '<span>' + formatPdfSize(p.size) + "</span>" +
-      (p.pages ? "<span>" + p.pages + " ص</span>" : "") +
+      "<span>" + formatPdfSize(p.size) + "</span>" +
       "</div>" +
       (p.note ? '<div class="pdf-card-note">' + escapePdf(p.note) + "</div>" : "") +
       "</div>" +
       '<div class="pdf-card-acts">' +
-      '<button class="pdf-act" onclick="openPdfViewer(\'' + p.id + '\')" title="Open">↗</button>' +
-      '<button class="pdf-act danger" onclick="confirmDeletePdf(\'' + p.id + '\')" title="Delete">✕</button>' +
+      '<button type="button" class="pdf-act" onclick="openPdfViewer(\'' + p.id + '\')">↗</button>' +
+      '<button type="button" class="pdf-act danger" onclick="confirmDeletePdf(\'' + p.id + '\')">✕</button>' +
       "</div></div>"
     );
   }).join("");
 }
 
-function escapePdf(s) {
-  return String(s || "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function pickPdfFile() {
   var inp = document.getElementById("pdfFileInput");
-  if (inp) {
-    inp.value = "";
-    inp.click();
+  if (!inp) {
+    pdfToast("input PDF پیدا نشد — index را چک کن");
+    return;
   }
+  inp.value = "";
+  inp.click();
 }
 
 function onPdfFileSelected(ev) {
-  var files = ev.target.files;
+  var files = ev.target && ev.target.files;
   if (!files || !files.length) return;
-  /* پشتیبانی چند فایل: اولی با شیت جزئیات؛ بقیه با عنوان نام فایل */
-  var list = Array.prototype.slice.call(files);
+
+  var list = [];
+  for (var i = 0; i < files.length; i++) list.push(files[i]);
+
   var first = list[0];
-  if (first.type !== "application/pdf" && !/\.pdf$/i.test(first.name)) {
-    pdfToast(typeof t === "function" ? t("pdf_bad_type") : "فقط فایل PDF");
+  if (first.type && first.type !== "application/pdf" && !/\.pdf$/i.test(first.name)) {
+    pdfToast(pdfT("pdf_bad_type", "فقط فایل PDF"));
     return;
   }
   if (first.size > PDF_MAX_MB * 1024 * 1024) {
-    pdfToast((typeof t === "function" ? t("pdf_too_big") : "حجم زیاد") + " (max " + PDF_MAX_MB + " MB)");
+    pdfToast(pdfT("pdf_too_big", "حجم زیاد") + " (حداکثر " + PDF_MAX_MB + " MB)");
     return;
   }
+
   pendingPdfFile = first;
   pendingPdfQueue = list.slice(1).filter(function (f) {
-    return (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) && f.size <= PDF_MAX_MB * 1024 * 1024;
+    return (!f.type || f.type === "application/pdf" || /\.pdf$/i.test(f.name)) &&
+      f.size <= PDF_MAX_MB * 1024 * 1024;
   });
   openPdfAddSheet(first);
 }
-
-var pendingPdfQueue = [];
 
 function openPdfAddSheet(file) {
   var sheet = document.getElementById("pdfAddSheet");
@@ -220,7 +243,7 @@ function openPdfAddSheet(file) {
   var nameEl = document.getElementById("pdfAddTitle");
   var catEl = document.getElementById("pdfAddCat");
   var noteEl = document.getElementById("pdfAddNote");
-  if (nameEl) nameEl.value = (file.name || "").replace(/\.pdf$/i, "");
+  if (nameEl) nameEl.value = (file && file.name ? file.name : "").replace(/\.pdf$/i, "");
   if (noteEl) noteEl.value = "";
   if (catEl) {
     catEl.innerHTML = PDF_CATS.filter(function (c) { return c.id !== "all"; })
@@ -228,16 +251,18 @@ function openPdfAddSheet(file) {
         return '<option value="' + c.id + '">' + pdfCatLabel(c.id) + "</option>";
       }).join("");
   }
-  if (sheet) sheet.classList.add("open");
-  if (back) back.classList.add("open");
+  /* مهم: کلاس show مثل بقیه شیت‌های برنامه */
+  if (sheet) sheet.classList.add("show");
+  if (back) back.classList.add("show");
 }
 
 function closePdfAddSheet() {
   var sheet = document.getElementById("pdfAddSheet");
   var back = document.getElementById("pdfAddSheetBackdrop");
-  if (sheet) sheet.classList.remove("open");
-  if (back) back.classList.remove("open");
+  if (sheet) sheet.classList.remove("show");
+  if (back) back.classList.remove("show");
   pendingPdfFile = null;
+  pendingPdfQueue = [];
 }
 
 async function savePdfRecord(file, title, cat, note) {
@@ -245,11 +270,11 @@ async function savePdfRecord(file, title, cat, note) {
   var rec = {
     id: "pdf_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
     name: file.name,
-    title: (title || file.name).trim() || file.name,
+    title: (title || file.name).replace(/\.pdf$/i, "").trim() || file.name,
     cat: cat || "other",
     note: (note || "").trim(),
     size: file.size,
-    type: file.type || "application/pdf",
+    type: "application/pdf",
     added: Date.now(),
     blob: new Blob([buf], { type: "application/pdf" })
   };
@@ -258,73 +283,89 @@ async function savePdfRecord(file, title, cat, note) {
 }
 
 async function savePendingPdf() {
-  if (!pendingPdfFile) return;
-  var title = (document.getElementById("pdfAddTitle") || {}).value || pendingPdfFile.name;
-  var cat = (document.getElementById("pdfAddCat") || {}).value || "other";
-  var note = (document.getElementById("pdfAddNote") || {}).value || "";
+  if (!pendingPdfFile) {
+    pdfToast("فایلی انتخاب نشده");
+    return;
+  }
+  var titleEl = document.getElementById("pdfAddTitle");
+  var catEl = document.getElementById("pdfAddCat");
+  var noteEl = document.getElementById("pdfAddNote");
+  var title = titleEl ? titleEl.value : pendingPdfFile.name;
+  var cat = catEl ? catEl.value : "other";
+  var note = noteEl ? noteEl.value : "";
   var file = pendingPdfFile;
   var queue = pendingPdfQueue.slice();
   pendingPdfQueue = [];
+
   try {
+    pdfToast("در حال ذخیره…");
     await savePdfRecord(file, title, cat, note);
-    /* بقیه فایل‌های انتخاب‌شده با همان دسته، عنوان = نام فایل */
     for (var i = 0; i < queue.length; i++) {
-      await savePdfRecord(queue[i], queue[i].name.replace(/\.pdf$/i, ""), cat, "");
+      await savePdfRecord(queue[i], queue[i].name, cat, "");
     }
     await loadLocalPdfs();
     closePdfAddSheet();
     renderPdfList();
     var n = 1 + queue.length;
-    pdfToast((typeof t === "function" ? t("pdf_saved") : "PDF ذخیره شد") + (n > 1 ? " (" + n + ")" : ""));
+    pdfToast(pdfT("pdf_saved", "PDF ذخیره شد") + (n > 1 ? " (" + n + ")" : ""));
   } catch (e) {
-    console.error(e);
-    pdfToast(typeof t === "function" ? t("pdf_save_fail") : "خطا در ذخیره — حافظه دستگاه ممکن است پر باشد");
+    console.error("savePendingPdf", e);
+    var msg = (e && e.name === "QuotaExceededError")
+      ? "حافظه پر است — PDF کوچک‌تر امتحان کن یا چند فایل قدیمی را حذف کن"
+      : (pdfT("pdf_save_fail", "خطا در ذخیره") + (e && e.message ? ": " + e.message : ""));
+    pdfToast(msg);
   }
 }
 
 async function openPdfViewer(id) {
-  var rec = await pdfGet(id);
-  if (!rec || !rec.blob) {
-    pdfToast("PDF not found");
-    return;
+  try {
+    var rec = await pdfGet(id);
+    if (!rec || !rec.blob) {
+      pdfToast("PDF پیدا نشد");
+      return;
+    }
+    if (pdfViewerObjectUrl) {
+      try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
+    }
+    var url = URL.createObjectURL(rec.blob);
+    pdfViewerObjectUrl = url;
+    var frame = document.getElementById("pdfViewerFrame");
+    var title = document.getElementById("pdfViewerTitle");
+    var sheet = document.getElementById("pdfViewerSheet");
+    var back = document.getElementById("pdfViewerBackdrop");
+    if (title) title.textContent = rec.title || rec.name;
+    if (frame) {
+      frame.src = url;
+    }
+    var dl = document.getElementById("pdfViewerDownload");
+    if (dl) {
+      dl.href = url;
+      dl.download = rec.name || "document.pdf";
+    }
+    if (sheet) sheet.classList.add("show");
+    if (back) back.classList.add("show");
+  } catch (e) {
+    console.error(e);
+    pdfToast("خطا در باز کردن PDF");
   }
-  var url = URL.createObjectURL(rec.blob);
-  var frame = document.getElementById("pdfViewerFrame");
-  var title = document.getElementById("pdfViewerTitle");
-  var sheet = document.getElementById("pdfViewerSheet");
-  var back = document.getElementById("pdfViewerBackdrop");
-  if (title) title.textContent = rec.title || rec.name;
-  if (frame) {
-    frame.src = url;
-    frame.dataset.url = url;
-  }
-  var dl = document.getElementById("pdfViewerDownload");
-  if (dl) {
-    dl.href = url;
-    dl.download = rec.name || "document.pdf";
-  }
-  if (sheet) sheet.classList.add("open");
-  if (back) back.classList.add("open");
 }
 
 function closePdfViewer() {
   var frame = document.getElementById("pdfViewerFrame");
   var sheet = document.getElementById("pdfViewerSheet");
   var back = document.getElementById("pdfViewerBackdrop");
-  if (frame) {
-    if (frame.dataset.url) {
-      try { URL.revokeObjectURL(frame.dataset.url); } catch (e) {}
-      frame.dataset.url = "";
-    }
-    frame.src = "about:blank";
+  if (frame) frame.src = "about:blank";
+  if (pdfViewerObjectUrl) {
+    try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
+    pdfViewerObjectUrl = null;
   }
-  if (sheet) sheet.classList.remove("open");
-  if (back) back.classList.remove("open");
+  if (sheet) sheet.classList.remove("show");
+  if (back) back.classList.remove("show");
 }
 
 function confirmDeletePdf(id) {
-  var msg = typeof t === "function" ? t("pdf_del_confirm") : "این PDF حذف شود؟";
-  if (!confirm(msg)) return;
+  var msg = pdfT("pdf_del_confirm", "این PDF حذف شود؟");
+  if (!window.confirm(msg)) return;
   deletePdfById(id);
 }
 
@@ -333,16 +374,24 @@ async function deletePdfById(id) {
     await pdfDelete(id);
     await loadLocalPdfs();
     renderPdfList();
-    pdfToast(typeof t === "function" ? t("pdf_deleted") : "حذف شد");
+    pdfToast(pdfT("pdf_deleted", "حذف شد"));
   } catch (e) {
     console.error(e);
+    pdfToast("خطا در حذف");
   }
 }
 
 async function initPdfs() {
-  await loadLocalPdfs();
-  renderPdfCats();
-  renderPdfList();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      try { await navigator.storage.persist(); } catch (e) {}
+    }
+    await loadLocalPdfs();
+    renderPdfCats();
+    renderPdfList();
+  } catch (e) {
+    console.warn("initPdfs", e);
+  }
 }
 
 window.pickPdfFile = pickPdfFile;
@@ -357,12 +406,10 @@ window.initPdfs = initPdfs;
 
 if (typeof document !== "undefined") {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
-      setTimeout(initPdfs, 200);
-    });
+    document.addEventListener("DOMContentLoaded", function () { setTimeout(initPdfs, 300); });
   } else {
-    setTimeout(initPdfs, 200);
+    setTimeout(initPdfs, 300);
   }
 }
 
-console.log("✅ pdfs.js — PDF library ready");
+console.log("✅ pdfs.js ready (sheet class: show)");

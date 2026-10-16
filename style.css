@@ -1724,26 +1724,89 @@ html[data-theme="light"] .glass-slider::-webkit-slider-thumb{
 .pdf-act.danger { color: #FF453A; }
 .pdf-hint { font-size: 12px; color: var(--label2); margin-top: 12px; line-height: 1.45; }
 .pdf-viewer-sheet {
-  height: 94vh !important;
-  max-height: 94vh !important;
+  height: 96vh !important;
+  max-height: 96vh !important;
   display: flex !important;
   flex-direction: column !important;
+  z-index: 80 !important;
 }
 .pdf-viewer-sheet.show { transform: translateY(0); }
+.pdf-viewer-sheet .sheet-grab {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 30;
+}
+.pdf-viewer-sheet .sheet-head {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 30 !important;
+  background: rgba(22,22,24,.96) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto !important;
+  min-height: 52px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.pdf-viewer-sheet .sheet-act {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 31;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 10px 14px !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+}
 .pdf-viewer-body {
   padding: 0 !important;
   flex: 1 1 auto !important;
   height: auto !important;
   min-height: 0 !important;
   overflow: hidden !important;
+  position: relative;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
 }
-.pdf-viewer-body iframe {
+.pdf-viewer-body iframe,
+.pdf-viewer-body object,
+.pdf-viewer-body embed {
   width: 100% !important;
   height: 100% !important;
-  min-height: 70vh;
+  min-height: 60vh;
   border: 0;
   background: #111;
   display: block;
+  position: relative;
+  z-index: 1;
+}
+/* دکمه شناور بستن — همیشه روی PDF */
+.pdf-close-fab {
+  position: fixed !important;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  inset-inline-start: 12px;
+  z-index: 120 !important;
+  min-width: 72px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 22px;
+  border: none;
+  background: rgba(0,0,0,.75);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  pointer-events: auto !important;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.pdf-close-fab.show {
+  display: flex !important;
+}
+#pdfViewerSheetBackdrop.show,
+#pdfViewerBackdrop.show {
+  z-index: 79 !important;
+  pointer-events: auto !important;
 }
 #pdfCats.gallery-cats,
 .gallery-cats#pdfCats {

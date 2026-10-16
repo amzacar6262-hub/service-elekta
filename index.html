@@ -173,6 +173,25 @@
       <div class="gallery-cats" id="galleryCats"></div>
       <div class="gallery-grid" id="galleryGrid"></div>
     </section>
+        <!-- ═══════════════ PDF LIBRARY ═══════════════ -->
+    <section id="page-pdfs" class="page">
+      <header class="nav" data-nav>
+        <div class="nav-top">
+          <div class="nav-title-sm" data-i18n="pdf_title">PDFها</div>
+          <button class="nav-icon-btn nav-add-btn" onclick="pickPdfFile()" aria-label="Add PDF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="nav-large" data-i18n="pdf_title">PDFهای اصلی</div>
+      </header>
+      <div class="health-sub" id="pdfSub" data-i18n="pdf_sub">اسناد اصلی سرویس — ذخیره محلی</div>
+      <div class="gallery-cats" id="pdfCats"></div>
+      <div class="pdf-list" id="pdfList"></div>
+      <input type="file" id="pdfFileInput" accept="application/pdf,.pdf" multiple style="display:none" onchange="onPdfFileSelected(event)" />
+    </section>
 
     <!-- ═══════════════ PM ═══════════════ -->
     <section id="page-pm" class="page">
@@ -462,7 +481,39 @@
   </div>
   <div class="sheet-body" id="sheetBody"></div>
 </div>
+<!-- SHEET: PDF Add -->
+<div class="sheet-backdrop" id="pdfAddSheetBackdrop" onclick="closePdfAddSheet()"></div>
+<div class="sheet" id="pdfAddSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="closePdfAddSheet()" data-i18n="btn_cancel">انصراف</button>
+    <div class="sheet-title" data-i18n="pdf_add">افزودن PDF</div>
+    <button class="sheet-act accent" onclick="savePendingPdf()" data-i18n="btn_save">ذخیره</button>
+  </div>
+  <div class="sheet-body">
+    <label class="field-label" data-i18n="pdf_field_title">عنوان</label>
+    <input class="field-input" id="pdfAddTitle" type="text" />
+    <label class="field-label" data-i18n="pdf_field_cat">دسته‌بندی</label>
+    <select class="field-input" id="pdfAddCat"></select>
+    <label class="field-label" data-i18n="pdf_field_note">یادداشت (اختیاری)</label>
+    <textarea class="field-input" id="pdfAddNote" rows="3"></textarea>
+    <p class="pdf-hint" data-i18n="pdf_hint">فایل روی همین دستگاه ذخیره می‌شود و آفلاین در دسترس است. می‌توانی چند PDF یکجا انتخاب کنی. حداکثر حدود ۱۲۰ مگابایت برای هر فایل.</p>
+  </div>
+</div>
 
+<!-- SHEET: PDF Viewer -->
+<div class="sheet-backdrop" id="pdfViewerBackdrop" onclick="closePdfViewer()"></div>
+<div class="sheet pdf-viewer-sheet" id="pdfViewerSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <button class="sheet-act" onclick="closePdfViewer()" data-i18n="btn_close">بستن</button>
+    <div class="sheet-title" id="pdfViewerTitle">PDF</div>
+    <a class="sheet-act accent" id="pdfViewerDownload" href="#" download>↓</a>
+  </div>
+  <div class="sheet-body pdf-viewer-body">
+    <iframe id="pdfViewerFrame" title="PDF"></iframe>
+  </div>
+</div>
 <!-- ═══════════════ QR SCANNER ═══════════════ -->
 <div class="scan-overlay" id="scanOverlay">
   <div class="scan-top">
@@ -653,6 +704,7 @@
 <script src="qr.js"></script>
 <script src="gallery.js"></script>
 <script src="pm.js"></script>
+<script src="pdfs.js"></script>
 
 </body>
 </html>

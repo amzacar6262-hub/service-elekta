@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   pdfs.js — v4 با اسکرول پیوسته + زوم دو انگشتی + هایلایت
+   pdfs.js — v5 (اسکرول پیوسته + Pinch Zoom + HighLight)
    ═══════════════════════════════════════ */
 
 var PDF_CATS = [
@@ -299,7 +299,7 @@ async function savePendingPdf() {
 
 
 /* ═══════════════════════════════════════
-   PDF Viewer — v4
+   PDF Viewer — v5
    ═══════════════════════════════════════ */
 
 var pdfJsDoc = null;
@@ -353,7 +353,7 @@ function getPdfCanvasHost() {
   return host;
 }
 
-/* ═══ Render همه صفحات با aspect-ratio دقیق ═══ */
+/* ═══ Render همه صفحات ═══ */
 async function renderAllPdfPages() {
   if (!pdfJsDoc) return;
   var host = getPdfCanvasHost();
@@ -363,10 +363,10 @@ async function renderAllPdfPages() {
 
   var totalPages = pdfJsDoc.numPages;
 
-  /* aspect-ratio دقیق از صفحه اول */
+  /* aspect-ratio از صفحه اول */
   var firstPage = await pdfJsDoc.getPage(1);
   var vp1 = firstPage.getViewport({ scale: 1 });
-  var aspectStr = vp1.width + " / " + vp1.height;
+  var aspectPct = (vp1.height / vp1.width) * 100;
 
   var frag = document.createDocumentFragment();
   for (var i = 1; i <= totalPages; i++) {
@@ -374,8 +374,8 @@ async function renderAllPdfPages() {
     wrap.className = "pdf-page-wrapper";
     wrap.id = "pdfPage_" + i;
     wrap.dataset.pageNum = i;
-    wrap.style.aspectRatio = aspectStr;
-    wrap.innerHTML = '<div class="pdf-page-placeholder">صفحه ' + i + '</div>';
+    wrap.innerHTML = '<div class="pdf-page-placeholder" style="padding-bottom:' +
+      aspectPct.toFixed(2) + '%" data-label="صفحه ' + i + '"></div>';
     frag.appendChild(wrap);
   }
   host.appendChild(frag);
@@ -400,7 +400,7 @@ async function renderAllPdfPages() {
     });
   }, {
     root: host,
-    rootMargin: "800px 0px",
+    rootMargin: "900px 0px",
     threshold: 0.01
   });
 
@@ -408,7 +408,7 @@ async function renderAllPdfPages() {
   host.addEventListener("scroll", onPdfScroll, { passive: true });
   setupPinchZoom(host);
 
-  console.log("pdf v4: " + totalPages + " pages, aspect=" + aspectStr);
+  console.log("pdf v5: " + totalPages + " pages, aspect=" + aspectPct.toFixed(1) + "%");
 }
 
 async function renderPageInto(pageNum, wrapper) {
@@ -420,7 +420,9 @@ async function renderPageInto(pageNum, wrapper) {
     var host = document.getElementById("pdfCanvasHost");
     var hostW = host.clientWidth || window.innerWidth || 360;
     var unscaled = page.getViewport({ scale: 1 });
-    var scale = (hostW - 16) / unscaled.width;
+    /* scale بر اساس عرض wrapper واقعی */
+    var wrapperW = wrapper.clientWidth || (hostW - 12);
+    var scale = wrapperW / unscaled.width;
     var outputScale = Math.min(window.devicePixelRatio || 1, 2);
     var viewport = page.getViewport({ scale: scale });
 
@@ -441,14 +443,13 @@ async function renderPageInto(pageNum, wrapper) {
       transform: transform
     }).promise;
 
-    /* HighLight در صورت وجود search */
+    /* HighLight اگر جستجویی هست */
     if (pdfCurrentQuery) {
       try { await drawSearchHighlights(page, canvas, viewport, outputScale, pdfCurrentQuery); } catch(e){}
     }
 
     wrapper.innerHTML = "";
     wrapper.appendChild(canvas);
-    wrapper.style.aspectRatio = "";
     pdfRenderedPages[pageNum] = true;
   } catch (e) {
     console.warn("render page " + pageNum, e);
@@ -456,13 +457,12 @@ async function renderPageInto(pageNum, wrapper) {
   }
 }
 
-/* ═══ هایلایت جستجو ═══ */
+/* ═══ HighLight جستجو ═══ */
 async function drawSearchHighlights(page, canvas, viewport, outputScale, query) {
   if (!query || !window.pdfjsLib) return 0;
   var textContent = await page.getTextContent();
   var q = query.toLowerCase();
   var ctx = canvas.getContext("2d");
-  var count = 0;
 
   textContent.items.forEach(function(item) {
     if (!item.str) return;
@@ -486,21 +486,41 @@ async function drawSearchHighlights(page, canvas, viewport, outputScale, query) 
         height * outputScale
       );
       ctx.restore();
-      count++;
     } catch (e) {}
   });
-
-  return count;
+  return 0;
 }
 
-/* ═══ Pinch to Zoom ═══ */
+/* ═══ Pinch to Zoom — با gesture events ═══ */
 function setupPinchZoom(host) {
   if (host.__pinchBound) return;
   host.__pinchBound = true;
 
-  var initialDist = 0;
-  var initialZoom = 1;
-  var pinching = false;
+  var zoomAtStart = 1;
+
+  /* iOS native gesture events */
+  host.addEventListener("gesturestart", function(e) {
+    e.preventDefault();
+    zoomAtStart = (typeof pvpZoomLevel !== "undefined") ? pvpZoomLevel : 1;
+    host.style.transition = "none";
+  }, { passive: false });
+
+  host.addEventListener("gesturechange", function(e) {
+    e.preventDefault();
+    var newZoom = zoomAtStart * e.scale;
+    newZoom = Math.max(0.5, Math.min(4.0, newZoom));
+    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = newZoom;
+    host.style.zoom = newZoom;
+    var lbl = document.getElementById("pvpZoomLabel");
+    if (lbl) lbl.textContent = Math.round(newZoom * 100) + "%";
+  }, { passive: false });
+
+  host.addEventListener("gestureend", function(e) {
+    e.preventDefault();
+  }, { passive: false });
+
+  /* Fallback برای غیر iOS */
+  var initialDist = 0, initialZoom = 1, pinching = false;
 
   function getDist(t1, t2) {
     var dx = t2.clientX - t1.clientX;
@@ -513,7 +533,6 @@ function setupPinchZoom(host) {
       pinching = true;
       initialDist = getDist(e.touches[0], e.touches[1]);
       initialZoom = (typeof pvpZoomLevel !== "undefined") ? pvpZoomLevel : 1;
-      host.style.transition = "none";
     }
   }, { passive: true });
 
@@ -523,8 +542,8 @@ function setupPinchZoom(host) {
     var dist = getDist(e.touches[0], e.touches[1]);
     var newZoom = initialZoom * (dist / initialDist);
     newZoom = Math.max(0.5, Math.min(4.0, newZoom));
-    host.style.zoom = newZoom;
     if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = newZoom;
+    host.style.zoom = newZoom;
     var lbl = document.getElementById("pvpZoomLabel");
     if (lbl) lbl.textContent = Math.round(newZoom * 100) + "%";
   }, { passive: false });
@@ -584,10 +603,8 @@ async function refreshSearchHighlights() {
     var w = wrappers[i];
     var n = parseInt(w.dataset.pageNum, 10);
     var rect = w.getBoundingClientRect();
-    /* فقط صفحات دیده‌شده */
     if (rect.bottom < hostRect.top - 100 || rect.top > hostRect.bottom + 100) continue;
     if (pdfRenderedPages[n] !== true) continue;
-    /* Re-render */
     pdfRenderedPages[n] = false;
     await renderPageInto(n, w);
   }
@@ -665,10 +682,10 @@ function ensurePdfSearchBar() {
     '<input type="search" id="pdfSearchInput" placeholder="جستجو در PDF..." enterkeyhint="search" />' +
     '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
     '<button type="button" id="pdfSearchPrev" class="pdf-search-nav" aria-label="قبلی">' +
-      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
     '</button>' +
     '<button type="button" id="pdfSearchNext" class="pdf-search-nav" aria-label="بعدی">' +
-      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
     '</button>';
 
   var body = sheet.querySelector(".pdf-viewer-body");
@@ -841,4 +858,4 @@ if (typeof document !== "undefined") {
   }
 }
 
-console.log("✅ pdfs.js v4 ready — scroll + pinch + highlights");
+console.log("✅ pdfs.js v5 ready");

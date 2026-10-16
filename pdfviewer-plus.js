@@ -157,14 +157,11 @@ function pvpSetZoom(level) {
   pvpZoomLevel = level;
   var lbl = document.getElementById("pvpZoomLabel");
   if (lbl) lbl.textContent = Math.round(level * 100) + "%";
-  var canvas = document.querySelector(".pdf-page-canvas");
-  if (!canvas) return;
-  if (!canvas.dataset.baseWidth) {
-    canvas.dataset.baseWidth = parseFloat(canvas.style.width) || canvas.clientWidth;
+  /* اعمال Zoom روی کل container با CSS zoom */
+  var host = document.getElementById("pdfCanvasHost");
+  if (host) {
+    host.style.zoom = level;
   }
-  var baseW = parseFloat(canvas.dataset.baseWidth);
-  canvas.style.width = (baseW * pvpZoomLevel) + "px";
-  canvas.style.maxWidth = "none";
 }
 
 function pvpPrint() {

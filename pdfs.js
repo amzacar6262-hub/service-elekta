@@ -1,367 +1,737 @@
 /* ═══════════════════════════════════════
-   pdfviewer-plus.js — افزونه PDF Viewer
-   Bookmark + Night + Zoom + Share + Print
+   pdfs.js — کتابخانه PDF (IndexedDB)
+   شیت‌ها با کلاس show باز می‌شوند (مثل بقیه برنامه)
    ═══════════════════════════════════════ */
 
-const PVP_STORAGE_KEY = "elekta_pdf_bookmarks_v1";
-const PVP_NIGHT_KEY = "elekta_pdf_night_v1";
+var PDF_CATS = [
+  { id: "all", name: "pdfcat_all" },
+  { id: "cmm", name: "pdfcat_cmm" },
+  { id: "service", name: "pdfcat_service" },
+  { id: "accept", name: "pdfcat_accept" },
+  { id: "pm", name: "pdfcat_pm" },
+  { id: "error", name: "pdfcat_error" },
+  { id: "other", name: "pdfcat_other" }
+];
 
-let pvpBookmarks = {};
-let pvpCurrentPdfId = null;
-let pvpNightMode = false;
-let pvpZoomLevel = 1.0;
-let pvpOriginalGetPage = null;
+var PDF_DB_NAME = "elekta-pdfs-db";
+var PDF_STORE = "pdfs";
+var PDF_MAX_MB = 80;
 
-try { pvpBookmarks = JSON.parse(localStorage.getItem(PVP_STORAGE_KEY) || "{}"); } catch(e){}
-try { pvpNightMode = localStorage.getItem(PVP_NIGHT_KEY) === "1"; } catch(e){}
+var pdfDB = null;
+var localPdfs = [];
+var pdfFilter = "all";
+var pendingPdfFile = null;
+var pendingPdfQueue = [];
+var pdfViewerObjectUrl = null;
 
-function pvpSave() {
-  try { localStorage.setItem(PVP_STORAGE_KEY, JSON.stringify(pvpBookmarks)); } catch(e){}
-}
-function pvpSaveNight() {
-  try { localStorage.setItem(PVP_NIGHT_KEY, pvpNightMode ? "1" : "0"); } catch(e){}
-}
-function pvpToast(msg) {
-  if (typeof toast === "function") toast(msg);
-  else if (typeof pdfToast === "function") pdfToast(msg);
-}
-
-/* ═══ کتابخانه Bookmark ═══ */
-function pvpGetBookmarks(pdfId) {
-  if (!pvpBookmarks[pdfId]) pvpBookmarks[pdfId] = [];
-  return pvpBookmarks[pdfId];
-}
-function pvpIsBookmarked(pdfId, page) {
-  return pvpGetBookmarks(pdfId).some(function(b){ return b.page === page; });
-}
-function pvpToggleBookmark(pdfId, page, note) {
-  var list = pvpGetBookmarks(pdfId);
-  var idx = list.findIndex(function(b){ return b.page === page; });
-  if (idx >= 0) {
-    list.splice(idx, 1);
-    pvpToast("★ حذف شد");
-  } else {
-    list.push({ page: page, note: note || "", at: Date.now() });
-    list.sort(function(a,b){ return a.page - b.page; });
-    pvpToast("★ ذخیره شد — صفحه " + page);
-  }
-  pvpSave();
-  pvpUpdateBookmarkBtn();
-  pvpUpdateBookmarkCount();
-  return idx < 0;
-}
-
-/* ═══ UI — Toolbar ═══ */
-function pvpEnsureToolbar() {
-  var sheet = document.getElementById("pdfViewerSheet");
-  if (!sheet) return null;
-  var tb = document.getElementById("pvpToolbar");
-  if (tb) return tb;
-
-  tb = document.createElement("div");
-  tb.id = "pvpToolbar";
-  tb.className = "pvp-toolbar";
-  tb.innerHTML =
-    '<button type="button" class="pvp-btn" id="pvpBookmarkBtn" title="Bookmark">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>' +
-      '</svg>' +
-      '<span class="pvp-badge" id="pvpBookmarkBadge" style="display:none">0</span>' +
-    '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpNightBtn" title="حالت شب">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' +
-      '</svg>' +
-    '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpZoomOut" title="کوچک">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">' +
-        '<line x1="5" y1="12" x2="19" y2="12"/>' +
-      '</svg>' +
-    '</button>' +
-    '<span class="pvp-zoom-label" id="pvpZoomLabel">100%</span>' +
-    '<button type="button" class="pvp-btn" id="pvpZoomIn" title="بزرگ">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">' +
-        '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>' +
-      '</svg>' +
-    '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpPrintBtn" title="چاپ">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<polyline points="6 9 6 2 18 2 18 9"/>' +
-        '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>' +
-        '<rect x="6" y="14" width="12" height="8"/>' +
-      '</svg>' +
-    '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpShareBtn" title="اشتراک">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>' +
-        '<polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>' +
-      '</svg>' +
-    '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpBookmarksListBtn" title="لیست">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
-        '<line x1="8" y1="6" x2="21" y2="6"/>' +
-        '<line x1="8" y1="12" x2="21" y2="12"/>' +
-        '<line x1="8" y1="18" x2="21" y2="18"/>' +
-        '<line x1="3" y1="6" x2="3.01" y2="6"/>' +
-        '<line x1="3" y1="12" x2="3.01" y2="12"/>' +
-        '<line x1="3" y1="18" x2="3.01" y2="18"/>' +
-      '</svg>' +
-    '</button>';
-
-  var searchBar = document.getElementById("pdfSearchBar");
-  var pageNav = document.getElementById("pdfPageNav");
-  var body = sheet.querySelector(".pdf-viewer-body");
-
-  if (searchBar && searchBar.parentNode) {
-    searchBar.parentNode.insertBefore(tb, searchBar);
-  } else if (pageNav && pageNav.parentNode) {
-    pageNav.parentNode.insertBefore(tb, pageNav);
-  } else if (body) {
-    sheet.insertBefore(tb, body);
-  } else {
-    sheet.appendChild(tb);
-  }
-
-  /* Bind events */
-  tb.querySelector("#pvpBookmarkBtn").addEventListener("click", pvpOnBookmarkClick);
-  tb.querySelector("#pvpNightBtn").addEventListener("click", pvpToggleNight);
-  tb.querySelector("#pvpZoomIn").addEventListener("click", function(){ pvpSetZoom(pvpZoomLevel + 0.25); });
-  tb.querySelector("#pvpZoomOut").addEventListener("click", function(){ pvpSetZoom(pvpZoomLevel - 0.25); });
-  tb.querySelector("#pvpPrintBtn").addEventListener("click", pvpPrint);
-  tb.querySelector("#pvpShareBtn").addEventListener("click", pvpShare);
-  tb.querySelector("#pvpBookmarksListBtn").addEventListener("click", pvpToggleBookmarksList);
-
-  return tb;
-}
-
-/* ═══ Bookmark Click ═══ */
-function pvpOnBookmarkClick() {
-  if (!pvpCurrentPdfId) return;
-  var page = (typeof pdfCurrentPage !== "undefined") ? pdfCurrentPage : 1;
-  pvpToggleBookmark(pvpCurrentPdfId, page);
-}
-
-function pvpUpdateBookmarkBtn() {
-  var btn = document.getElementById("pvpBookmarkBtn");
-  if (!btn || !pvpCurrentPdfId) return;
-  var page = (typeof pdfCurrentPage !== "undefined") ? pdfCurrentPage : 1;
-  var isOn = pvpIsBookmarked(pvpCurrentPdfId, page);
-  btn.classList.toggle("on", isOn);
-}
-
-function pvpUpdateBookmarkCount() {
-  var badge = document.getElementById("pvpBookmarkBadge");
-  if (!badge || !pvpCurrentPdfId) return;
-  var count = pvpGetBookmarks(pvpCurrentPdfId).length;
-  if (count > 0) {
-    badge.textContent = count;
-    badge.style.display = "grid";
-  } else {
-    badge.style.display = "none";
+function pdfToast(msg) {
+  try {
+    if (typeof toast === "function") toast(msg);
+    else if (typeof showToast === "function") showToast(msg);
+    else window.alert(msg);
+  } catch (e) {
+    window.alert(msg);
   }
 }
 
-/* ═══ Night Mode ═══ */
-function pvpToggleNight() {
-  pvpNightMode = !pvpNightMode;
-  pvpSaveNight();
-  pvpApplyNight();
-  pvpToast(pvpNightMode ? "🌙 حالت شب" : "☀️ حالت روز");
+function pdfT(key, fallback) {
+  if (typeof t === "function") {
+    try { return t(key) || fallback; } catch (e) {}
+  }
+  return fallback;
 }
-function pvpApplyNight() {
+
+function openPdfDB() {
+  return new Promise(function (resolve, reject) {
+    if (pdfDB) { resolve(pdfDB); return; }
+    var req = indexedDB.open(PDF_DB_NAME, 1);
+    req.onupgradeneeded = function (e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains(PDF_STORE)) {
+        var store = db.createObjectStore(PDF_STORE, { keyPath: "id" });
+        store.createIndex("added", "added", { unique: false });
+        store.createIndex("cat", "cat", { unique: false });
+      }
+    };
+    req.onsuccess = function (e) {
+      pdfDB = e.target.result;
+      resolve(pdfDB);
+    };
+    req.onerror = function () { reject(req.error || new Error("IDB open failed")); };
+  });
+}
+
+function pdfSave(rec) {
+  return openPdfDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(PDF_STORE, "readwrite");
+      var store = tx.objectStore(PDF_STORE);
+      var req = store.put(rec);
+      req.onsuccess = function () {};
+      tx.oncomplete = function () { resolve(); };
+      tx.onerror = function () { reject(tx.error || new Error("save failed")); };
+      tx.onabort = function () { reject(tx.error || new Error("save aborted (quota?)")); };
+    });
+  });
+}
+
+function pdfGetAll() {
+  return openPdfDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(PDF_STORE, "readonly");
+      var req = tx.objectStore(PDF_STORE).getAll();
+      req.onsuccess = function () { resolve(req.result || []); };
+      req.onerror = function () { reject(req.error); };
+    });
+  });
+}
+
+function pdfDelete(id) {
+  return openPdfDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(PDF_STORE, "readwrite");
+      tx.objectStore(PDF_STORE).delete(id);
+      tx.oncomplete = function () { resolve(); };
+      tx.onerror = function () { reject(tx.error); };
+    });
+  });
+}
+
+function pdfGet(id) {
+  return openPdfDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(PDF_STORE, "readonly");
+      var req = tx.objectStore(PDF_STORE).get(id);
+      req.onsuccess = function () { resolve(req.result || null); };
+      req.onerror = function () { reject(req.error); };
+    });
+  });
+}
+
+async function loadLocalPdfs() {
+  try {
+    var arr = await pdfGetAll();
+    localPdfs = (arr || []).sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
+  } catch (e) {
+    console.warn("loadLocalPdfs failed:", e);
+    localPdfs = [];
+  }
+}
+
+function formatPdfSize(bytes) {
+  if (!bytes) return "—";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1048576) return (bytes / 1024).toFixed(0) + " KB";
+  return (bytes / 1048576).toFixed(1) + " MB";
+}
+
+function pdfCatLabel(id) {
+  var fa = {
+    all: "همه", cmm: "CMM / تعمیر", service: "سرویس",
+    accept: "پذیرش", pm: "PM", error: "کد خطا", other: "سایر",
+    pdfcat_all: "همه", pdfcat_cmm: "CMM / تعمیر", pdfcat_service: "سرویس",
+    pdfcat_accept: "پذیرش", pdfcat_pm: "PM", pdfcat_error: "کد خطا", pdfcat_other: "سایر"
+  };
+  var c = PDF_CATS.find(function (x) { return x.id === id; });
+  var key = c ? c.name : ("pdfcat_" + (id || "other"));
+  var fallback = fa[id] || fa[key] || id || "";
+  if (typeof t === "function") {
+    try {
+      var v = t(key);
+      if (v && v !== key && String(v).indexOf("pdfcat_") !== 0) return v;
+    } catch (e) {}
+  }
+  return fallback;
+}
+
+function renderPdfCats() {
+  var el = document.getElementById("pdfCats");
+  if (!el) return;
+  el.innerHTML = PDF_CATS.map(function (c) {
+    return '<button type="button" class="gallery-chip ' + (pdfFilter === c.id ? "on" : "") +
+      '" onclick="setPdfFilter(\'' + c.id + '\')">' + pdfCatLabel(c.id) + "</button>";
+  }).join("");
+}
+
+function setPdfFilter(id) {
+  pdfFilter = id;
+  renderPdfCats();
+  renderPdfList();
+}
+
+function escapePdf(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderPdfList() {
+  var el = document.getElementById("pdfList");
+  var sub = document.getElementById("pdfSub");
+  if (!el) return;
+  var list = pdfFilter === "all" ? localPdfs : localPdfs.filter(function (p) { return p.cat === pdfFilter; });
+  if (sub) {
+    var cnt = pdfT("pdf_count", "تعداد PDF");
+    if (!cnt || cnt === "pdf_count") cnt = "تعداد PDF";
+    sub.textContent = cnt + ": " + localPdfs.length;
+  }
+  if (!list.length) {
+    el.innerHTML =
+      '<div class="gallery-empty" style="padding:32px 16px;text-align:center">' +
+      '<div class="gallery-empty-t" style="font-weight:600;margin-bottom:8px">' +
+      pdfT("pdf_empty", "هنوز PDFای نیست") + "</div>" +
+      '<div class="gallery-empty-s" style="color:var(--label2);margin-bottom:16px">' +
+      pdfT("pdf_empty_s", "با دکمه + فایل را اضافه کن") + "</div>" +
+      '<button type="button" class="btn-primary" style="padding:12px 20px;border-radius:12px;background:var(--blue);color:#fff;font-weight:600;border:0" onclick="pickPdfFile()">' +
+      pdfT("pdf_add", "افزودن PDF") + "</button></div>";
+    return;
+  }
+  el.innerHTML = list.map(function (p) {
+    return (
+      '<div class="pdf-card" data-id="' + p.id + '">' +
+      '<div class="pdf-card-icon" style="width:48px;height:48px;min-width:48px;flex-shrink:0">' +
+      '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
+      '<polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/>' +
+      '<line x1="8" y1="17" x2="14" y2="17"/></svg></div>' +
+      '<div class="pdf-card-body" onclick="openPdfViewer(\'' + p.id + '\')">' +
+      '<div class="pdf-card-title">' + escapePdf(p.title || p.name) + "</div>" +
+      '<div class="pdf-card-meta">' +
+      '<span class="pdf-chip">' + pdfCatLabel(p.cat) + "</span>" +
+      "<span>" + formatPdfSize(p.size) + "</span>" +
+      "</div>" +
+      (p.note ? '<div class="pdf-card-note">' + escapePdf(p.note) + "</div>" : "") +
+      "</div>" +
+      '<div class="pdf-card-acts">' +
+      '<button type="button" class="pdf-act" onclick="openPdfViewer(\'' + p.id + '\')">↗</button>' +
+      '<button type="button" class="pdf-act danger" onclick="confirmDeletePdf(\'' + p.id + '\')">✕</button>' +
+      "</div></div>"
+    );
+  }).join("");
+}
+
+function pickPdfFile() {
+  var inp = document.getElementById("pdfFileInput");
+  if (!inp) {
+    pdfToast("input PDF پیدا نشد — index را چک کن");
+    return;
+  }
+  inp.value = "";
+  inp.click();
+}
+
+function onPdfFileSelected(ev) {
+  var files = ev.target && ev.target.files;
+  if (!files || !files.length) return;
+
+  var list = [];
+  for (var i = 0; i < files.length; i++) list.push(files[i]);
+
+  var first = list[0];
+  if (first.type && first.type !== "application/pdf" && !/\.pdf$/i.test(first.name)) {
+    pdfToast(pdfT("pdf_bad_type", "فقط فایل PDF"));
+    return;
+  }
+  if (first.size > PDF_MAX_MB * 1024 * 1024) {
+    pdfToast(pdfT("pdf_too_big", "حجم زیاد") + " (حداکثر " + PDF_MAX_MB + " MB)");
+    return;
+  }
+
+  pendingPdfFile = first;
+  pendingPdfQueue = list.slice(1).filter(function (f) {
+    return (!f.type || f.type === "application/pdf" || /\.pdf$/i.test(f.name)) &&
+      f.size <= PDF_MAX_MB * 1024 * 1024;
+  });
+  openPdfAddSheet(first);
+}
+
+function openPdfAddSheet(file) {
+  var sheet = document.getElementById("pdfAddSheet");
+  var back = document.getElementById("pdfAddSheetBackdrop");
+  var nameEl = document.getElementById("pdfAddTitle");
+  var catEl = document.getElementById("pdfAddCat");
+  var noteEl = document.getElementById("pdfAddNote");
+  if (nameEl) nameEl.value = (file && file.name ? file.name : "").replace(/\.pdf$/i, "");
+  if (noteEl) noteEl.value = "";
+  if (catEl) {
+    catEl.innerHTML = PDF_CATS.filter(function (c) { return c.id !== "all"; })
+      .map(function (c) {
+        return '<option value="' + c.id + '">' + pdfCatLabel(c.id) + "</option>";
+      }).join("");
+  }
+  /* مهم: کلاس show مثل بقیه شیت‌های برنامه */
+  if (sheet) sheet.classList.add("show");
+  if (back) back.classList.add("show");
+}
+
+function closePdfAddSheet() {
+  var sheet = document.getElementById("pdfAddSheet");
+  var back = document.getElementById("pdfAddSheetBackdrop");
+  if (sheet) sheet.classList.remove("show");
+  if (back) back.classList.remove("show");
+  pendingPdfFile = null;
+  pendingPdfQueue = [];
+}
+
+async function savePdfRecord(file, title, cat, note) {
+  var buf = await file.arrayBuffer();
+  var rec = {
+    id: "pdf_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+    name: file.name,
+    title: (title || file.name).replace(/\.pdf$/i, "").trim() || file.name,
+    cat: cat || "other",
+    note: (note || "").trim(),
+    size: file.size,
+    type: "application/pdf",
+    added: Date.now(),
+    blob: new Blob([buf], { type: "application/pdf" })
+  };
+  await pdfSave(rec);
+  return rec;
+}
+
+async function savePendingPdf() {
+  if (!pendingPdfFile) {
+    pdfToast("فایلی انتخاب نشده");
+    return;
+  }
+  var titleEl = document.getElementById("pdfAddTitle");
+  var catEl = document.getElementById("pdfAddCat");
+  var noteEl = document.getElementById("pdfAddNote");
+  var title = titleEl ? titleEl.value : pendingPdfFile.name;
+  var cat = catEl ? catEl.value : "other";
+  var note = noteEl ? noteEl.value : "";
+  var file = pendingPdfFile;
+  var queue = pendingPdfQueue.slice();
+  pendingPdfQueue = [];
+
+  try {
+    pdfToast("در حال ذخیره…");
+    await savePdfRecord(file, title, cat, note);
+    for (var i = 0; i < queue.length; i++) {
+      await savePdfRecord(queue[i], queue[i].name, cat, "");
+    }
+    await loadLocalPdfs();
+    closePdfAddSheet();
+    renderPdfList();
+    var n = 1 + queue.length;
+    pdfToast(pdfT("pdf_saved", "PDF ذخیره شد") + (n > 1 ? " (" + n + ")" : ""));
+  } catch (e) {
+    console.error("savePendingPdf", e);
+    var msg = (e && e.name === "QuotaExceededError")
+      ? "حافظه پر است — PDF کوچک‌تر امتحان کن یا چند فایل قدیمی را حذف کن"
+      : (pdfT("pdf_save_fail", "خطا در ذخیره") + (e && e.message ? ": " + e.message : ""));
+    pdfToast(msg);
+  }
+}
+
+
+
+/* ── نمایش کامل PDF با PDF.js (صفحه‌به‌صفحه) ── */
+var pdfJsDoc = null;
+var pdfJsPagesText = null;
+var pdfSearchHits = [];
+var pdfSearchHitIdx = 0;
+var pdfCurrentBlobUrl = null;
+var pdfCurrentPage = 1;
+var pdfRenderTask = null;
+
+function loadPdfJs() {
+  return new Promise(function (resolve, reject) {
+    if (window.pdfjsLib) {
+      resolve(window.pdfjsLib);
+      return;
+    }
+    var script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.onload = function () {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        resolve(window.pdfjsLib);
+      } else reject(new Error("pdfjs missing"));
+    };
+    script.onerror = function () { reject(new Error("pdfjs load fail")); };
+    document.head.appendChild(script);
+  });
+}
+
+function getPdfCanvasHost() {
+  var body = document.querySelector("#pdfViewerSheet .pdf-viewer-body");
+  if (!body) return null;
+  var host = document.getElementById("pdfCanvasHost");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "pdfCanvasHost";
+    host.className = "pdf-canvas-host";
+    body.innerHTML = "";
+    body.appendChild(host);
+  }
+  /* iframe را مخفی نگه دار برای fallback */
+  var frame = document.getElementById("pdfViewerFrame");
+  if (frame) frame.style.display = "none";
+  return host;
+}
+
+function ensurePdfNavBar() {
   var sheet = document.getElementById("pdfViewerSheet");
   if (!sheet) return;
-  sheet.classList.toggle("pvp-night", pvpNightMode);
-  var btn = document.getElementById("pvpNightBtn");
-  if (btn) btn.classList.toggle("on", pvpNightMode);
+  var nav = document.getElementById("pdfPageNav");
+  if (nav) return nav;
+  nav = document.createElement("div");
+  nav.id = "pdfPageNav";
+  nav.className = "pdf-page-nav";
+  nav.innerHTML =
+    '<button type="button" id="pdfPagePrev">‹ قبلی</button>' +
+    '<span id="pdfPageLabel">۱ / ۱</span>' +
+    '<button type="button" id="pdfPageNext">بعدی ›</button>';
+  var body = sheet.querySelector(".pdf-viewer-body");
+  if (body) sheet.insertBefore(nav, body);
+  else sheet.appendChild(nav);
+  document.getElementById("pdfPagePrev").onclick = function () {
+    if (pdfCurrentPage > 1) renderPdfPage(pdfCurrentPage - 1);
+  };
+  document.getElementById("pdfPageNext").onclick = function () {
+    if (pdfJsDoc && pdfCurrentPage < pdfJsDoc.numPages)
+      renderPdfPage(pdfCurrentPage + 1);
+  };
+  return nav;
 }
 
-/* ═══ Zoom ═══ */
-function pvpSetZoom(level) {
-  level = Math.max(0.5, Math.min(3.0, Math.round(level * 4) / 4));
-  pvpZoomLevel = level;
-  var lbl = document.getElementById("pvpZoomLabel");
-  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
-  pvpApplyZoom();
-}
-function pvpApplyZoom() {
-  var canvas = document.querySelector(".pdf-page-canvas");
-  if (!canvas) return;
-  var baseW = parseFloat(canvas.dataset.baseWidth || canvas.style.width) || canvas.clientWidth;
-  if (!canvas.dataset.baseWidth) canvas.dataset.baseWidth = baseW;
-  var newW = baseW * pvpZoomLevel;
-  canvas.style.width = newW + "px";
-  canvas.style.maxWidth = "none";
-}
+async function renderPdfPage(num) {
+  if (!pdfJsDoc) return;
+  num = Math.max(1, Math.min(num, pdfJsDoc.numPages));
+  pdfCurrentPage = num;
+  var label = document.getElementById("pdfPageLabel");
+  if (label) label.textContent = num + " / " + pdfJsDoc.numPages;
 
-/* ═══ Print ═══ */
-function pvpPrint() {
-  var canvas = document.querySelector(".pdf-page-canvas");
-  if (!canvas) {
-    pvpToast("صفحه‌ای برای چاپ نیست");
-    return;
-  }
-  var dataUrl = canvas.toDataURL("image/png");
-  var win = window.open("", "_blank");
-  if (!win) { pvpToast("پنجره چاپ باز نشد"); return; }
-  win.document.write(
-    '<html><head><title>Print PDF Page</title>' +
-    '<style>body{margin:0;padding:0}img{width:100%;height:auto}</style>' +
-    '</head><body><img src="' + dataUrl + '" onload="window.print();window.close();"/>' +
-    '</body></html>'
-  );
-  win.document.close();
-}
+  var host = getPdfCanvasHost();
+  if (!host) return;
+  host.innerHTML = '<div class="pdf-loading">در حال نمایش صفحه ' + num + "…</div>";
 
-/* ═══ Share ═══ */
-async function pvpShare() {
-  if (!pvpCurrentPdfId) return;
   try {
-    var rec = await pdfGet(pvpCurrentPdfId);
-    if (!rec || !rec.blob) { pvpToast("PDF پیدا نشد"); return; }
-    var file = new File([rec.blob], rec.name || "document.pdf", { type: "application/pdf" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        title: rec.title || rec.name,
-        files: [file]
-      });
-    } else if (navigator.share) {
-      await navigator.share({
-        title: rec.title || rec.name,
-        text: "PDF از Elekta Service"
-      });
-    } else {
-      pvpToast("اشتراک‌گذاری پشتیبانی نمی‌شود");
+    if (pdfRenderTask) {
+      try { pdfRenderTask.cancel(); } catch (e) {}
     }
+    var page = await pdfJsDoc.getPage(num);
+    var hostW = host.clientWidth || window.innerWidth || 360;
+    var unscaled = page.getViewport({ scale: 1 });
+    var scale = (hostW - 8) / unscaled.width;
+    /* کیفیت بهتر روی گوشی‌های رتینا */
+    var outputScale = Math.min(window.devicePixelRatio || 1, 2);
+    var viewport = page.getViewport({ scale: scale });
+
+    var canvas = document.createElement("canvas");
+    canvas.className = "pdf-page-canvas";
+    canvas.width = Math.floor(viewport.width * outputScale);
+    canvas.height = Math.floor(viewport.height * outputScale);
+    canvas.style.width = Math.floor(viewport.width) + "px";
+    canvas.style.height = Math.floor(viewport.height) + "px";
+
+    var ctx = canvas.getContext("2d");
+    var transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+    pdfRenderTask = page.render({
+      canvasContext: ctx,
+      viewport: viewport,
+      transform: transform
+    });
+    await pdfRenderTask.promise;
+    host.innerHTML = "";
+    host.appendChild(canvas);
+    host.scrollTop = 0;
   } catch (e) {
-    if (e && e.name === "AbortError") return;
-    console.warn(e);
-    pvpToast("خطا در اشتراک‌گذاری");
+    if (e && e.name === "RenderingCancelledException") return;
+    console.error(e);
+    host.innerHTML = '<div class="pdf-loading">خطا در نمایش صفحه</div>';
   }
 }
 
-/* ═══ Bookmarks List ═══ */
-function pvpToggleBookmarksList() {
-  var panel = document.getElementById("pvpBookmarksPanel");
-  if (panel && panel.classList.contains("show")) {
-    panel.classList.remove("show");
-    return;
-  }
-  pvpShowBookmarksList();
-}
-
-function pvpShowBookmarksList() {
-  if (!pvpCurrentPdfId) return;
-  var panel = document.getElementById("pvpBookmarksPanel");
-  if (!panel) {
-    panel = document.createElement("div");
-    panel.id = "pvpBookmarksPanel";
-    panel.className = "pvp-bm-panel";
-    var sheet = document.getElementById("pdfViewerSheet");
-    if (sheet) sheet.appendChild(panel);
-  }
-  var list = pvpGetBookmarks(pvpCurrentPdfId);
-  var html = '<div class="pvp-bm-header">' +
-    '<span>Bookmarkها (' + list.length + ')</span>' +
-    '<button type="button" class="pvp-bm-close" onclick="document.getElementById(\'pvpBookmarksPanel\').classList.remove(\'show\')">✕</button>' +
-    '</div>';
-  if (!list.length) {
-    html += '<div class="pvp-bm-empty">هنوز Bookmarkی نداری</div>';
-  } else {
-    html += '<div class="pvp-bm-list">' + list.map(function(b){
-      return '<div class="pvp-bm-item" onclick="pvpJumpTo(' + b.page + ')">' +
-        '<div class="pvp-bm-page">صفحه ' + b.page + '</div>' +
-        (b.note ? '<div class="pvp-bm-note">' + b.note + '</div>' : '') +
-        '<button type="button" class="pvp-bm-del" onclick="event.stopPropagation();pvpDeleteBookmark(' + b.page + ')">✕</button>' +
-        '</div>';
-    }).join("") + '</div>';
-  }
-  panel.innerHTML = html;
-  panel.classList.add("show");
-}
-
-function pvpJumpTo(page) {
-  if (typeof jumpPdfToPage === "function") jumpPdfToPage(page);
-  else if (typeof renderPdfPage === "function") renderPdfPage(page);
-  var panel = document.getElementById("pvpBookmarksPanel");
-  if (panel) panel.classList.remove("show");
-}
-
-function pvpDeleteBookmark(page) {
-  if (!pvpCurrentPdfId) return;
-  var list = pvpGetBookmarks(pvpCurrentPdfId);
-  var idx = list.findIndex(function(b){ return b.page === page; });
-  if (idx >= 0) {
-    list.splice(idx, 1);
-    pvpSave();
-    pvpShowBookmarksList();
-    pvpUpdateBookmarkCount();
-    pvpUpdateBookmarkBtn();
+async function openPdfWithEngine(blobUrl) {
+  var host = getPdfCanvasHost();
+  if (host) host.innerHTML = '<div class="pdf-loading">در حال بارگذاری PDF…</div>';
+  try {
+    var pdfjsLib = await loadPdfJs();
+    var doc = await pdfjsLib.getDocument({
+      url: blobUrl,
+      rangeChunkSize: 65536,
+      disableAutoFetch: false
+    }).promise;
+    pdfJsDoc = doc;
+    ensurePdfNavBar();
+    await renderPdfPage(1);
+    /* ایندکس متن برای جستجو در پس‌زمینه */
+    indexPdfTextFromDoc(doc);
+  } catch (e) {
+    console.error("openPdfWithEngine", e);
+    /* fallback: iframe */
+    fallbackIframe(blobUrl);
+    pdfToast("نمایش پیشرفته در دسترس نیست — حالت ساده");
   }
 }
 
-/* ═══ Hook into openPdfViewer ═══ */
-function pvpHookOpen() {
-  if (typeof window.openPdfViewer !== "function") {
-    setTimeout(pvpHookOpen, 300);
-    return;
-  }
-  if (window.openPdfViewer.__pvp_hooked) return;
-
-  var original = window.openPdfViewer;
-  window.openPdfViewer = async function(id) {
-    pvpCurrentPdfId = id;
-    pvpZoomLevel = 1.0;
-    await original.apply(this, arguments);
-    setTimeout(function() {
-      pvpEnsureToolbar();
-      pvpApplyNight();
-      pvpUpdateBookmarkBtn();
-      pvpUpdateBookmarkCount();
-      var lbl = document.getElementById("pvpZoomLabel");
-      if (lbl) lbl.textContent = "100%";
-    }, 200);
-  };
-  window.openPdfViewer.__pvp_hooked = true;
-  console.log("✅ pvp: openPdfViewer hooked");
+function fallbackIframe(blobUrl) {
+  var body = document.querySelector("#pdfViewerSheet .pdf-viewer-body");
+  if (!body) return;
+  body.innerHTML = "";
+  var frame = document.createElement("iframe");
+  frame.id = "pdfViewerFrame";
+  frame.title = "PDF";
+  frame.src = blobUrl;
+  body.appendChild(frame);
 }
 
-/* Hook after page render to update bookmark state */
-function pvpHookRenderPage() {
-  if (typeof window.renderPdfPage !== "function") {
-    setTimeout(pvpHookRenderPage, 300);
-    return;
+async function indexPdfTextFromDoc(doc) {
+  try {
+    var texts = [];
+    var maxPages = Math.min(doc.numPages, 500);
+    for (var i = 1; i <= maxPages; i++) {
+      var page = await doc.getPage(i);
+      var tc = await page.getTextContent();
+      texts.push(tc.items.map(function (it) { return it.str; }).join(" "));
+    }
+    pdfJsPagesText = texts;
+    var meta = document.getElementById("pdfSearchMeta");
+    if (meta && meta.textContent === "…") meta.textContent = "✓";
+  } catch (e) {
+    console.warn("index text", e);
   }
-  if (window.renderPdfPage.__pvp_hooked) return;
-
-  var original = window.renderPdfPage;
-  window.renderPdfPage = async function(num) {
-    var result = await original.apply(this, arguments);
-    setTimeout(function() {
-      pvpUpdateBookmarkBtn();
-      var canvas = document.querySelector(".pdf-page-canvas");
-      if (canvas) canvas.dataset.baseWidth = canvas.style.width;
-    }, 50);
-    return result;
-  };
-  window.renderPdfPage.__pvp_hooked = true;
-  console.log("✅ pvp: renderPdfPage hooked");
 }
 
-/* ═══ Init ═══ */
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(pvpHookOpen, 500);
-    setTimeout(pvpHookRenderPage, 500);
+async function indexPdfText(blobUrl) {
+  /* سازگاری با کد قبلی */
+  if (pdfJsDoc) {
+    await indexPdfTextFromDoc(pdfJsDoc);
+    return pdfJsPagesText;
+  }
+  try {
+    var pdfjsLib = await loadPdfJs();
+    var doc = await pdfjsLib.getDocument({ url: blobUrl }).promise;
+    pdfJsDoc = doc;
+    await indexPdfTextFromDoc(doc);
+    return pdfJsPagesText;
+  } catch (e) {
+    pdfJsPagesText = null;
+    return null;
+  }
+}
+
+function ensurePdfSearchBar() {
+  var sheet = document.getElementById("pdfViewerSheet");
+  if (!sheet) return null;
+  var bar = document.getElementById("pdfSearchBar");
+  if (bar) return bar;
+  bar = document.createElement("div");
+  bar.id = "pdfSearchBar";
+  bar.className = "pdf-search-bar";
+  bar.innerHTML =
+    '<input type="search" id="pdfSearchInput" placeholder="جستجو در PDF..." enterkeyhint="search" />' +
+    '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
+    '<button type="button" id="pdfSearchPrev">قبلی</button>' +
+    '<button type="button" id="pdfSearchNext">بعدی</button>';
+  var body = sheet.querySelector(".pdf-viewer-body");
+  var nav = document.getElementById("pdfPageNav");
+  if (nav) sheet.insertBefore(bar, nav);
+  else if (body) sheet.insertBefore(bar, body);
+  else sheet.appendChild(bar);
+
+  var input = bar.querySelector("#pdfSearchInput");
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      runPdfSearch(input.value, false);
+    }
   });
-} else {
-  setTimeout(pvpHookOpen, 500);
-  setTimeout(pvpHookRenderPage, 500);
+  bar.querySelector("#pdfSearchNext").addEventListener("click", function () {
+    if (pdfSearchHits.length) goPdfSearchHit(1);
+    else runPdfSearch(input.value, false);
+  });
+  bar.querySelector("#pdfSearchPrev").addEventListener("click", function () {
+    if (pdfSearchHits.length) goPdfSearchHit(-1);
+    else runPdfSearch(input.value, true);
+  });
+  return bar;
 }
 
-window.pvpToggleBookmark = pvpToggleBookmark;
-window.pvpJumpTo = pvpJumpTo;
-window.pvpDeleteBookmark = pvpDeleteBookmark;
-window.pvpToggleNight = pvpToggleNight;
+async function runPdfSearch(q, reverse) {
+  q = (q || "").trim();
+  var meta = document.getElementById("pdfSearchMeta");
+  if (!q) {
+    pdfSearchHits = [];
+    if (meta) meta.textContent = "";
+    return;
+  }
+  if (!pdfJsPagesText) {
+    if (meta) meta.textContent = "…";
+    if (pdfJsDoc) await indexPdfTextFromDoc(pdfJsDoc);
+    else if (pdfCurrentBlobUrl) await indexPdfText(pdfCurrentBlobUrl);
+  }
+  if (!pdfJsPagesText) {
+    if (meta) meta.textContent = "—";
+    pdfToast("جستجو آماده نیست");
+    return;
+  }
+  var low = q.toLowerCase();
+  pdfSearchHits = [];
+  for (var i = 0; i < pdfJsPagesText.length; i++) {
+    if (pdfJsPagesText[i].toLowerCase().indexOf(low) !== -1)
+      pdfSearchHits.push(i + 1);
+  }
+  if (!pdfSearchHits.length) {
+    if (meta) meta.textContent = "۰";
+    pdfToast("موردی یافت نشد");
+    return;
+  }
+  pdfSearchHitIdx = reverse ? pdfSearchHits.length - 1 : 0;
+  goPdfSearchHit(0);
+}
 
-console.log("✅ pdfviewer-plus.js loaded");
+function goPdfSearchHit(delta) {
+  if (!pdfSearchHits.length) return;
+  pdfSearchHitIdx = (pdfSearchHitIdx + delta + pdfSearchHits.length) % pdfSearchHits.length;
+  var page = pdfSearchHits[pdfSearchHitIdx];
+  var meta = document.getElementById("pdfSearchMeta");
+  if (meta) meta.textContent = (pdfSearchHitIdx + 1) + "/" + pdfSearchHits.length;
+  renderPdfPage(page);
+}
+
+function jumpPdfToPage(page) {
+  renderPdfPage(page);
+}
+
+function ensurePdfCloseFab() {
+  /* دیگر استفاده نمی‌شود — دکمه‌های تکراری حذف */
+  var fab = document.getElementById("pdfCloseFab");
+  if (fab && fab.parentNode) fab.parentNode.removeChild(fab);
+  return null;
+}
+
+async function openPdfViewer(id) {
+  try {
+    var rec = await pdfGet(id);
+    if (!rec || !rec.blob) {
+      pdfToast("PDF پیدا نشد");
+      return;
+    }
+    if (pdfViewerObjectUrl) {
+      try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
+    }
+    var url = URL.createObjectURL(rec.blob);
+    pdfViewerObjectUrl = url;
+    var frame = document.getElementById("pdfViewerFrame");
+    var title = document.getElementById("pdfViewerTitle");
+    var sheet = document.getElementById("pdfViewerSheet");
+    var back = document.getElementById("pdfViewerBackdrop") || document.getElementById("pdfViewerSheetBackdrop");
+    if (title) title.textContent = rec.title || rec.name;
+    if (frame) {
+      frame.style.display = "none";
+    }
+    var dl = document.getElementById("pdfViewerDownload");
+    if (dl) {
+      dl.href = url;
+      dl.setAttribute("download", rec.name || "document.pdf");
+    }
+    if (sheet) sheet.classList.add("show");
+    if (back) back.classList.add("show");
+    ensurePdfSearchBar();
+    /* FAB حذف شد — فقط دکمه بستن هدر */
+    pdfCurrentBlobUrl = url;
+    pdfSearchHits = [];
+    pdfSearchHitIdx = 0;
+    pdfJsPagesText = null;
+    var meta = document.getElementById("pdfSearchMeta");
+    if (meta) meta.textContent = "";
+    var sin = document.getElementById("pdfSearchInput");
+    if (sin) sin.value = "";
+    openPdfWithEngine(url);
+  } catch (e) {
+    console.error(e);
+    pdfToast("خطا در باز کردن PDF");
+  }
+}
+
+function closePdfViewer() {
+  try {
+    var frame = document.getElementById("pdfViewerFrame");
+    var sheet = document.getElementById("pdfViewerSheet");
+    var back = document.getElementById("pdfViewerBackdrop") || document.getElementById("pdfViewerSheetBackdrop");
+    if (frame) {
+      try { frame.src = "about:blank"; } catch (e) {}
+    }
+    if (pdfRenderTask) {
+      try { pdfRenderTask.cancel(); } catch (e) {}
+      pdfRenderTask = null;
+    }
+    var host = document.getElementById("pdfCanvasHost");
+    if (host) host.innerHTML = "";
+    pdfJsDoc = null;
+    pdfCurrentPage = 1;
+    if (pdfViewerObjectUrl) {
+      try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
+      pdfViewerObjectUrl = null;
+    }
+    if (sheet) sheet.classList.remove("show");
+    if (back) back.classList.remove("show");
+    var fab = document.getElementById("pdfCloseFab");
+    if (fab) { fab.classList.remove("show"); fab.style.display = "none"; }
+    pdfCurrentBlobUrl = null;
+    pdfJsPagesText = null;
+    pdfSearchHits = [];
+    pdfJsDoc = null;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function confirmDeletePdf(id) {
+  var msg = pdfT("pdf_del_confirm", "این PDF حذف شود؟");
+  if (!window.confirm(msg)) return;
+  deletePdfById(id);
+}
+
+async function deletePdfById(id) {
+  try {
+    await pdfDelete(id);
+    await loadLocalPdfs();
+    renderPdfList();
+    pdfToast(pdfT("pdf_deleted", "حذف شد"));
+  } catch (e) {
+    console.error(e);
+    pdfToast("خطا در حذف");
+  }
+}
+
+async function initPdfs() {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      try { await navigator.storage.persist(); } catch (e) {}
+    }
+    await loadLocalPdfs();
+    renderPdfCats();
+    renderPdfList();
+  } catch (e) {
+    console.warn("initPdfs", e);
+  }
+}
+
+window.pickPdfFile = pickPdfFile;
+window.onPdfFileSelected = onPdfFileSelected;
+window.setPdfFilter = setPdfFilter;
+window.openPdfViewer = openPdfViewer;
+window.closePdfViewer = closePdfViewer;
+window.closePdfAddSheet = closePdfAddSheet;
+window.savePendingPdf = savePendingPdf;
+window.confirmDeletePdf = confirmDeletePdf;
+window.initPdfs = initPdfs;
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { setTimeout(initPdfs, 300); });
+  } else {
+    setTimeout(initPdfs, 300);
+  }
+}
+
+console.log("✅ pdfs.js ready (sheet class: show)");
+
+window.runPdfSearch = runPdfSearch;

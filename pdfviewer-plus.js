@@ -181,25 +181,19 @@ function pvpApplyNight() {
 }
 
 function pvpSetZoom(level) {
-  level = Math.max(0.6, Math.min(3.5, level));
-  pvpZoomLevel = level;
-  if (typeof window.__pdfApplyZoom === "function") {
-    window.__pdfApplyZoom(level);
+  if (typeof window.pdfApplyZoom === "function") {
+    window.pdfApplyZoom(level, true);
     return;
   }
-  var host = document.getElementById("pdfCanvasHost");
-  if (host) {
-    var inner = host.querySelector(".pdf-zoom-inner");
-    if (inner) {
-      inner.style.transformOrigin = "top center";
-      inner.style.transform = "scale(" + level + ")";
-      inner.style.width = (100 / level) + "%";
-    } else {
-      try { host.style.zoom = level; } catch (e) {}
-    }
+  if (typeof window.__pdfApplyZoom === "function") {
+    window.__pdfApplyZoom(level, true);
+    return;
   }
+  pvpZoomLevel = Math.max(0.5, Math.min(4, level));
+  var host = document.getElementById("pdfCanvasHost");
+  if (host) host.style.zoom = String(pvpZoomLevel);
   var lbl = document.getElementById("pvpZoomLabel");
-  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
+  if (lbl) lbl.textContent = Math.round(pvpZoomLevel * 100) + "%";
 }
 
 function pvpPrint() {

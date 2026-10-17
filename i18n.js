@@ -27,6 +27,46 @@ const I18N = {
     tool_gallery:   "گالری",
     tool_qr:        "QR",
 
+    /* ── PDF library ── */
+    tool_pdfs:      "PDFهای اصلی",
+    tab_pdfs:       "PDF",
+    pdf_title:      "PDFهای اصلی",
+    pdf_sub:        "اسناد اصلی سرویس — ذخیره محلی",
+    pdf_empty:      "هنوز PDFای نیست",
+    pdf_empty_s:    "با دکمه + فایل اصلی را اضافه کن",
+    pdf_add:        "افزودن PDF",
+    pdf_count:      "تعداد PDF",
+    pdf_field_title:"عنوان",
+    pdf_field_cat:  "دسته‌بندی",
+    pdf_field_note: "یادداشت (اختیاری)",
+    pdf_hint:       "فایل روی همین دستگاه ذخیره می‌شود و آفلاین در دسترس است.",
+    pdf_saved:      "PDF ذخیره شد",
+    pdf_save_fail:  "خطا در ذخیره PDF",
+    pdf_deleted:    "PDF حذف شد",
+    pdf_del_confirm:"این PDF حذف شود؟",
+    pdf_bad_type:   "فقط فایل PDF مجاز است",
+    pdf_too_big:    "حجم فایل زیاد است",
+    pdf_search_ph:  "جستجو در PDF...",
+    pdf_prev:       "قبلی",
+    pdf_next:       "بعدی",
+    pdf_close:      "بستن",
+    pdf_loading:    "در حال بارگذاری PDF…",
+    pdf_page_of:    "از",
+    pdf_search_none:"موردی یافت نشد",
+    pdf_search_not_ready:"جستجو آماده نیست",
+    pdf_no_file:    "فایلی انتخاب نشده",
+    pdf_saving:     "در حال ذخیره…",
+    pdf_quota:      "حافظه پر است",
+    pdf_not_found:  "PDF پیدا نشد",
+    pdf_open_fail:  "خطا در باز کردن PDF",
+    pdfcat_all:     "همه",
+    pdfcat_cmm:     "CMM / تعمیر",
+    pdfcat_service: "سرویس",
+    pdfcat_accept:  "پذیرش",
+    pdfcat_pm:      "PM",
+    pdfcat_error:   "کد خطا",
+    pdfcat_other:   "سایر",
+
     /* ── Library ── */
     lib_title:      "کتابخانه",
     search_ph:      "جستجو...",
@@ -252,6 +292,46 @@ const I18N = {
     tool_pm:        "PM",
     tool_gallery:   "Gallery",
     tool_qr:        "QR",
+
+    /* ── PDF library ── */
+    tool_pdfs:      "Source PDFs",
+    tab_pdfs:       "PDFs",
+    pdf_title:      "Source PDFs",
+    pdf_sub:        "Original manuals — stored on device",
+    pdf_empty:      "No PDFs yet",
+    pdf_empty_s:    "Tap + to add a PDF from your device",
+    pdf_add:        "Add PDF",
+    pdf_count:      "PDF count",
+    pdf_field_title:"Title",
+    pdf_field_cat:  "Category",
+    pdf_field_note: "Note (optional)",
+    pdf_hint:       "Files are stored on this device and available offline.",
+    pdf_saved:      "PDF saved",
+    pdf_save_fail:  "Failed to save PDF",
+    pdf_deleted:    "PDF deleted",
+    pdf_del_confirm:"Delete this PDF?",
+    pdf_bad_type:   "Only PDF files are allowed",
+    pdf_too_big:    "File is too large",
+    pdf_search_ph:  "Search in PDF...",
+    pdf_prev:       "Prev",
+    pdf_next:       "Next",
+    pdf_close:      "Close",
+    pdf_loading:    "Loading PDF…",
+    pdf_page_of:    "of",
+    pdf_search_none:"No matches",
+    pdf_search_not_ready:"Search not ready",
+    pdf_no_file:    "No file selected",
+    pdf_saving:     "Saving…",
+    pdf_quota:      "Storage full",
+    pdf_not_found:  "PDF not found",
+    pdf_open_fail:  "Could not open PDF",
+    pdfcat_all:     "All",
+    pdfcat_cmm:     "CMM / Repair",
+    pdfcat_service: "Service",
+    pdfcat_accept:  "Acceptance",
+    pdfcat_pm:      "PM",
+    pdfcat_error:   "Error codes",
+    pdfcat_other:   "Other",
 
     /* ── Library ── */
     lib_title:      "Library",
@@ -499,6 +579,21 @@ function setLanguage(lang){
   if(typeof applyStaticTranslations === "function") applyStaticTranslations();
   if(typeof updateLangSwitch === "function") updateLangSwitch();
   if(typeof updateOnline === "function") updateOnline();
+  /* بخش PDF */
+  if(typeof renderPdfCats === "function") renderPdfCats();
+  if(typeof renderPdfList === "function") renderPdfList();
+  if(typeof initPdfs === "function") {
+    /* فقط برچسب‌ها؛ لیست از قبل لود شده */
+  }
+  /* نوار جستجوی باز اگر باز است */
+  var psi = document.getElementById("pdfSearchInput");
+  if (psi && typeof t === "function") {
+    try { psi.placeholder = t("pdf_search_ph") || psi.placeholder; } catch(e){}
+  }
+  var pPrev = document.getElementById("pdfSearchPrev");
+  var pNext = document.getElementById("pdfSearchNext");
+  if (pPrev && typeof t === "function") pPrev.textContent = t("pdf_prev") || "Prev";
+  if (pNext && typeof t === "function") pNext.textContent = t("pdf_next") || "Next";
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 

@@ -18,14 +18,15 @@ function searchNorm(s) {
 
 function buildSearchIndex() {
   var manuals = [];
-  if (typeof MANUALS !== "undefined" && Array.isArray(MANUALS)) {
-    manuals = MANUALS.map(function (m) {
-      var blob = searchNorm(
-        [m.title, m.summary, m.code, m.cat, (m.machines || []).join(" "), m.level, m.duration].join(" ")
-      );
-      return { id: m.id, type: "manual", title: m.title, code: m.code, cat: m.cat, blob: blob, ref: m };
-    });
-  }
+  var srcManuals = (typeof MANUALS_META !== "undefined" && Array.isArray(MANUALS_META) && MANUALS_META.length)
+    ? MANUALS_META
+    : (typeof MANUALS !== "undefined" && Array.isArray(MANUALS) ? MANUALS : []);
+  manuals = srcManuals.map(function (m) {
+    var blob = searchNorm(
+      [m.title, m.summary, m.code, m.cat, (m.machines || []).join(" "), m.level, m.duration].join(" ")
+    );
+    return { id: m.id, type: "manual", title: m.title, code: m.code, cat: m.cat, blob: blob, ref: m };
+  });
 
   var errors = [];
   if (typeof ERRORS !== "undefined" && Array.isArray(ERRORS)) {

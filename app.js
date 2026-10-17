@@ -22,6 +22,13 @@ const ICONS = {
 };
 
 /* ═══ Helpers ═══ */
+function escHtml(str) {
+  if (typeof escapeHtml === "function") return escapeHtml(str);
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
 function fa(n){
   var lang = (typeof getLang === "function") ? getLang() : "fa";
   var s = String(n);
@@ -136,7 +143,7 @@ function renderHomePop(){
       'onclick="openManual(\'' + m.id + '\')">' +
       '<span class="cat-badge-top">' + m.code + '</span>' +
       '<div class="cat-ic">' + ICONS[cat.icon] + '</div>' +
-      '<div class="cat-n">' + m.title + '</div>' +
+      '<div class="cat-n">' + escHtml(m.title) + '</div>' +
     '</button>';
   }).join("");
 }
@@ -157,12 +164,12 @@ function manualCard(m, compact, delay){
   return '<div class="manual" style="animation-delay:' + delay + 's" onclick="openManual(\'' + m.id + '\')">'
     + '<div class="manual-ic" style="background:' + grad + '">' + ICONS[cat.icon] + '</div>'
     + '<div class="manual-body">'
-    + '<div class="manual-title">' + m.title + '</div>'
-    + (compact ? '' : '<div class="manual-sub">' + m.summary + '</div>')
+    + '<div class="manual-title">' + escHtml(m.title) + '</div>'
+    + (compact ? '' : '<div class="manual-sub">' + escHtml(m.summary || '') + '</div>')
     + '<div class="manual-meta">'
-    + '<span class="badge badge-code">' + m.code + '</span>'
-    + (m.duration ? '<span class="badge badge-time">' + m.duration + '</span>' : '')
-    + (m.level ? '<span class="badge badge-level badge-level-' + levelClass(m.level) + '">' + m.level + '</span>' : '')
+    + '<span class="badge badge-code">' + escHtml(m.code || '') + '</span>'
+    + (m.duration ? '<span class="badge badge-time">' + escHtml(m.duration) + '</span>' : '')
+    + (m.level ? '<span class="badge badge-level badge-level-' + levelClass(m.level) + '">' + escHtml(m.level) + '</span>' : '')
     + '</div></div>'
     + '<button class="manual-fav ' + (isFav ? 'on' : '') + '" onclick="event.stopPropagation();toggleFav(\'' + m.id + '\')">'
     + (isFav ? ICONS.starFill : ICONS.star)
@@ -315,7 +322,7 @@ function openManual(id){
   body.innerHTML =
     '<div class="detail-hero" style="background:' + grad + '">'
     + '<div class="detail-cat">' + i18n("cat_" + cat.id, cat.name) + '</div>'
-    + '<div class="detail-title">' + m.title + '</div>'
+    + '<div class="detail-title">' + escHtml(m.title) + '</div>'
     + '<div class="detail-sum">' + m.summary + '</div>'
     + '<div class="detail-meta">'
     + '<div class="detail-meta-item">' + ICONS.clock + '<span>' + m.duration + '</span></div>'
@@ -327,7 +334,7 @@ function openManual(id){
     +   '<button class="sheet-action-btn" onclick="exportManualPDF()">' + svgPdf + ' ' + i18n("log_pdf", "PDF") + '</button>'
     + '</div>'
 
-    + (m.warn ? '<div class="alert-box">' + ICONS.warn + '<div class="txt"><div class="t">' + i18n("sheet_warning", "هشدار ایمنی") + '</div>' + m.warn + '</div></div>' : "")
+    + (m.warn ? '<div class="alert-box">' + ICONS.warn + '<div class="txt"><div class="t">' + i18n("sheet_warning", "هشدار ایمنی") + '</div>' + escHtml(m.warn) + '</div></div>' : "")
 
     + '<div class="section-h" style="padding-right:0"><div class="section-t" style="font-size:13px;color:var(--label2)">' + i18n("sheet_devices", "دستگاه‌های مرتبط") + '</div></div>'
     + '<div class="tags" style="margin-bottom:16px">' + m.machines.map(function(x){ return '<span class="tag">' + x + '</span>'; }).join("") + '</div>'
@@ -920,16 +927,16 @@ function renderLog(){
     var dateStr = date.toLocaleDateString("fa-IR") + " — " + date.toLocaleTimeString("fa-IR", { hour:"2-digit", minute:"2-digit" });
     return '<div class="log-entry" style="animation-delay:' + (i*.03) + 's" onclick="openLogEntry(\'' + entry.manualId + '\')">'
       + '<div class="log-head">'
-      + '<div class="log-title">' + entry.manualTitle + '</div>'
-      + '<span class="log-status ' + entry.status + '">' + (statusLabels[entry.status] || entry.status) + '</span>'
+      + '<div class="log-title">' + escHtml(entry.manualTitle || '') + '</div>'
+      + '<span class="log-status ' + escHtml(entry.status || '') + '">' + escHtml(statusLabels[entry.status] || entry.status || '') + '</span>'
       + '</div>'
       + '<div class="log-meta">'
-      + '<span>🏥 ' + entry.machine + '</span>'
-      + (entry.tech ? '<span>👤 ' + entry.tech + '</span>' : '')
+      + '<span>🏥 ' + escHtml(entry.machine || '') + '</span>'
+      + (entry.tech ? '<span>👤 ' + escHtml(entry.tech) + '</span>' : '')
       + '<span>🕐 ' + dateStr + '</span>'
-      + '<span>📋 ' + entry.manualCode + '</span>'
+      + '<span>📋 ' + escHtml(entry.manualCode || '') + '</span>'
       + '</div>'
-      + (entry.notes ? '<div class="log-notes">' + escapeHtml(entry.notes) + '</div>' : '')
+      + (entry.notes ? '<div class="log-notes">' + escHtml(entry.notes) + '</div>' : '')
       + '</div>';
   }).join("");
 }

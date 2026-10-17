@@ -2021,3 +2021,103 @@ textarea.field-input { resize: vertical; min-height: 72px; }
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .gs-item-title{font-size:14px;font-weight:500;line-height:1.35}
+
+
+/* ── PDF list polish ── */
+.pdf-card-acts .pdf-act svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  pointer-events: none;
+}
+#page-pdfs .gallery-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px 4px;
+}
+#page-pdfs .gallery-cats .chip {
+  flex: 0 0 auto;
+}
+
+/* ── PDF viewer plus toolbar (آیکون‌ها منظم) ── */
+.pvp-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 6px 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: rgba(28, 28, 30, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  z-index: 40;
+}
+.pvp-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f2f2f7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pvp-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  display: block;
+  flex-shrink: 0;
+}
+.pvp-btn.on {
+  background: rgba(10, 132, 255, 0.25);
+  color: #0A84FF;
+}
+.pvp-zoom-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aeaeb2;
+  min-width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.pvp-badge {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #FF453A;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: none;
+  place-items: center;
+  line-height: 16px;
+}
+.pvp-badge[style*="grid"],
+.pvp-badge[style*="flex"] {
+  display: grid !important;
+}
+
+/* pinch-friendly canvas host */
+.pdf-canvas-host.pdf-scroll-host {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: contain;
+}
+.pdf-viewer-sheet.pvp-night .pdf-canvas-host {
+  background: #0b0b0c;
+}
+.pdf-viewer-sheet.pvp-night .pdf-page-canvas {
+  filter: invert(1) hue-rotate(180deg);
+}

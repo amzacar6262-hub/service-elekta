@@ -181,15 +181,25 @@ function pvpApplyNight() {
 }
 
 function pvpSetZoom(level) {
-  level = Math.max(0.5, Math.min(3.0, Math.round(level * 4) / 4));
+  level = Math.max(0.6, Math.min(3.5, level));
   pvpZoomLevel = level;
-  var lbl = document.getElementById("pvpZoomLabel");
-  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
-  /* اعمال Zoom روی کل container با CSS zoom */
+  if (typeof window.__pdfApplyZoom === "function") {
+    window.__pdfApplyZoom(level);
+    return;
+  }
   var host = document.getElementById("pdfCanvasHost");
   if (host) {
-    host.style.zoom = level;
+    var inner = host.querySelector(".pdf-zoom-inner");
+    if (inner) {
+      inner.style.transformOrigin = "top center";
+      inner.style.transform = "scale(" + level + ")";
+      inner.style.width = (100 / level) + "%";
+    } else {
+      try { host.style.zoom = level; } catch (e) {}
+    }
   }
+  var lbl = document.getElementById("pvpZoomLabel");
+  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
 }
 
 function pvpPrint() {

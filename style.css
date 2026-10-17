@@ -1966,3 +1966,58 @@ textarea.field-input { resize: vertical; min-height: 72px; }
   font-size: 14px;
   font-weight: 600;
 }
+
+
+/* ── Global Search ── */
+.gs-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.45);
+  display:none;align-items:flex-start;justify-content:center;
+  padding: calc(12px + env(safe-area-inset-top,0px)) 12px 12px;
+  box-sizing:border-box;
+}
+.gs-overlay.show{display:flex}
+.gs-panel{
+  width:100%;max-width:560px;max-height:88vh;
+  background:var(--card,#1c1c1e);border-radius:16px;
+  border:1px solid var(--sep,rgba(255,255,255,.1));
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,.4);
+}
+.gs-head{
+  display:flex;align-items:center;gap:8px;
+  padding:12px;border-bottom:1px solid var(--sep,rgba(255,255,255,.08));
+}
+.gs-close{
+  width:36px;height:36px;border:0;border-radius:10px;
+  background:rgba(255,255,255,.08);color:var(--label,#fff);
+  font-size:16px;font-weight:700;
+}
+.gs-input-wrap{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:rgba(118,118,128,.24);border-radius:12px;padding:0 12px;height:40px;
+}
+.gs-input-wrap svg{flex-shrink:0;opacity:.6;color:var(--label2)}
+.gs-input-wrap input{
+  flex:1;border:0;background:transparent;color:var(--label,#fff);
+  font-size:16px;outline:none;min-width:0;
+}
+.gs-results{overflow-y:auto;padding:8px 0 16px;-webkit-overflow-scrolling:touch}
+.gs-empty{padding:32px 20px;text-align:center;color:var(--label2);font-size:14px}
+.gs-section{padding:8px 12px 4px}
+.gs-section-t{
+  font-size:12px;font-weight:700;color:var(--label2);
+  text-transform:uppercase;letter-spacing:.02em;margin:4px 4px 8px;
+}
+.gs-item{
+  width:100%;display:flex;align-items:flex-start;gap:10px;
+  text-align:start;border:0;background:transparent;color:var(--label);
+  padding:12px 10px;border-radius:12px;cursor:pointer;
+}
+.gs-item:active{background:rgba(255,255,255,.08)}
+.gs-item-code{
+  flex-shrink:0;font-size:11px;font-weight:700;color:var(--blue,#0A84FF);
+  background:rgba(10,132,255,.15);padding:4px 8px;border-radius:8px;max-width:40%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.gs-item-title{font-size:14px;font-weight:500;line-height:1.35}

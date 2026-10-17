@@ -138,8 +138,16 @@ function pvpInjectToolbar() {
     pvpToggleBookmark(pvpCurrentPdfId, page);
   });
   document.getElementById("pvpNightBtn").addEventListener("click", pvpToggleNight);
-  document.getElementById("pvpZoomIn").addEventListener("click", function(){ pvpSetZoom(pvpZoomLevel + 0.25); });
-  document.getElementById("pvpZoomOut").addEventListener("click", function(){ pvpSetZoom(pvpZoomLevel - 0.25); });
+  document.getElementById("pvpZoomIn").addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    var cur = (typeof window.pvpZoomLevel === "number" ? window.pvpZoomLevel : pvpZoomLevel) || 1;
+    pvpSetZoom(cur + 0.25);
+  });
+  document.getElementById("pvpZoomOut").addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    var cur = (typeof window.pvpZoomLevel === "number" ? window.pvpZoomLevel : pvpZoomLevel) || 1;
+    pvpSetZoom(cur - 0.25);
+  });
   document.getElementById("pvpPrintBtn").addEventListener("click", pvpPrint);
   document.getElementById("pvpShareBtn").addEventListener("click", pvpShare);
   document.getElementById("pvpBookmarksListBtn").addEventListener("click", pvpToggleBookmarksList);
@@ -181,6 +189,11 @@ function pvpApplyNight() {
 }
 
 function pvpSetZoom(level) {
+  level = Math.max(0.5, Math.min(4, Math.round(level * 20) / 20));
+  pvpZoomLevel = level;
+  window.pvpZoomLevel = level;
+  var lbl = document.getElementById("pvpZoomLabel");
+  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
   if (typeof window.pdfApplyZoom === "function") {
     window.pdfApplyZoom(level, true);
     return;
@@ -189,11 +202,16 @@ function pvpSetZoom(level) {
     window.__pdfApplyZoom(level, true);
     return;
   }
-  pvpZoomLevel = Math.max(0.5, Math.min(4, level));
   var host = document.getElementById("pdfCanvasHost");
-  if (host) host.style.zoom = String(pvpZoomLevel);
-  var lbl = document.getElementById("pvpZoomLabel");
-  if (lbl) lbl.textContent = Math.round(pvpZoomLevel * 100) + "%";
+  if (host) {
+    /* fallback: علامت‌گذاری برای رندر مجدد */
+    var wraps = host.querySelectorAll(".pdf-page-wrapper");
+    for (var i = 0; i < wraps.length; i++) {
+      var n = parseInt(wraps[i].dataset.pageNum, 10);
+      if (typeof pdfRenderedPages !== "undefined") pdfRenderedPages[n] = false;
+      if (typeof renderPageInto === "function") renderPageInto(n, wraps[i]);
+    }
+  }
 }
 
 function pvpPrint() {

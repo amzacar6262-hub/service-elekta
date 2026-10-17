@@ -10,6 +10,7 @@ const ICONS = {
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
   target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
   wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1 5.4 5.4l-9.7 9.7-5.4-5.4 9.7-9.7z"/></svg>',
   warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
   star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.2 18.2 21 12 17.7 5.8 21 7 14.2 2 9.3 8.9 8.6 12 2"/></svg>',
@@ -101,6 +102,7 @@ function renderToolGrid(){
     { id:"ref",     name:i18n("tool_ref",     "جداول مرجع"),   c1:"#FF3B30", c2:"#AF52DE", icon:"target", action:"go('ref')" },
     { id:"pm",      name:i18n("tool_pm",      "PM چک‌لیست"),   c1:"#32D74B", c2:"#248A3D", icon:"check",  action:"go('pm')" },
     { id:"gallery", name:i18n("tool_gallery", "گالری تصاویر"), c1:"#FF375F", c2:"#AF52DE", icon:"cam",    action:"go('gallery')" },
+    { id:"pdfs",    name:i18n("tool_pdfs",    "PDFهای اصلی"),  c1:"#FF9F0A", c2:"#FF453A", icon:"doc",    action:"go('pdfs')" },
     { id:"qr",      name:i18n("tool_qr",      "اسکن QR"),      c1:"#5AC8FA", c2:"#0A84FF", icon:"grid",   action:"startScan()" }
   ];
 
@@ -434,6 +436,9 @@ function go(id){
   }
   if(id === "log") renderLog();
   if(id === "flow" && typeof renderFlowList === "function") renderFlowList();
+  if(id === "pdfs"){
+    if(typeof initPdfs === "function") initPdfs();
+  }
   if(id === "gallery"){
     if(typeof loadLocalPhotos === "function"){
       loadLocalPhotos().then(function(){
@@ -607,7 +612,19 @@ document.addEventListener("touchstart", function(e){
    ═══════════════════════════════════════ */
 if("serviceWorker" in navigator){
   window.addEventListener("load", function(){
-    navigator.serviceWorker.register("sw.js").catch(function(){});
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      /* نسخه جدید SW را سریع فعال کن */
+      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      reg.addEventListener("updatefound", function(){
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", function(){
+          if (nw.state === "installed" && navigator.serviceWorker.controller) {
+            if (typeof toast === "function") toast("نسخه جدید آماده است — یک‌بار رفرش کن");
+          }
+        });
+      });
+    }).catch(function(){});
   });
 }
 
@@ -994,8 +1011,37 @@ function _doInit(){
   updateOnline();
 }
 
+function showDataHealthBanner(){
+  try {
+    var n = (typeof MANUALS !== "undefined" && MANUALS) ? MANUALS.length : 0;
+    var e = (typeof ERRORS !== "undefined" && ERRORS) ? ERRORS.length : 0;
+    if (n > 0) {
+      var old = document.getElementById("dataHealthBanner");
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+      return;
+    }
+    if (document.getElementById("dataHealthBanner")) return;
+    var bar = document.createElement("div");
+    bar.id = "dataHealthBanner";
+    bar.setAttribute("role", "alert");
+    bar.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;padding:12px 16px;background:#FF453A;color:#fff;font-size:14px;font-weight:600;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3)";
+    bar.innerHTML = "داده منوال بارگذاری نشد (۰ مورد). صفحه را رفرش کن یا کش را پاک کن." +
+      ' <button type="button" style="margin-inline-start:8px;padding:6px 12px;border:0;border-radius:8px;background:#fff;color:#FF453A;font-weight:700" onclick="location.reload()">رفرش</button>';
+    document.body.appendChild(bar);
+    console.error("[Elekta] MANUALS empty after init. Check data*.js scripts.");
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
 if (window.Elekta && typeof Elekta.safeInit === "function") {
-  Elekta.safeInit(_doInit);
+  Elekta.safeInit(function(){
+    _doInit();
+    setTimeout(showDataHealthBanner, 500);
+  });
 } else {
-  try { _doInit(); } catch(e){ console.error("Init error:", e); }
+  try {
+    _doInit();
+    setTimeout(showDataHealthBanner, 500);
+  } catch(e){ console.error("Init error:", e); }
 }

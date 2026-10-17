@@ -570,6 +570,7 @@ window.pvpZoomLevel = window.pvpZoomLevel || 1;
 function pdfApplyZoom(level, immediate) {
   level = Math.max(0.5, Math.min(4, Math.round(level * 20) / 20));
   window.pvpZoomLevel = level;
+  try { if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = level; } catch (e) {}
   var lbl = document.getElementById("pvpZoomLabel");
   if (lbl) lbl.textContent = Math.round(level * 100) + "%";
 
@@ -582,15 +583,12 @@ function pdfApplyZoom(level, immediate) {
     for (var i = 0; i < wrappers.length; i++) {
       var w = wrappers[i];
       var n = parseInt(w.dataset.pageNum, 10);
-      var rect = w.getBoundingClientRect();
-      /* visible یا نزدیک */
-      if (rect.bottom < hostRect.top - 200 || rect.top > hostRect.bottom + 200) {
-        /* فقط علامت بزن برای lazy */
-        if (typeof pdfRenderedPages !== "undefined") pdfRenderedPages[n] = false;
-        continue;
-      }
       if (typeof pdfRenderedPages !== "undefined") pdfRenderedPages[n] = false;
-      if (typeof renderPageInto === "function") renderPageInto(n, w);
+      var rect = w.getBoundingClientRect();
+      var near = !(rect.bottom < hostRect.top - 300 || rect.top > hostRect.bottom + 300);
+      if (near && typeof renderPageInto === "function") {
+        renderPageInto(n, w);
+      }
     }
   }
 

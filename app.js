@@ -190,10 +190,14 @@ function renderLibChips(){
 function renderLib(){
   var list = MANUALS.filter(function(m){ return libFilter === "all" || m.cat === libFilter; });
   if(libQ.trim()){
-    var q = libQ.toLowerCase();
-    list = list.filter(function(m){
-      return (m.title + m.summary + m.code + m.machines.join(" ")).toLowerCase().indexOf(q) !== -1;
-    });
+    if (typeof filterManualsFast === "function") {
+      list = filterManualsFast(list, libQ);
+    } else {
+      var q = libQ.toLowerCase();
+      list = list.filter(function(m){
+        return (m.title + (m.summary||"") + (m.code||"") + ((m.machines||[]).join(" "))).toLowerCase().indexOf(q) !== -1;
+      });
+    }
   }
   var el = $("#libList");
   if(!el) return;
@@ -1045,10 +1049,12 @@ if (window.Elekta && typeof Elekta.safeInit === "function") {
   Elekta.safeInit(function(){
     _doInit();
     setTimeout(showDataHealthBanner, 500);
+    if (typeof buildSearchIndex === "function") setTimeout(buildSearchIndex, 600);
   });
 } else {
   try {
     _doInit();
     setTimeout(showDataHealthBanner, 500);
+    if (typeof buildSearchIndex === "function") setTimeout(buildSearchIndex, 600);
   } catch(e){ console.error("Init error:", e); }
 }

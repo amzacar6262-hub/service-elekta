@@ -433,7 +433,14 @@ async function renderAllPdfPages() {
       aspectPct.toFixed(2) + '%" data-label="صفحه ' + i + '"></div>';
     frag.appendChild(wrap);
   }
-  host.appendChild(frag);
+  var zoomInner = host.querySelector(".pdf-zoom-inner");
+  if (!zoomInner) {
+    zoomInner = document.createElement("div");
+    zoomInner.className = "pdf-zoom-inner";
+    host.appendChild(zoomInner);
+  }
+  zoomInner.innerHTML = "";
+  zoomInner.appendChild(frag);
 
   if (pdfPageObserver) {
     try { pdfPageObserver.disconnect(); } catch(e){}
@@ -533,12 +540,15 @@ async function drawSearchHighlights(page, canvas, viewport, outputScale, query) 
       var height = fontHeight;
 
       ctx.save();
-      ctx.fillStyle = "rgba(255, 214, 10, 0.5)";
+      /* multiply: متن سیاه خوانا می‌ماند، فقط پس‌زمینه زرد می‌شود */
+      ctx.globalCompositeOperation = "multiply";
+      ctx.fillStyle = "rgb(255, 214, 10)";
+      var pad = 1 * outputScale;
       ctx.fillRect(
-        x * outputScale,
-        y * outputScale,
-        width * outputScale,
-        height * outputScale
+        x * outputScale - pad,
+        y * outputScale - pad,
+        Math.max(width * outputScale, 4 * outputScale) + pad * 2,
+        Math.max(height * outputScale, 8 * outputScale) + pad * 2
       );
       ctx.restore();
     } catch (e) {}
@@ -550,59 +560,71 @@ async function drawSearchHighlights(page, canvas, viewport, outputScale, query) 
 function setupPinchZoom(host) {
   if (host.__pinchBound) return;
   host.__pinchBound = true;
-  host.style.touchAction = "pan-x pan-y";
+
+  /* لایهٔ داخلی برای scale — CSS zoom روی overflow اسکرول iOS اغلب کار نمی‌کند */
+  var inner = host.querySelector(".pdf-zoom-inner");
+  if (!inner) {
+    inner = document.createElement("div");
+    inner.className = "pdf-zoom-inner";
+    while (host.firstChild) inner.appendChild(host.firstChild);
+    host.appendChild(inner);
+  }
 
   function applyZoom(level) {
-    level = Math.max(0.5, Math.min(4.0, level));
-    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = level;
-    /* zoom CSS روی iOS خوب کار می‌کند؛ fallback transform */
-    try {
-      host.style.zoom = level;
-    } catch (e) {}
-    host.style.setProperty("--pdf-zoom", String(level));
+    level = Math.max(0.6, Math.min(3.5, level));
+    if (typeof window.pvpZoomLevel !== "undefined") window.pvpZoomLevel = level;
+    else window.pvpZoomLevel = level;
+    inner.style.transformOrigin = "top center";
+    inner.style.transform = "scale(" + level + ")";
+    /* عرض را جبران کن تا اسکرول افقی بعد از زوم درست باشد */
+    inner.style.width = (100 / level) + "%";
+    inner.style.marginLeft = "auto";
+    inner.style.marginRight = "auto";
     var lbl = document.getElementById("pvpZoomLabel");
     if (lbl) lbl.textContent = Math.round(level * 100) + "%";
   }
 
-  var zoomAtStart = 1;
+  window.__pdfApplyZoom = applyZoom;
+  if (typeof window.pvpZoomLevel === "number" && window.pvpZoomLevel !== 1) {
+    applyZoom(window.pvpZoomLevel);
+  }
 
-  /* iOS Safari gesture events */
+  var zoomAtStart = 1;
+  var initialDist = 0;
+  var pinching = false;
+
+  function dist(t1, t2) {
+    var dx = t2.clientX - t1.clientX;
+    var dy = t2.clientY - t1.clientY;
+    return Math.sqrt(dx * dx + dy * dy) || 1;
+  }
+
+  /* iOS Safari */
   host.addEventListener("gesturestart", function (e) {
     e.preventDefault();
-    zoomAtStart = (typeof pvpZoomLevel !== "undefined" && pvpZoomLevel) ? pvpZoomLevel : 1;
+    zoomAtStart = window.pvpZoomLevel || 1;
   }, { passive: false });
-
   host.addEventListener("gesturechange", function (e) {
     e.preventDefault();
     applyZoom(zoomAtStart * e.scale);
   }, { passive: false });
-
   host.addEventListener("gestureend", function (e) {
     e.preventDefault();
   }, { passive: false });
 
-  /* دو انگشتی — همه مرورگرها */
-  var initialDist = 0, initialZoom = 1, pinching = false;
-
-  function getDist(t1, t2) {
-    var dx = t2.clientX - t1.clientX;
-    var dy = t2.clientY - t1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
   host.addEventListener("touchstart", function (e) {
     if (e.touches.length === 2) {
       pinching = true;
-      initialDist = getDist(e.touches[0], e.touches[1]) || 1;
-      initialZoom = (typeof pvpZoomLevel !== "undefined" && pvpZoomLevel) ? pvpZoomLevel : 1;
+      initialDist = dist(e.touches[0], e.touches[1]);
+      zoomAtStart = window.pvpZoomLevel || 1;
     }
   }, { passive: true });
 
   host.addEventListener("touchmove", function (e) {
     if (!pinching || e.touches.length !== 2) return;
     e.preventDefault();
-    var dist = getDist(e.touches[0], e.touches[1]);
-    applyZoom(initialZoom * (dist / initialDist));
+    var d = dist(e.touches[0], e.touches[1]);
+    applyZoom(zoomAtStart * (d / initialDist));
   }, { passive: false });
 
   host.addEventListener("touchend", function (e) {
@@ -738,11 +760,11 @@ function ensurePdfSearchBar() {
   bar.innerHTML =
     '<input type="search" id="pdfSearchInput" placeholder="' + pdfT("pdf_search_ph", "جستجو در PDF...") + '" enterkeyhint="search" />' +
     '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
-    '<button type="button" id="pdfSearchPrev" class="pdf-search-nav" aria-label="قبلی">' +
-      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+    '<button type="button" id="pdfSearchPrev" class="pdf-search-nav" aria-label="' + pdfT("pdf_prev", "قبلی") + '">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>' +
     '</button>' +
-    '<button type="button" id="pdfSearchNext" class="pdf-search-nav" aria-label="بعدی">' +
-      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+    '<button type="button" id="pdfSearchNext" class="pdf-search-nav" aria-label="' + pdfT("pdf_next", "بعدی") + '">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>' +
     '</button>';
 
   var body = sheet.querySelector(".pdf-viewer-body");

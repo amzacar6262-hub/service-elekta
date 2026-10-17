@@ -606,48 +606,26 @@ function setLanguage(lang){
   LANG = lang;
   if (window.Elekta && Elekta.storage) Elekta.storage.setRaw("elekta_lang", lang);
   else try { localStorage.setItem("elekta_lang", lang); } catch(e){}
+  if (window.Elekta && Elekta.state) Elekta.state.lang = lang;
   document.documentElement.lang = lang;
   document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
 
-  if(typeof renderTabbar === "function") renderTabbar();
-  if(typeof renderStats === "function") renderStats();
-  if(typeof renderCats === "function") renderCats();
-  if(typeof renderToolGrid === "function") renderToolGrid();
-  if(typeof renderHomeFlow === "function") renderHomeFlow();
-  if(typeof renderHomePop === "function") renderHomePop();
-  if(typeof renderLibChips === "function") renderLibChips();
-  if(typeof renderLib === "function") renderLib();
-  if(typeof renderCodeChips === "function") renderCodeChips();
-  if(typeof renderCodes === "function") renderCodes();
-  if(typeof renderFavs === "function") renderFavs();
-  if(typeof renderMachineList === "function") renderMachineList();
-  if(typeof renderRef === "function") renderRef();
-  if(typeof renderGalleryChips === "function") renderGalleryChips();
-  if(typeof renderGallery === "function") renderGallery();
-  if(typeof renderPMFreqChips === "function") renderPMFreqChips();
-  if(typeof renderPMMachineChips === "function") renderPMMachineChips();
-  if(typeof renderPMProgress === "function") renderPMProgress();
-  if(typeof renderPMList === "function") renderPMList();
-  if(typeof renderLearnPaths === "function") renderLearnPaths();
-  if(typeof applyStaticTranslations === "function") applyStaticTranslations();
-  if(typeof updateLangSwitch === "function") updateLangSwitch();
-  if(typeof updateOnline === "function") updateOnline();
-  /* بخش PDF */
-  if(typeof renderPdfCats === "function") renderPdfCats();
-  if(typeof renderPdfList === "function") renderPdfList();
-  if(typeof initPdfs === "function") {
-    /* فقط برچسب‌ها؛ لیست از قبل لود شده */
+  if (window.Elekta && typeof Elekta.refreshUI === "function") {
+    Elekta.refreshUI();
+  } else {
+    if(typeof applyStaticTranslations === "function") applyStaticTranslations();
+    if(typeof updateLangSwitch === "function") updateLangSwitch();
   }
-  /* نوار جستجوی باز اگر باز است */
+
   var psi = document.getElementById("pdfSearchInput");
-  if (psi && typeof t === "function") {
-    try { psi.placeholder = t("pdf_search_ph") || psi.placeholder; } catch(e){}
+  if (psi) {
+    try { psi.placeholder = t("pdf_search_ph") || t("gs_ph") || psi.placeholder; } catch(e){}
   }
   var pPrev = document.getElementById("pdfSearchPrev");
   var pNext = document.getElementById("pdfSearchNext");
-  if (pPrev && typeof t === "function") pPrev.textContent = t("pdf_prev") || "Prev";
-  if (pNext && typeof t === "function") pNext.textContent = t("pdf_next") || "Next";
-  if (typeof pvpApplyToolbarI18n === "function") pvpApplyToolbarI18n();
+  if (pPrev) pPrev.textContent = t("pdf_prev") || pPrev.textContent;
+  if (pNext) pNext.textContent = t("pdf_next") || pNext.textContent;
+
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 

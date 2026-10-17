@@ -623,8 +623,9 @@ function setLanguage(lang){
   }
   var pPrev = document.getElementById("pdfSearchPrev");
   var pNext = document.getElementById("pdfSearchNext");
-  if (pPrev) pPrev.textContent = t("pdf_prev") || pPrev.textContent;
-  if (pNext) pNext.textContent = t("pdf_next") || pNext.textContent;
+  /* فقط aria-label — textContent SVG فلش را پاک می‌کند */
+  if (pPrev) pPrev.setAttribute("aria-label", t("pdf_prev") || "Prev");
+  if (pNext) pNext.setAttribute("aria-label", t("pdf_next") || "Next");
 
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }

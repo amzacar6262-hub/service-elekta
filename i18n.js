@@ -93,6 +93,13 @@ const I18N = {
     /* ── Library ── */
     lib_title:      "کتابخانه",
     search_ph:      "جستجو...",
+    gs_ph:          "جستجوی سراسری...",
+    gs_hint:        "منوال، کد خطا، فلوچارت یا PDF را جستجو کن",
+    gs_empty:       "نتیجه‌ای یافت نشد",
+    gs_manuals:     "منوال‌ها",
+    gs_errors:      "کدهای خطا",
+    gs_flows:       "فلوچارت‌ها",
+    gs_pdfs:        "PDFها",
     chip_all:       "همه",
 
     /* ── Codes ── */

@@ -3,7 +3,7 @@
    نسخه کش را با هر انتشار عوض کن (v94 → v95 …)
    ═══════════════════════════════════════ */
 
-const CACHE = "elekta-service-v101";
+const CACHE = "elekta-service-v102";
 
 const PRECACHE = [
   "./",

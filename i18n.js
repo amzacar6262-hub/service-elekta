@@ -72,6 +72,24 @@ const I18N = {
     pdfcat_error:   "کد خطا",
     pdfcat_other:   "سایر",
 
+    /* ── PDF viewer plus ── */
+    pvp_bookmark:   "نشانک",
+    pvp_night:      "حالت شب",
+    pvp_night_on:   "حالت شب",
+    pvp_night_off:  "حالت روز",
+    pvp_zoom_in:    "بزرگ‌نمایی",
+    pvp_zoom_out:   "کوچک‌نمایی",
+    pvp_print:      "چاپ",
+    pvp_share:      "اشتراک",
+    pvp_bookmarks:  "نشانک‌ها",
+    pvp_page:       "صفحه",
+    pvp_bm_removed: "حذف شد",
+    pvp_bm_empty:   "هنوز نشانکی نداری",
+    pvp_print_none: "صفحه‌ای برای چاپ نیست",
+    pvp_print_fail: "پنجره چاپ باز نشد",
+    pvp_share_unsupported: "اشتراک‌گذاری پشتیبانی نمی‌شود",
+    pvp_share_fail: "خطا در اشتراک",
+
     /* ── Library ── */
     lib_title:      "کتابخانه",
     search_ph:      "جستجو...",
@@ -343,6 +361,24 @@ const I18N = {
     pdfcat_error:   "Error codes",
     pdfcat_other:   "Other",
 
+    /* ── PDF viewer plus ── */
+    pvp_bookmark:   "Bookmark",
+    pvp_night:      "Night mode",
+    pvp_night_on:   "Night mode",
+    pvp_night_off:  "Day mode",
+    pvp_zoom_in:    "Zoom in",
+    pvp_zoom_out:   "Zoom out",
+    pvp_print:      "Print",
+    pvp_share:      "Share",
+    pvp_bookmarks:  "Bookmarks",
+    pvp_page:       "Page",
+    pvp_bm_removed: "Removed",
+    pvp_bm_empty:   "No bookmarks yet",
+    pvp_print_none: "No page to print",
+    pvp_print_fail: "Could not open print window",
+    pvp_share_unsupported: "Sharing not supported",
+    pvp_share_fail: "Share failed",
+
     /* ── Library ── */
     lib_title:      "Library",
     search_ph:      "Search...",
@@ -604,6 +640,7 @@ function setLanguage(lang){
   var pNext = document.getElementById("pdfSearchNext");
   if (pPrev && typeof t === "function") pPrev.textContent = t("pdf_prev") || "Prev";
   if (pNext && typeof t === "function") pNext.textContent = t("pdf_next") || "Next";
+  if (typeof pvpApplyToolbarI18n === "function") pvpApplyToolbarI18n();
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }
 

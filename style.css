@@ -2121,3 +2121,37 @@ textarea.field-input { resize: vertical; min-height: 72px; }
 .pdf-viewer-sheet.pvp-night .pdf-page-canvas {
   filter: invert(1) hue-rotate(180deg);
 }
+
+
+/* PDF pinch zoom layer */
+.pdf-zoom-inner {
+  transform-origin: top center;
+  will-change: transform;
+  width: 100%;
+}
+.pdf-canvas-host {
+  touch-action: pan-x pan-y;
+}
+.pdf-search-nav {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background: rgba(10, 132, 255, 0.18);
+  color: var(--blue, #0A84FF);
+  flex-shrink: 0;
+}
+.pdf-search-nav svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  /* در RTL جهت منطقی «قبلی/بعدی» با همان فلش LTR خوانده می‌شود */
+}
+[dir="rtl"] .pdf-search-nav svg {
+  transform: scaleX(-1);
+}

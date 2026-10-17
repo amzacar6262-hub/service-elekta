@@ -3,7 +3,7 @@
    نسخه کش را با هر انتشار عوض کن (v94 → v95 …)
    ═══════════════════════════════════════ */
 
-const CACHE = "elekta-service-v99";
+const CACHE = "elekta-service-v101";
 
 const PRECACHE = [
   "./",
@@ -26,6 +26,7 @@ const PRECACHE = [
   "./data10.js",
   "./data11.js",
   "./data12.js",
+  "./data-loader.js",
   "./flowcharts.js",
   "./learn.js",
   "./search.js",

@@ -175,14 +175,16 @@ function renderPdfList() {
     return;
   }
   el.innerHTML = list.map(function (p) {
+    var id = String(p.id).replace(/'/g, "");
     return (
-      '<div class="pdf-card" data-id="' + p.id + '">' +
-      '<div class="pdf-card-icon" style="width:48px;height:48px;min-width:48px;flex-shrink:0">' +
-      '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+      '<div class="pdf-card" data-id="' + id + '">' +
+      '<div class="pdf-card-icon" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
-      '<polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/>' +
+      '<polyline points="14 2 14 8 20 8"/>' +
+      '<line x1="8" y1="13" x2="16" y2="13"/>' +
       '<line x1="8" y1="17" x2="14" y2="17"/></svg></div>' +
-      '<div class="pdf-card-body" onclick="openPdfViewer(\'' + p.id + '\')">' +
+      '<div class="pdf-card-body" onclick="openPdfViewer(\'' + id + '\')">' +
       '<div class="pdf-card-title">' + escapePdf(p.title || p.name) + "</div>" +
       '<div class="pdf-card-meta">' +
       '<span class="pdf-chip">' + pdfCatLabel(p.cat) + "</span>" +
@@ -191,8 +193,10 @@ function renderPdfList() {
       (p.note ? '<div class="pdf-card-note">' + escapePdf(p.note) + "</div>" : "") +
       "</div>" +
       '<div class="pdf-card-acts">' +
-      '<button type="button" class="pdf-act" onclick="openPdfViewer(\'' + p.id + '\')">↗</button>' +
-      '<button type="button" class="pdf-act danger" onclick="confirmDeletePdf(\'' + p.id + '\')">✕</button>' +
+      '<button type="button" class="pdf-act" aria-label="Open" onclick="openPdfViewer(\'' + id + '\')">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></button>' +
+      '<button type="button" class="pdf-act danger" aria-label="Delete" onclick="confirmDeletePdf(\'' + id + '\')">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       "</div></div>"
     );
   }).join("");
@@ -546,31 +550,38 @@ async function drawSearchHighlights(page, canvas, viewport, outputScale, query) 
 function setupPinchZoom(host) {
   if (host.__pinchBound) return;
   host.__pinchBound = true;
+  host.style.touchAction = "pan-x pan-y";
+
+  function applyZoom(level) {
+    level = Math.max(0.5, Math.min(4.0, level));
+    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = level;
+    /* zoom CSS روی iOS خوب کار می‌کند؛ fallback transform */
+    try {
+      host.style.zoom = level;
+    } catch (e) {}
+    host.style.setProperty("--pdf-zoom", String(level));
+    var lbl = document.getElementById("pvpZoomLabel");
+    if (lbl) lbl.textContent = Math.round(level * 100) + "%";
+  }
 
   var zoomAtStart = 1;
 
-  /* iOS native gesture events */
-  host.addEventListener("gesturestart", function(e) {
+  /* iOS Safari gesture events */
+  host.addEventListener("gesturestart", function (e) {
     e.preventDefault();
-    zoomAtStart = (typeof pvpZoomLevel !== "undefined") ? pvpZoomLevel : 1;
-    host.style.transition = "none";
+    zoomAtStart = (typeof pvpZoomLevel !== "undefined" && pvpZoomLevel) ? pvpZoomLevel : 1;
   }, { passive: false });
 
-  host.addEventListener("gesturechange", function(e) {
+  host.addEventListener("gesturechange", function (e) {
     e.preventDefault();
-    var newZoom = zoomAtStart * e.scale;
-    newZoom = Math.max(0.5, Math.min(4.0, newZoom));
-    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = newZoom;
-    host.style.zoom = newZoom;
-    var lbl = document.getElementById("pvpZoomLabel");
-    if (lbl) lbl.textContent = Math.round(newZoom * 100) + "%";
+    applyZoom(zoomAtStart * e.scale);
   }, { passive: false });
 
-  host.addEventListener("gestureend", function(e) {
+  host.addEventListener("gestureend", function (e) {
     e.preventDefault();
   }, { passive: false });
 
-  /* Fallback برای غیر iOS */
+  /* دو انگشتی — همه مرورگرها */
   var initialDist = 0, initialZoom = 1, pinching = false;
 
   function getDist(t1, t2) {
@@ -579,30 +590,25 @@ function setupPinchZoom(host) {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  host.addEventListener("touchstart", function(e) {
+  host.addEventListener("touchstart", function (e) {
     if (e.touches.length === 2) {
       pinching = true;
-      initialDist = getDist(e.touches[0], e.touches[1]);
-      initialZoom = (typeof pvpZoomLevel !== "undefined") ? pvpZoomLevel : 1;
+      initialDist = getDist(e.touches[0], e.touches[1]) || 1;
+      initialZoom = (typeof pvpZoomLevel !== "undefined" && pvpZoomLevel) ? pvpZoomLevel : 1;
     }
   }, { passive: true });
 
-  host.addEventListener("touchmove", function(e) {
+  host.addEventListener("touchmove", function (e) {
     if (!pinching || e.touches.length !== 2) return;
     e.preventDefault();
     var dist = getDist(e.touches[0], e.touches[1]);
-    var newZoom = initialZoom * (dist / initialDist);
-    newZoom = Math.max(0.5, Math.min(4.0, newZoom));
-    if (typeof pvpZoomLevel !== "undefined") pvpZoomLevel = newZoom;
-    host.style.zoom = newZoom;
-    var lbl = document.getElementById("pvpZoomLabel");
-    if (lbl) lbl.textContent = Math.round(newZoom * 100) + "%";
+    applyZoom(initialZoom * (dist / initialDist));
   }, { passive: false });
 
-  host.addEventListener("touchend", function(e) {
+  host.addEventListener("touchend", function (e) {
     if (e.touches.length < 2) pinching = false;
   });
-  host.addEventListener("touchcancel", function() { pinching = false; });
+  host.addEventListener("touchcancel", function () { pinching = false; });
 }
 
 var pdfScrollTimer = null;

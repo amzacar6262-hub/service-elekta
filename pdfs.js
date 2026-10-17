@@ -33,9 +33,12 @@ function pdfToast(msg) {
 
 function pdfT(key, fallback) {
   if (typeof t === "function") {
-    try { return t(key) || fallback; } catch (e) {}
+    try {
+      var v = t(key);
+      if (v && v !== key) return v;
+    } catch (e) {}
   }
-  return fallback;
+  return fallback || key;
 }
 
 function openPdfDB() {
@@ -267,7 +270,7 @@ async function savePdfRecord(file, title, cat, note) {
 }
 
 async function savePendingPdf() {
-  if (!pendingPdfFile) { pdfToast("فایلی انتخاب نشده"); return; }
+  if (!pendingPdfFile) { pdfToast(pdfT("pdf_no_file", "فایلی انتخاب نشده")); return; }
   var titleEl = document.getElementById("pdfAddTitle");
   var catEl = document.getElementById("pdfAddCat");
   var noteEl = document.getElementById("pdfAddNote");
@@ -278,7 +281,7 @@ async function savePendingPdf() {
   var queue = pendingPdfQueue.slice();
   pendingPdfQueue = [];
   try {
-    pdfToast("در حال ذخیره…");
+    pdfToast(pdfT("pdf_saving", "در حال ذخیره…"));
     await savePdfRecord(file, title, cat, note);
     for (var i = 0; i < queue.length; i++) {
       await savePdfRecord(queue[i], queue[i].name, cat, "");
@@ -291,7 +294,7 @@ async function savePendingPdf() {
   } catch (e) {
     console.error("savePendingPdf", e);
     var msg = (e && e.name === "QuotaExceededError")
-      ? "حافظه پر است"
+      ? pdfT("pdf_quota", "حافظه پر است")
       : (pdfT("pdf_save_fail", "خطا در ذخیره") + (e && e.message ? ": " + e.message : ""));
     pdfToast(msg);
   }
@@ -612,7 +615,7 @@ async function refreshSearchHighlights() {
 
 async function openPdfWithEngine(blobUrl) {
   var host = getPdfCanvasHost();
-  if (host) host.innerHTML = '<div class="pdf-loading">در حال بارگذاری PDF…</div>';
+  if (host) host.innerHTML = '<div class="pdf-loading">' + pdfT("pdf_loading", "در حال بارگذاری PDF…") + '</div>';
   try {
     var pdfjsLib = await loadPdfJs();
     var doc = await pdfjsLib.getDocument({
@@ -679,7 +682,7 @@ function ensurePdfSearchBar() {
   bar.id = "pdfSearchBar";
   bar.className = "pdf-search-bar";
   bar.innerHTML =
-    '<input type="search" id="pdfSearchInput" placeholder="جستجو در PDF..." enterkeyhint="search" />' +
+    '<input type="search" id="pdfSearchInput" placeholder="' + pdfT("pdf_search_ph", "جستجو در PDF...") + '" enterkeyhint="search" />' +
     '<span class="pdf-search-meta" id="pdfSearchMeta"></span>' +
     '<button type="button" id="pdfSearchPrev" class="pdf-search-nav" aria-label="قبلی">' +
       '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
@@ -724,7 +727,7 @@ async function runPdfSearch(q, reverse) {
     if (pdfJsDoc) await indexPdfTextFromDoc(pdfJsDoc);
     else if (pdfCurrentBlobUrl) await indexPdfText(pdfCurrentBlobUrl);
   }
-  if (!pdfJsPagesText) { if (meta) meta.textContent = "—"; pdfToast("جستجو آماده نیست"); return; }
+  if (!pdfJsPagesText) { if (meta) meta.textContent = "—"; pdfToast(pdfT("pdf_search_not_ready", "جستجو آماده نیست")); return; }
   var low = q.toLowerCase();
   pdfSearchHits = [];
   for (var i = 0; i < pdfJsPagesText.length; i++) {
@@ -732,7 +735,7 @@ async function runPdfSearch(q, reverse) {
   }
   if (!pdfSearchHits.length) {
     if (meta) meta.textContent = "۰";
-    pdfToast("موردی یافت نشد");
+    pdfToast(pdfT("pdf_search_none", "موردی یافت نشد"));
     refreshSearchHighlights();
     return;
   }
@@ -756,7 +759,7 @@ function jumpPdfToPage(page) { renderPdfPage(page); }
 async function openPdfViewer(id) {
   try {
     var rec = await pdfGet(id);
-    if (!rec || !rec.blob) { pdfToast("PDF پیدا نشد"); return; }
+    if (!rec || !rec.blob) { pdfToast(pdfT("pdf_not_found", "PDF پیدا نشد")); return; }
     if (pdfViewerObjectUrl) {
       try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {}
     }
@@ -785,7 +788,7 @@ async function openPdfViewer(id) {
     openPdfWithEngine(url);
   } catch (e) {
     console.error(e);
-    pdfToast("خطا در باز کردن PDF");
+    pdfToast(pdfT("pdf_open_fail", "خطا در باز کردن PDF"));
   }
 }
 

@@ -34,6 +34,15 @@ const PHOTO_DB = "elekta-gallery-db";
 const PHOTO_STORE = "photos";
 let photoDB = null;
 
+
+function escHtml(str) {
+  if (typeof escapeHtml === "function") return escapeHtml(str);
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 function openPhotoDB(){
   return new Promise(function(resolve, reject){
     if(photoDB){ resolve(photoDB); return; }
@@ -327,11 +336,11 @@ function renderGallery(){
     const localBadge = (typeof t === "function") ? t("gallery_local") : "محلی";
     return '<div class="gallery-item" style="animation-delay:' + (i * .04) + 's" ' +
            'onclick="openLightbox(' + i + ')">' +
-      '<img src="' + img.src + '" alt="' + (img.title || '') + '" loading="lazy" />' +
-      (img.local ? '<span class="gallery-item-local-badge">' + localBadge + '</span>' : '') +
+      '<img src="' + escHtml(img.src || '') + '" alt="' + escHtml(img.title || '') + '" loading="lazy" />' +
+      (img.local ? '<span class="gallery-item-local-badge">' + escHtml(localBadge) + '</span>' : '') +
       '<div class="gallery-item-info">' +
-        (catName ? '<span class="gallery-item-cat">' + catName + '</span>' : '') +
-        '<div class="gallery-item-title">' + (img.title || '') + '</div>' +
+        (catName ? '<span class="gallery-item-cat">' + escHtml(catName) + '</span>' : '') +
+        '<div class="gallery-item-title">' + escHtml(img.title || '') + '</div>' +
       '</div>' +
     '</div>';
   }).join("");

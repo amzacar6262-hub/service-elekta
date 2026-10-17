@@ -14,7 +14,9 @@ var PDF_CATS = [
 
 var PDF_DB_NAME = "elekta-pdfs-db";
 var PDF_STORE = "pdfs";
-var PDF_MAX_MB = 80;
+var PDF_MAX_MB = 60;          /* سقف سخت — روی iOS امن‌تر */
+var PDF_WARN_MB = 25;         /* از این به بالا هشدار قبل از ذخیره */
+
 
 var pdfDB = null;
 var localPdfs = [];
@@ -206,23 +208,46 @@ function pickPdfFile() {
 function onPdfFileSelected(ev) {
   var files = ev.target && ev.target.files;
   if (!files || !files.length) return;
+
   var list = [];
   for (var i = 0; i < files.length; i++) list.push(files[i]);
+
   var first = list[0];
   if (first.type && first.type !== "application/pdf" && !/\.pdf$/i.test(first.name)) {
     pdfToast(pdfT("pdf_bad_type", "فقط فایل PDF"));
     return;
   }
   if (first.size > PDF_MAX_MB * 1024 * 1024) {
-    pdfToast(pdfT("pdf_too_big", "حجم زیاد") + " (حداکثر " + PDF_MAX_MB + " MB)");
+    pdfToast(
+      pdfT("pdf_too_big", "حجم فایل زیاد است") +
+      " — " + formatPdfSize(first.size) +
+      " (حداکثر " + PDF_MAX_MB + " MB). " +
+      pdfT("pdf_too_big_hint", "فایل کوچک‌تر بفرست یا چند بخش کن")
+    );
     return;
   }
+
+  var skipped = 0;
   pendingPdfFile = first;
   pendingPdfQueue = list.slice(1).filter(function (f) {
-    return (!f.type || f.type === "application/pdf" || /\.pdf$/i.test(f.name)) &&
+    var ok = (!f.type || f.type === "application/pdf" || /\.pdf$/i.test(f.name)) &&
       f.size <= PDF_MAX_MB * 1024 * 1024;
+    if (!ok) skipped++;
+    return ok;
   });
+  if (skipped > 0) {
+    pdfToast(pdfT("pdf_some_skipped", "بعضی فایل‌ها رد شدند (حجم/نوع)"));
+  }
   openPdfAddSheet(first);
+  if (first.size > PDF_WARN_MB * 1024 * 1024) {
+    setTimeout(function () {
+      pdfToast(
+        pdfT("pdf_large_warn", "فایل حجیم است") +
+        " (" + formatPdfSize(first.size) + "). " +
+        pdfT("pdf_large_warn_hint", "ذخیره ممکن است طول بکشد")
+      );
+    }, 400);
+  }
 }
 
 function openPdfAddSheet(file) {
@@ -280,8 +305,27 @@ async function savePendingPdf() {
   var file = pendingPdfFile;
   var queue = pendingPdfQueue.slice();
   pendingPdfQueue = [];
+
+  /* برآورد فضای باقی‌مانده (اگر مرورگر پشتیبانی کند) */
   try {
-    pdfToast(pdfT("pdf_saving", "در حال ذخیره…"));
+    if (navigator.storage && navigator.storage.estimate) {
+      var est = await navigator.storage.estimate();
+      var free = (est.quota || 0) - (est.usage || 0);
+      var need = file.size + queue.reduce(function (a, f) { return a + (f.size || 0); }, 0);
+      if (free > 0 && need > free * 0.9) {
+        pdfToast(
+          pdfT("pdf_quota", "حافظه پر است") +
+          " — " + pdfT("pdf_quota_hint", "چند PDF قدیمی را حذف کن و دوباره تلاش کن")
+        );
+        pendingPdfFile = file;
+        pendingPdfQueue = queue;
+        return;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    pdfToast(pdfT("pdf_saving", "در حال ذخیره…") + " (" + formatPdfSize(file.size) + ")");
     await savePdfRecord(file, title, cat, note);
     for (var i = 0; i < queue.length; i++) {
       await savePdfRecord(queue[i], queue[i].name, cat, "");
@@ -293,10 +337,14 @@ async function savePendingPdf() {
     pdfToast(pdfT("pdf_saved", "PDF ذخیره شد") + (n > 1 ? " (" + n + ")" : ""));
   } catch (e) {
     console.error("savePendingPdf", e);
-    var msg = (e && e.name === "QuotaExceededError")
-      ? pdfT("pdf_quota", "حافظه پر است")
+    var isQuota = e && (e.name === "QuotaExceededError" ||
+      (e.message && /quota|full|storage/i.test(e.message)));
+    var msg = isQuota
+      ? (pdfT("pdf_quota", "حافظه پر است") + " — " + pdfT("pdf_quota_hint", "چند PDF قدیمی را حذف کن"))
       : (pdfT("pdf_save_fail", "خطا در ذخیره") + (e && e.message ? ": " + e.message : ""));
     pdfToast(msg);
+    pendingPdfFile = file;
+    pendingPdfQueue = queue;
   }
 }
 

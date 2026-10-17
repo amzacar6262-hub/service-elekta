@@ -335,6 +335,12 @@
       </div>
     </div>
   </div>
+<button class="nav-icon-btn" onclick="openGlobalSearch()" aria-label="Search">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <circle cx="11" cy="11" r="7"/>
+    <line x1="20" y1="20" x2="16.5" y2="16.5"/>
+  </svg>
+</button>
 
   <!-- تنظیمات -->
   <div class="section">
@@ -707,6 +713,21 @@
   </div>
   <div class="sheet-body" id="learnSheetBody"></div>
 </div>
+<!-- GLOBAL SEARCH -->
+<div class="gs-overlay" id="globalSearchOverlay">
+  <div class="gs-panel">
+    <div class="gs-head">
+      <button type="button" class="gs-close" onclick="closeGlobalSearch()">✕</button>
+      <div class="gs-input-wrap">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
+        <input id="globalSearchInput" type="search" enterkeyhint="search"
+               placeholder="جستجوی سراسری..." data-i18n-ph="gs_ph"
+               oninput="onGlobalSearchInput(this.value)" />
+      </div>
+    </div>
+    <div class="gs-results" id="globalSearchResults"></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
@@ -726,6 +747,7 @@
 <script src="data12.js"></script>
 <script src="flowcharts.js"></script>
 <script src="learn.js"></script>
+<script src="search.js"></script>
 <script src="app.js"></script>
 <script src="qr.js"></script>
 <script src="gallery.js"></script>

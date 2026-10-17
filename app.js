@@ -44,18 +44,25 @@ function i18n(key, fallback){
 }
 
 /* ═══ State ═══ */
+/* ── فاز A: state فقط از Elekta.state ── */
 var libFilter = "all", libQ = "", codeFilter = "all", codeQ = "", refQ = "";
-var favs = new Set();
-try {
-  if (window.Elekta && Elekta.state && Elekta.state.favs instanceof Set) {
-    favs = Elekta.state.favs;
-  } else {
-    var _favArr = [];
-    try { _favArr = JSON.parse(localStorage.getItem("favs") || "[]"); } catch(_e){}
-    favs = new Set(Array.isArray(_favArr) ? _favArr : []);
-  }
-} catch(_e){ favs = new Set(); }
+var favs = (window.Elekta && Elekta.state && Elekta.state.favs instanceof Set)
+  ? Elekta.state.favs
+  : new Set();
 var curSheetManual = null;
+
+function bindElektaState() {
+  if (!window.Elekta || !Elekta.state) return;
+  var S = Elekta.state;
+  favs = S.favs;
+  if (typeof checklistData !== "undefined") checklistData = S.checklistData;
+  if (typeof manualNotes !== "undefined") manualNotes = S.manualNotes;
+  if (typeof serviceLog !== "undefined") serviceLog = S.serviceLog;
+  /* فیلترهای UI روی state هم mirror شوند */
+  S.libFilter = libFilter; S.libQ = libQ;
+  S.codeFilter = codeFilter; S.codeQ = codeQ;
+  S.refQ = refQ;
+}
 
 /* ═══════════════════════════════════════
    RENDER FUNCTIONS
@@ -374,14 +381,11 @@ function closeSheet(){
 }
 
 function toggleFav(id){
+  if (!window.Elekta || !Elekta.state) return;
+  favs = Elekta.state.favs;
   if(favs.has(id)){ favs.delete(id); toast(i18n("t_removed", "حذف شد")); }
   else { favs.add(id); toast(i18n("t_saved", "ذخیره شد ★")); }
-  if (window.Elekta && Elekta.saveFavs) {
-    if (Elekta.state) Elekta.state.favs = favs;
-    Elekta.saveFavs();
-  } else {
-    try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch(e){}
-  }
+  Elekta.saveFavs();
   renderStats(); renderHomePop(); renderLib(); renderFavs();
   if(curSheetManual){
     var fb = $("#sheetFav");
@@ -700,21 +704,19 @@ if("serviceWorker" in navigator){
 /* ═══════════════════════════════════════
    CHECKLIST per Manual
    ═══════════════════════════════════════ */
-/* checklist — از Elekta.state */
-var checklistData = {};
-try {
-  if (window.Elekta && Elekta.state && Elekta.state.checklistData && typeof Elekta.state.checklistData === "object") {
-    checklistData = Elekta.state.checklistData;
-  } else {
-    try { checklistData = JSON.parse(localStorage.getItem("elekta_checklist_v1") || "{}") || {}; } catch(_e){ checklistData = {}; }
-  }
-} catch(_e){ checklistData = {}; }
+/* checklist — فقط Elekta.state */
+var checklistData = (window.Elekta && Elekta.state && Elekta.state.checklistData)
+  ? Elekta.state.checklistData
+  : {};
 function getChecklistState(manualId){
+  checklistData = (window.Elekta && Elekta.state) ? Elekta.state.checklistData : checklistData;
   return checklistData[manualId] || {};
 }
 function saveChecklist(){
-  if (window.Elekta && Elekta.saveChecklist) Elekta.saveChecklist();
-  else try { localStorage.setItem("elekta_checklist_v1", JSON.stringify(checklistData)); } catch(e){}
+  if (window.Elekta && Elekta.state) {
+    Elekta.state.checklistData = checklistData;
+    Elekta.saveChecklist();
+  }
 }
 function toggleStep(manualId, stepIndex, el){
   if(!checklistData[manualId]) checklistData[manualId] = {};
@@ -752,26 +754,25 @@ function resetChecklist(manualId){
 /* ═══════════════════════════════════════
    NOTES per Manual
    ═══════════════════════════════════════ */
-/* notes — از Elekta.state */
-var manualNotes = {};
-try {
-  if (window.Elekta && Elekta.state && Elekta.state.manualNotes && typeof Elekta.state.manualNotes === "object") {
-    manualNotes = Elekta.state.manualNotes;
-  } else {
-    try { manualNotes = JSON.parse(localStorage.getItem("elekta_notes_v1") || "{}") || {}; } catch(_e){ manualNotes = {}; }
-  }
-} catch(_e){ manualNotes = {}; }
+/* notes — فقط Elekta.state */
+var manualNotes = (window.Elekta && Elekta.state && Elekta.state.manualNotes)
+  ? Elekta.state.manualNotes
+  : {};
 function getManualNote(manualId){
+  manualNotes = (window.Elekta && Elekta.state) ? Elekta.state.manualNotes : manualNotes;
   return manualNotes[manualId] || "";
 }
 function saveManualNote(manualId, value){
+  manualNotes = (window.Elekta && Elekta.state) ? Elekta.state.manualNotes : manualNotes;
   if(value && value.trim()){
     manualNotes[manualId] = value.trim();
   } else {
     delete manualNotes[manualId];
   }
-  if (window.Elekta && Elekta.saveNotes) Elekta.saveNotes();
-  else try { localStorage.setItem("elekta_notes_v1", JSON.stringify(manualNotes)); } catch(e){}
+  if (window.Elekta) {
+    Elekta.state.manualNotes = manualNotes;
+    Elekta.saveNotes();
+  }
   if(typeof toast === "function") toast(i18n("log_note_saved", "یادداشت ذخیره شد"));
 }
 
@@ -789,29 +790,18 @@ function exportManualPDF(){
 /* ═══════════════════════════════════════
    SERVICE LOG
    ═══════════════════════════════════════ */
-/* service log — از Elekta.state */
-var serviceLog = [];
-try {
-  if (window.Elekta && Elekta.state && Array.isArray(Elekta.state.serviceLog)) {
-    serviceLog = Elekta.state.serviceLog;
-  } else {
-    var _rawLog = null;
-    try { _rawLog = JSON.parse(localStorage.getItem("elekta_service_log_v1") || "[]"); } catch(_e){}
-    serviceLog = Array.isArray(_rawLog) ? _rawLog : [];
-  }
-} catch(_e){ serviceLog = []; }
-
+/* service log — فقط Elekta.state */
+var serviceLog = (window.Elekta && Elekta.state && Array.isArray(Elekta.state.serviceLog))
+  ? Elekta.state.serviceLog
+  : [];
 let logSelectedManualId = null;
 let logSelectedMachine = "Synergy";
 let logSelectedStatus = "done";
 
 function saveServiceLog(){
-  if (window.Elekta && Elekta.saveLog) {
-    // sync back to state
-    if (Elekta.state) Elekta.state.serviceLog = serviceLog;
+  if (window.Elekta && Elekta.state) {
+    Elekta.state.serviceLog = serviceLog;
     Elekta.saveLog();
-  } else {
-    try { localStorage.setItem("elekta_service_log_v1", JSON.stringify(serviceLog)); } catch(e){}
   }
 }
 
@@ -994,10 +984,46 @@ window.renderLog = renderLog;
 window.openLogEntry = openLogEntry;
 window.exportLogJSON = exportLogJSON;
 
+/* فاز A: رفرش UI متمرکز */
+if (window.Elekta && Elekta.onUIRefresh) {
+  Elekta.onUIRefresh(function () {
+    try {
+      if (typeof renderTabbar === "function") renderTabbar();
+      if (typeof renderStats === "function") renderStats();
+      if (typeof renderCats === "function") renderCats();
+      if (typeof renderToolGrid === "function") renderToolGrid();
+      if (typeof renderHomeFlow === "function") renderHomeFlow();
+      if (typeof renderHomePop === "function") renderHomePop();
+      if (typeof renderLibChips === "function") renderLibChips();
+      if (typeof renderLib === "function") renderLib();
+      if (typeof renderCodeChips === "function") renderCodeChips();
+      if (typeof renderCodes === "function") renderCodes();
+      if (typeof renderFavs === "function") renderFavs();
+      if (typeof renderMachineList === "function") renderMachineList();
+      if (typeof renderRef === "function") renderRef();
+      if (typeof renderLog === "function") renderLog();
+      if (typeof renderGalleryChips === "function") renderGalleryChips();
+      if (typeof renderGallery === "function") renderGallery();
+      if (typeof renderPMFreqChips === "function") renderPMFreqChips();
+      if (typeof renderPMMachineChips === "function") renderPMMachineChips();
+      if (typeof renderPMProgress === "function") renderPMProgress();
+      if (typeof renderPMList === "function") renderPMList();
+      if (typeof renderPdfCats === "function") renderPdfCats();
+      if (typeof renderPdfList === "function") renderPdfList();
+      if (typeof applyStaticTranslations === "function") applyStaticTranslations();
+      if (typeof updateLangSwitch === "function") updateLangSwitch();
+      if (typeof updateOnline === "function") updateOnline();
+      if (typeof pvpApplyToolbarI18n === "function") pvpApplyToolbarI18n();
+    } catch (e) { console.warn(e); }
+  });
+}
+
+
 /* ═══════════════════════════════════════
    INIT (با محافظت از خطا)
    ═══════════════════════════════════════ */
 function _doInit(){
+  bindElektaState();
   renderTabbar();
   renderStats();
   renderCats();

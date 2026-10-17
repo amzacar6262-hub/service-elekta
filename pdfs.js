@@ -483,8 +483,10 @@ async function renderPageInto(pageNum, wrapper) {
     var hostW = host.clientWidth || window.innerWidth || 360;
     var unscaled = page.getViewport({ scale: 1 });
     /* scale بر اساس عرض wrapper واقعی */
-    var wrapperW = wrapper.clientWidth || (hostW - 12);
-    var scale = wrapperW / unscaled.width;
+    /* همیشه عرض host پایه است تا زوم روی زوم انباشته نشود */
+    var baseW = Math.max(200, (host.clientWidth || hostW || 360) - 16);
+    var z = (typeof window.pvpZoomLevel === "number" && window.pvpZoomLevel > 0) ? window.pvpZoomLevel : 1;
+    var scale = (baseW / unscaled.width) * z;
     var outputScale = Math.min(window.devicePixelRatio || 1, 2);
     var viewport = page.getViewport({ scale: scale });
 
@@ -492,9 +494,14 @@ async function renderPageInto(pageNum, wrapper) {
     canvas.className = "pdf-page-canvas";
     canvas.width = Math.floor(viewport.width * outputScale);
     canvas.height = Math.floor(viewport.height * outputScale);
-    canvas.style.width = "100%";
-    canvas.style.height = "auto";
+    /* اندازهٔ نمایش = viewport (شامل زوم) تا از عرض ۱۰۰٪ کوچک نشود */
+    canvas.style.width = Math.floor(viewport.width) + "px";
+    canvas.style.height = Math.floor(viewport.height) + "px";
     canvas.style.display = "block";
+    canvas.style.maxWidth = "none";
+    wrapper.style.width = Math.floor(viewport.width) + "px";
+    wrapper.style.maxWidth = "none";
+    wrapper.style.margin = "0 auto 12px";
 
     var ctx = canvas.getContext("2d");
     var transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
@@ -556,82 +563,129 @@ async function drawSearchHighlights(page, canvas, viewport, outputScale, query) 
   return 0;
 }
 
-/* ═══ Pinch to Zoom — با gesture events ═══ */
+
+/* ═══ Zoom (دکمه + دو انگشتی) — مخصوص iOS Safari ═══ */
+window.pvpZoomLevel = window.pvpZoomLevel || 1;
+
+function pdfApplyZoom(level, immediate) {
+  level = Math.max(0.5, Math.min(4, Math.round(level * 20) / 20));
+  window.pvpZoomLevel = level;
+  var lbl = document.getElementById("pvpZoomLabel");
+  if (lbl) lbl.textContent = Math.round(level * 100) + "%";
+
+  var host = document.getElementById("pdfCanvasHost");
+  if (!host) return;
+
+  function rerenderVisible() {
+    var wrappers = host.querySelectorAll(".pdf-page-wrapper");
+    var hostRect = host.getBoundingClientRect();
+    for (var i = 0; i < wrappers.length; i++) {
+      var w = wrappers[i];
+      var n = parseInt(w.dataset.pageNum, 10);
+      var rect = w.getBoundingClientRect();
+      /* visible یا نزدیک */
+      if (rect.bottom < hostRect.top - 200 || rect.top > hostRect.bottom + 200) {
+        /* فقط علامت بزن برای lazy */
+        if (typeof pdfRenderedPages !== "undefined") pdfRenderedPages[n] = false;
+        continue;
+      }
+      if (typeof pdfRenderedPages !== "undefined") pdfRenderedPages[n] = false;
+      if (typeof renderPageInto === "function") renderPageInto(n, w);
+    }
+  }
+
+  if (immediate) {
+    
+    rerenderVisible();
+    return;
+  }
+  /* debounce برای pinch نرم */
+  if (!pdfApplyZoom._t) pdfApplyZoom._t = null;
+  clearTimeout(pdfApplyZoom._t);
+  pdfApplyZoom._t = setTimeout(rerenderVisible, 80);
+}
+
+window.__pdfApplyZoom = pdfApplyZoom;
+window.pdfApplyZoom = pdfApplyZoom;
+
 function setupPinchZoom(host) {
+  if (!host) return;
   if (host.__pinchBound) return;
   host.__pinchBound = true;
 
-  /* لایهٔ داخلی برای scale — CSS zoom روی overflow اسکرول iOS اغلب کار نمی‌کند */
-  var inner = host.querySelector(".pdf-zoom-inner");
-  if (!inner) {
-    inner = document.createElement("div");
-    inner.className = "pdf-zoom-inner";
-    while (host.firstChild) inner.appendChild(host.firstChild);
-    host.appendChild(inner);
-  }
-
-  function applyZoom(level) {
-    level = Math.max(0.6, Math.min(3.5, level));
-    if (typeof window.pvpZoomLevel !== "undefined") window.pvpZoomLevel = level;
-    else window.pvpZoomLevel = level;
-    inner.style.transformOrigin = "top center";
-    inner.style.transform = "scale(" + level + ")";
-    /* عرض را جبران کن تا اسکرول افقی بعد از زوم درست باشد */
-    inner.style.width = (100 / level) + "%";
-    inner.style.marginLeft = "auto";
-    inner.style.marginRight = "auto";
-    var lbl = document.getElementById("pvpZoomLabel");
-    if (lbl) lbl.textContent = Math.round(level * 100) + "%";
-  }
-
-  window.__pdfApplyZoom = applyZoom;
-  if (typeof window.pvpZoomLevel === "number" && window.pvpZoomLevel !== 1) {
-    applyZoom(window.pvpZoomLevel);
-  }
-
+  var sheet = document.getElementById("pdfViewerSheet") || host;
   var zoomAtStart = 1;
   var initialDist = 0;
   var pinching = false;
 
-  function dist(t1, t2) {
-    var dx = t2.clientX - t1.clientX;
-    var dy = t2.clientY - t1.clientY;
+  function dist(a, b) {
+    var dx = b.clientX - a.clientX;
+    var dy = b.clientY - a.clientY;
     return Math.sqrt(dx * dx + dy * dy) || 1;
   }
 
-  /* iOS Safari */
+  function onStart(e) {
+    if (e.touches && e.touches.length === 2) {
+      pinching = true;
+      initialDist = dist(e.touches[0], e.touches[1]);
+      zoomAtStart = window.pvpZoomLevel || 1;
+    }
+  }
+
+  function onMove(e) {
+    if (!pinching || !e.touches || e.touches.length !== 2) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var d = dist(e.touches[0], e.touches[1]);
+    pdfApplyZoom(zoomAtStart * (d / initialDist));
+  }
+
+  function onEnd(e) {
+    if (!e.touches || e.touches.length < 2) {
+      if (pinching) pdfApplyZoom(window.pvpZoomLevel || 1, true);
+      pinching = false;
+    }
+  }
+
+  /* روی host و sheet با capture تا از دست نرود */
+  [host, sheet].forEach(function (el) {
+    if (!el || el.__pdfPinch) return;
+    el.__pdfPinch = true;
+    el.addEventListener("touchstart", onStart, { passive: true, capture: true });
+    el.addEventListener("touchmove", onMove, { passive: false, capture: true });
+    el.addEventListener("touchend", onEnd, { passive: true, capture: true });
+    el.addEventListener("touchcancel", onEnd, { passive: true, capture: true });
+  });
+
+  /* gesture API قدیمی Safari */
   host.addEventListener("gesturestart", function (e) {
     e.preventDefault();
     zoomAtStart = window.pvpZoomLevel || 1;
   }, { passive: false });
   host.addEventListener("gesturechange", function (e) {
     e.preventDefault();
-    applyZoom(zoomAtStart * e.scale);
+    pdfApplyZoom(zoomAtStart * e.scale);
   }, { passive: false });
   host.addEventListener("gestureend", function (e) {
     e.preventDefault();
+    pdfApplyZoom(window.pvpZoomLevel || 1, true);
   }, { passive: false });
 
-  host.addEventListener("touchstart", function (e) {
-    if (e.touches.length === 2) {
-      pinching = true;
-      initialDist = dist(e.touches[0], e.touches[1]);
-      zoomAtStart = window.pvpZoomLevel || 1;
+  /* دابل‌تپ = زوم ۱↔۱.۸ */
+  var lastTap = 0;
+  host.addEventListener("click", function (e) {
+    var now = Date.now();
+    if (now - lastTap < 280) {
+      var cur = window.pvpZoomLevel || 1;
+      pdfApplyZoom(cur > 1.2 ? 1 : 1.8);
     }
-  }, { passive: true });
-
-  host.addEventListener("touchmove", function (e) {
-    if (!pinching || e.touches.length !== 2) return;
-    e.preventDefault();
-    var d = dist(e.touches[0], e.touches[1]);
-    applyZoom(zoomAtStart * (d / initialDist));
-  }, { passive: false });
-
-  host.addEventListener("touchend", function (e) {
-    if (e.touches.length < 2) pinching = false;
+    lastTap = now;
   });
-  host.addEventListener("touchcancel", function () { pinching = false; });
+
+  /* همگام با سطح فعلی */
+  pdfApplyZoom(window.pvpZoomLevel || 1);
 }
+
 
 var pdfScrollTimer = null;
 function onPdfScroll() {
@@ -877,7 +931,8 @@ function closePdfViewer() {
     if (pdfPageObserver) { try { pdfPageObserver.disconnect(); } catch(e){} pdfPageObserver = null; }
     pdfRenderedPages = {};
     var host = document.getElementById("pdfCanvasHost");
-    if (host) { host.innerHTML = ""; host.style.zoom = ""; }
+    if (host) { host.innerHTML = ""; host.style.zoom = "1"; host.__pinchBound = false; host.__pdfPinch = false; }
+    window.pvpZoomLevel = 1;
     pdfJsDoc = null;
     pdfCurrentPage = 1;
     if (pdfViewerObjectUrl) { try { URL.revokeObjectURL(pdfViewerObjectUrl); } catch (e) {} pdfViewerObjectUrl = null; }

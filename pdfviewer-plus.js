@@ -27,6 +27,32 @@ function pvpToast(msg) {
   else if (typeof pdfToast === "function") pdfToast(msg);
 }
 
+function pvpT(key, fallback) {
+  if (typeof t === "function") {
+    try {
+      var v = t(key);
+      if (v && v !== key) return v;
+    } catch (e) {}
+  }
+  return fallback || key;
+}
+
+function pvpApplyToolbarI18n() {
+  var map = [
+    ["pvpBookmarkBtn", "pvp_bookmark"],
+    ["pvpNightBtn", "pvp_night"],
+    ["pvpZoomOut", "pvp_zoom_out"],
+    ["pvpZoomIn", "pvp_zoom_in"],
+    ["pvpPrintBtn", "pvp_print"],
+    ["pvpShareBtn", "pvp_share"],
+    ["pvpBookmarksListBtn", "pvp_bookmarks"]
+  ];
+  map.forEach(function (pair) {
+    var el = document.getElementById(pair[0]);
+    if (el) el.title = pvpT(pair[1], el.title || "");
+  });
+}
+
 function pvpGetBookmarks(pdfId) {
   if (!pvpBookmarks[pdfId]) pvpBookmarks[pdfId] = [];
   return pvpBookmarks[pdfId];
@@ -37,8 +63,8 @@ function pvpIsBookmarked(pdfId, page) {
 function pvpToggleBookmark(pdfId, page) {
   var list = pvpGetBookmarks(pdfId);
   var idx = list.findIndex(function(b){ return b.page === page; });
-  if (idx >= 0) { list.splice(idx, 1); pvpToast("★ حذف شد"); }
-  else { list.push({ page: page, at: Date.now() }); list.sort(function(a,b){return a.page-b.page;}); pvpToast("★ صفحه " + page); }
+  if (idx >= 0) { list.splice(idx, 1); pvpToast("★ " + pvpT("pvp_bm_removed", "حذف شد")); }
+  else { list.push({ page: page, at: Date.now() }); list.sort(function(a,b){return a.page-b.page;}); pvpToast("★ " + pvpT("pvp_page", "صفحه") + " " + page); }
   pvpSave();
   pvpUpdateBookmarkBtn();
   pvpUpdateBookmarkCount();
@@ -50,6 +76,7 @@ function pvpInjectToolbar() {
   if (!sheet) return false;
   if (document.getElementById("pvpToolbar")) {
     console.log("pvp: toolbar already exists");
+    pvpApplyToolbarI18n();
     return true;
   }
 
@@ -59,11 +86,11 @@ function pvpInjectToolbar() {
   tb.id = "pvpToolbar";
   tb.className = "pvp-toolbar";
   tb.innerHTML =
-    '<button type="button" class="pvp-btn" id="pvpBookmarkBtn" title="Bookmark">' +
+    '<button type="button" class="pvp-btn" id="pvpBookmarkBtn" title="' + pvpT("pvp_bookmark", "Bookmark") + '">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>' +
       '<span class="pvp-badge" id="pvpBookmarkBadge" style="display:none">0</span>' +
     '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpNightBtn" title="شب">' +
+    '<button type="button" class="pvp-btn" id="pvpNightBtn" title="' + pvpT("pvp_night", "Night") + '">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' +
     '</button>' +
     '<button type="button" class="pvp-btn" id="pvpZoomOut" title="−">' +
@@ -73,13 +100,13 @@ function pvpInjectToolbar() {
     '<button type="button" class="pvp-btn" id="pvpZoomIn" title="+">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
     '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpPrintBtn" title="چاپ">' +
+    '<button type="button" class="pvp-btn" id="pvpPrintBtn" title="' + pvpT("pvp_print", "Print") + '">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>' +
     '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpShareBtn" title="اشتراک">' +
+    '<button type="button" class="pvp-btn" id="pvpShareBtn" title="' + pvpT("pvp_share", "Share") + '">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
     '</button>' +
-    '<button type="button" class="pvp-btn" id="pvpBookmarksListBtn" title="لیست">' +
+    '<button type="button" class="pvp-btn" id="pvpBookmarksListBtn" title="' + pvpT("pvp_bookmarks", "List") + '">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
     '</button>';
 
@@ -120,6 +147,7 @@ function pvpInjectToolbar() {
   pvpApplyNight();
   pvpUpdateBookmarkBtn();
   pvpUpdateBookmarkCount();
+  pvpApplyToolbarI18n();
   console.log("pvp: toolbar injected ✓");
   return true;
 }
@@ -142,7 +170,7 @@ function pvpToggleNight() {
   pvpNightMode = !pvpNightMode;
   pvpSaveNight();
   pvpApplyNight();
-  pvpToast(pvpNightMode ? "🌙 حالت شب" : "☀️ حالت روز");
+  pvpToast(pvpNightMode ? ("🌙 " + pvpT("pvp_night_on", "حالت شب")) : ("☀️ " + pvpT("pvp_night_off", "حالت روز")));
 }
 function pvpApplyNight() {
   var sheet = document.getElementById("pdfViewerSheet");
@@ -166,10 +194,10 @@ function pvpSetZoom(level) {
 
 function pvpPrint() {
   var canvas = document.querySelector(".pdf-page-canvas");
-  if (!canvas) { pvpToast("صفحه‌ای برای چاپ نیست"); return; }
+  if (!canvas) { pvpToast(pvpT("pvp_print_none", "صفحه‌ای برای چاپ نیست")); return; }
   var dataUrl = canvas.toDataURL("image/png");
   var win = window.open("", "_blank");
-  if (!win) { pvpToast("پنجره چاپ باز نشد"); return; }
+  if (!win) { pvpToast(pvpT("pvp_print_fail", "پنجره چاپ باز نشد")); return; }
   win.document.write('<html><head><title>Print</title><style>body{margin:0}img{width:100%}</style></head><body><img src="' + dataUrl + '" onload="window.print();window.close();"/></body></html>');
   win.document.close();
 }
@@ -178,18 +206,18 @@ async function pvpShare() {
   if (!pvpCurrentPdfId) return;
   try {
     var rec = await pdfGet(pvpCurrentPdfId);
-    if (!rec || !rec.blob) { pvpToast("PDF پیدا نشد"); return; }
+    if (!rec || !rec.blob) { pvpToast(pvpT("pdf_not_found", "PDF پیدا نشد")); return; }
     var file = new File([rec.blob], rec.name || "document.pdf", { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ title: rec.title || rec.name, files: [file] });
     } else if (navigator.share) {
       await navigator.share({ title: rec.title || rec.name });
     } else {
-      pvpToast("اشتراک‌گذاری پشتیبانی نمی‌شود");
+      pvpToast(pvpT("pvp_share_unsupported", "اشتراک‌گذاری پشتیبانی نمی‌شود"));
     }
   } catch (e) {
     if (e && e.name === "AbortError") return;
-    pvpToast("خطا در اشتراک");
+    pvpToast(pvpT("pvp_share_fail", "خطا در اشتراک"));
   }
 }
 
@@ -208,12 +236,12 @@ function pvpShowBookmarksList() {
     document.body.appendChild(panel);
   }
   var list = pvpGetBookmarks(pvpCurrentPdfId);
-  var html = '<div class="pvp-bm-header"><span>★ Bookmarkها (' + list.length + ')</span><button type="button" class="pvp-bm-close" onclick="document.getElementById(\'pvpBookmarksPanel\').classList.remove(\'show\')">✕</button></div>';
+  var html = '<div class="pvp-bm-header"><span>★ ' + pvpT("pvp_bookmarks", "Bookmarks") + ' (' + list.length + ')</span><button type="button" class="pvp-bm-close" onclick="document.getElementById(\'pvpBookmarksPanel\').classList.remove(\'show\')">✕</button></div>';
   if (!list.length) {
-    html += '<div class="pvp-bm-empty">هنوز Bookmarkی نداری</div>';
+    html += '<div class="pvp-bm-empty">' + pvpT("pvp_bm_empty", "هنوز Bookmarkی نداری") + '</div>';
   } else {
     html += '<div class="pvp-bm-list">' + list.map(function(b){
-      return '<div class="pvp-bm-item" onclick="pvpJumpTo(' + b.page + ')"><div class="pvp-bm-page">صفحه ' + b.page + '</div><button type="button" class="pvp-bm-del" onclick="event.stopPropagation();pvpDeleteBookmark(' + b.page + ')">✕</button></div>';
+      return '<div class="pvp-bm-item" onclick="pvpJumpTo(' + b.page + ')"><div class="pvp-bm-page">' + pvpT("pvp_page", "صفحه") + ' ' + b.page + '</div><button type="button" class="pvp-bm-del" onclick="event.stopPropagation();pvpDeleteBookmark(' + b.page + ')">✕</button></div>';
     }).join("") + '</div>';
   }
   panel.innerHTML = html;

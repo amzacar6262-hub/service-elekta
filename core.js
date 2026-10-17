@@ -219,6 +219,30 @@
     return Elekta.storage.set("elekta_service_log_v1", Elekta.state.serviceLog);
   };
 
+  /**
+   * فاز A: ارجاع‌های ماژول‌ها را به همان objectهای state بچسبان
+   * تا varهای قدیمی (favs, serviceLog, …) همان مرجع Elekta.state باشند.
+   */
+  Elekta.syncRefs = function (refs) {
+    if (!refs || typeof refs !== "object") return;
+    var S = Elekta.state;
+    if (refs.favs !== undefined) refs.favs = S.favs;
+    if (refs.checklistData !== undefined) refs.checklistData = S.checklistData;
+    if (refs.manualNotes !== undefined) refs.manualNotes = S.manualNotes;
+    if (refs.serviceLog !== undefined) refs.serviceLog = S.serviceLog;
+  };
+
+  /** ثبت‌نام توابع رفرش UI برای زبان/تم */
+  Elekta._uiRefreshers = [];
+  Elekta.onUIRefresh = function (fn) {
+    if (typeof fn === "function") Elekta._uiRefreshers.push(fn);
+  };
+  Elekta.refreshUI = function () {
+    Elekta._uiRefreshers.forEach(function (fn) {
+      try { fn(); } catch (e) { console.warn("[Elekta.refreshUI]", e); }
+    });
+  };
+
   /* ── محافظت از init تکراری ── */
   Elekta._initDone = false;
 

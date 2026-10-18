@@ -179,6 +179,8 @@ const I18N = {
     pm_freq_quarterly:  "فصلی",
     pm_freq_semiannual: "۶ ماهه",
     pm_freq_annual:     "سالانه",
+    pm_done_label:    "انجام شده",
+    pm_complete:      "کامل شد",
     pm_cat_safety:  "ایمنی",
     pm_cat_mech:    "مکانیک",
     pm_cat_dose:    "دزیمتری",
@@ -190,6 +192,9 @@ const I18N = {
 
     /* ── Sheet ── */
     sheet_close:    "بستن",
+    btn_back:       "بازگشت",
+    btn_start:      "شروع",
+    btn_close:      "بستن",
     sheet_default:  "منوال",
     sheet_devices:  "دستگاه‌های مرتبط",
     sheet_tools:    "ابزار مورد نیاز",
@@ -468,6 +473,8 @@ const I18N = {
     pm_freq_quarterly:  "Quarterly",
     pm_freq_semiannual: "6-Month",
     pm_freq_annual:     "Annual",
+    pm_done_label:    "done",
+    pm_complete:      "Complete",
     pm_cat_safety:  "Safety",
     pm_cat_mech:    "Mechanical",
     pm_cat_dose:    "Dosimetry",
@@ -479,6 +486,16 @@ const I18N = {
 
     /* ── Sheet ── */
     sheet_close:    "Close",
+    btn_back:       "Back",
+    btn_start:      "Start",
+    btn_close:      "Close",
+    gs_ph:          "Search everything…",
+    gs_empty:       "No results",
+    gs_hint:        "Type at least 2 characters",
+    gs_manuals:     "Manuals",
+    gs_errors:      "Error codes",
+    gs_flows:       "Flowcharts",
+    gs_pdfs:        "PDFs",
     sheet_default:  "Manual",
     sheet_devices:  "Related Devices",
     sheet_tools:    "Required Tools",
@@ -626,6 +643,28 @@ function setLanguage(lang){
   /* فقط aria-label — textContent SVG فلش را پاک می‌کند */
   if (pPrev) pPrev.setAttribute("aria-label", t("pdf_prev") || "Prev");
   if (pNext) pNext.setAttribute("aria-label", t("pdf_next") || "Next");
+
+  /* دکمه‌های شیت فلو/آموزش */
+  var mapActs = [
+    ["flowSheet", "sheet-act", null],
+  ];
+  document.querySelectorAll("#flowSheet .sheet-act").forEach(function(btn, i){
+    var on = btn.getAttribute("onclick") || "";
+    if (on.indexOf("closeFlowchart") >= 0) btn.textContent = t("sheet_close") || t("btn_close") || btn.textContent;
+    if (on.indexOf("restartFlowchart") >= 0) btn.textContent = t("flow_start") || t("btn_start") || btn.textContent;
+  });
+  document.querySelectorAll("#learnSheet .sheet-act").forEach(function(btn){
+    var on = btn.getAttribute("onclick") || "";
+    if (on.indexOf("closeLearnSheet") >= 0) btn.textContent = t("sheet_close") || t("btn_close") || btn.textContent;
+    if (on.indexOf("learnBack") >= 0) {
+      /* نگه داشتن SVG در صورت وجود */
+      var hasSvg = btn.querySelector("svg");
+      if (!hasSvg) btn.textContent = t("btn_back") || "Back";
+    }
+  });
+  if (typeof renderFlowList === "function") try { renderFlowList(); } catch(e){}
+  if (typeof renderLearnPaths === "function") try { renderLearnPaths(); } catch(e){}
+  else if (typeof renderLearn === "function") try { renderLearn(); } catch(e){}
 
   if(typeof toast === "function") toast(lang === "fa" ? "زبان: فارسی" : "Language: English");
 }

@@ -14,6 +14,17 @@ const PM_CATS = {
   misc:   { name:"عمومی",      color:"cat-misc" }
 };
 
+function pmCatName(id){
+  var c = PM_CATS[id];
+  var fb = c ? c.name : id;
+  return (typeof i18n === "function") ? i18n("pm_cat_" + id, fb) : fb;
+}
+function pmFreqName(id){
+  var f = PM_FREQS.find(function(x){ return x.id === id; });
+  var fb = f ? f.name : id;
+  return (typeof i18n === "function") ? i18n("pm_freq_" + id, fb) : fb;
+}
+
 const PM_FREQS = [
   { id:"daily",      name:"روزانه",   short:"D",  resetHours: 24 },
   { id:"weekly",     name:"هفتگی",    short:"W",  resetHours: 24 * 7 },
@@ -263,7 +274,8 @@ function setPMFreq(id){
 function renderPMMachineChips(){
   const el = document.getElementById("pmMachineChips");
   if(!el) return;
-  const all = [{id:"all", name:"همه"}].concat(PM_MACHINES.map(function(m){
+  const allLabel = (typeof i18n === "function") ? i18n("chip_all", "همه") : "همه";
+  const all = [{id:"all", name: allLabel}].concat(PM_MACHINES.map(function(m){
     return { id:m, name:m };
   }));
   el.innerHTML = all.map(function(m){
@@ -290,7 +302,7 @@ function renderPMProgress(){
   const done = tasks.filter(function(t){ return pmProgress[t.id]; }).length;
   const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
   const freq = PM_FREQS.find(function(f){ return f.id === pmFreq; });
-  const freqName = freq ? freq.name : "";
+  const freqName = freq ? pmFreqName(freq.id) : "";
 
   el.innerHTML =
     '<div class="pm-progress-head">' +
@@ -301,8 +313,8 @@ function renderPMProgress(){
       '<div class="pm-progress-fill" style="width:' + pct + '%"></div>' +
     '</div>' +
     '<div class="pm-progress-meta">' +
-      '<div>' + fa(done) + ' از ' + fa(tasks.length) + ' انجام شده</div>' +
-      (pct === 100 && tasks.length > 0 ? '<div>✓ کامل شد</div>' : '') +
+      '<div>' + fa(done) + ' / ' + fa(tasks.length) + ' ' + ((typeof i18n==="function")?i18n("pm_done_label","انجام شده"):"انجام شده") + '</div>' +
+      (pct === 100 && tasks.length > 0 ? '<div>✓ ' + ((typeof i18n==="function")?i18n("pm_complete","کامل شد"):"کامل شد") + '</div>' : '') +
     '</div>';
 }
 

@@ -40,7 +40,7 @@ function renderHomeFlow(){
       'style="background:linear-gradient(145deg,' + fc.c1 + ' 0%,' + fc.c2 + ' 100%);animation-delay:' + (i*.04) + 's" ' +
       'onclick="openFlowchart(\'' + fc.id + '\')">' +
       '<div class="cat-ic">' + (ICONS[fc.icon] || ICONS.warn) + '</div>' +
-      '<div class="cat-n">' + fc.title + '</div>' +
+      '<div class="cat-n">' + (((typeof getLang === "function" && getLang() === "en") && fc.subtitle) ? fc.subtitle : fc.title) + '</div>' +
     '</button>';
   }).join("");
 }

@@ -159,6 +159,16 @@ const I18N = {
     /* ── Learning ── */
     learn_title:    "آموزش",
     learn_sub:      "مسیرهای یادگیری سرویس",
+    pm_empty:       "تسکی موجود نیست",
+    pm_empty_s:     "این دستگاه در این بازه PM خاصی ندارد",
+    pm_min:         "دقیقه",
+    pm_critical:    "ضروری",
+    learn_key_points: "نکات کلیدی",
+    learn_related:  "منوال‌های مرتبط",
+    learn_mark_done: "علامت به‌عنوان خوانده‌شده",
+    learn_done:     "خوانده شده",
+    learn_lessons:  "درس‌ها",
+
 
     /* ── PM ── */
     pm_title:       "نگهداری",
@@ -453,6 +463,16 @@ const I18N = {
     /* ── Learning ── */
     learn_title:    "Learning",
     learn_sub:      "Service learning paths",
+    pm_empty:       "No tasks",
+    pm_empty_s:     "No PM tasks for this machine in this period",
+    pm_min:         "min",
+    pm_critical:    "Critical",
+    learn_key_points: "Key points",
+    learn_related:  "Related manuals",
+    learn_mark_done: "Mark as read",
+    learn_done:     "Completed",
+    learn_lessons:  "Lessons",
+
 
     /* ── PM ── */
     pm_title:       "Maintenance",

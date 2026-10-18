@@ -255,7 +255,7 @@ function renderPMFreqChips(){
     const done = tasks.filter(function(t){ return pmProgress[t.id]; }).length;
     return '<button class="pm-freq-chip ' + (pmFreq === f.id ? 'on' : '') + '" ' +
            'onclick="setPMFreq(\'' + f.id + '\')">' +
-      f.name +
+      ((typeof pmFreqName==="function")?pmFreqName(f.id):f.name) +
       '<span class="cnt">' + fa(done) + '/' + fa(tasks.length) + '</span>' +
     '</button>';
   }).join("");
@@ -331,8 +331,8 @@ function renderPMList(){
           '<polyline points="9 11 12 14 22 4"/>' +
           '<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' +
         '</svg>' +
-        '<div class="pm-empty-t">تسکی موجود نیست</div>' +
-        '<div>این دستگاه در این بازه PM خاصی ندارد</div>' +
+        '<div class="pm-empty-t">' + ((typeof i18n==="function")?i18n("pm_empty","تسکی موجود نیست"):"تسکی موجود نیست") + '</div>' +
+        '<div>' + ((typeof i18n==="function")?i18n("pm_empty_s","این دستگاه در این بازه PM خاصی ندارد"):"این دستگاه در این بازه PM خاصی ندارد") + '</div>' +
       '</div>';
     return;
   }
@@ -340,7 +340,7 @@ function renderPMList(){
   el.innerHTML = tasks.map(function(t, i){
     const isDone = !!pmProgress[t.id];
     const cat = PM_CATS[t.cat] || PM_CATS.misc;
-    const doneAt = isDone ? new Date(pmProgress[t.id]).toLocaleDateString("fa-IR") : "";
+    const doneAt = isDone ? new Date(pmProgress[t.id]).toLocaleDateString((typeof getLang==="function"&&getLang()==="en")?"en-US":"fa-IR") : "";
     return '<div class="pm-task ' + (isDone ? 'done' : '') + '" ' +
            'style="animation-delay:' + (i * .02) + 's" ' +
            'onclick="togglePMTask(\'' + t.id + '\')">' +
@@ -353,9 +353,9 @@ function renderPMList(){
         '<div class="pm-title">' + t.title + '</div>' +
         '<div class="pm-desc">' + t.desc + '</div>' +
         '<div class="pm-meta">' +
-          '<span class="pm-badge ' + cat.color + '">' + cat.name + '</span>' +
-          '<span class="pm-badge">⏱ ' + fa(t.min) + ' دقیقه</span>' +
-          (t.critical ? '<span class="pm-badge critical">ضروری</span>' : '') +
+          '<span class="pm-badge ' + cat.color + '">' + ((typeof pmCatName==="function")?pmCatName(t.cat||"misc"):(cat.name||"")) + '</span>' +
+          '<span class="pm-badge">⏱ ' + fa(t.min) + ' ' + ((typeof i18n==="function")?i18n("pm_min","دقیقه"):"دقیقه") + '</span>' +
+          (t.critical ? '<span class="pm-badge critical">' + ((typeof i18n==="function")?i18n("pm_critical","ضروری"):"ضروری") + '</span>' : '') +
           (isDone ? '<span class="pm-done-at">✓ ' + doneAt + '</span>' : '') +
         '</div>' +
       '</div>' +

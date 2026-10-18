@@ -51,6 +51,7 @@ if (window.Elekta && Elekta.onUIRefresh) {
       if (typeof renderPMList === "function") renderPMList();
       if (typeof renderPdfCats === "function") renderPdfCats();
       if (typeof renderPdfList === "function") renderPdfList();
+      if (typeof renderLearnPaths === "function") renderLearnPaths();
       if (typeof applyStaticTranslations === "function") applyStaticTranslations();
       if (typeof updateLangSwitch === "function") updateLangSwitch();
       if (typeof updateOnline === "function") updateOnline();

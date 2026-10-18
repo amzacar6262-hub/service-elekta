@@ -42,7 +42,12 @@ function fa(n){
 }
 const $ = s => document.querySelector(s);
 function i18n(key, fallback){
-  if(typeof t === "function"){ return t(key); }
+  if(typeof t === "function"){
+    try {
+      var v = t(key);
+      if(v && v !== key) return v;
+    } catch(e){}
+  }
   return fallback || key;
 }
 

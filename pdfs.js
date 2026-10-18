@@ -123,19 +123,19 @@ function formatPdfSize(bytes) {
 }
 
 function pdfCatLabel(id) {
-  var fa = {
-    all: "همه", cmm: "CMM / تعمیر", service: "سرویس",
-    accept: "پذیرش", pm: "PM", error: "کد خطا", other: "سایر",
-    pdfcat_all: "همه", pdfcat_cmm: "CMM / تعمیر", pdfcat_service: "سرویس",
-    pdfcat_accept: "پذیرش", pdfcat_pm: "PM", pdfcat_error: "کد خطا", pdfcat_other: "سایر"
-  };
   var c = PDF_CATS.find(function (x) { return x.id === id; });
   var key = c ? c.name : ("pdfcat_" + (id || "other"));
-  var fallback = fa[id] || fa[key] || id || "";
   if (typeof t === "function") {
-    try { var v = t(key); if (v && v !== key && String(v).indexOf("pdfcat_") !== 0) return v; } catch (e) {}
+    try {
+      var v = t(key);
+      if (v && v !== key) return v;
+    } catch (e) {}
   }
-  return fallback;
+  var fa = {
+    all: "همه", cmm: "CMM / تعمیر", service: "سرویس",
+    accept: "پذیرش", pm: "PM", error: "کد خطا", other: "سایر"
+  };
+  return fa[id] || id || key;
 }
 
 function renderPdfCats() {

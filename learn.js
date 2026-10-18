@@ -7,7 +7,9 @@ const LEARNING_PATHS = [
 {
   id: "lp-basics",
   title: "مبانی Linac",
+  titleEn: "Linac Basics",
   subtitle: "آشنایی با اجزای دستگاه و اصول کار",
+  subtitleEn: "Device components and operating principles",
   icon: "book",
   c1: "#5AC8FA", c2: "#0A84FF",
   level: "مقدماتی",
@@ -68,7 +70,9 @@ const LEARNING_PATHS = [
 {
   id: "lp-troubleshoot",
   title: "عیب‌یابی گام‌به‌گام",
+  titleEn: "Step-by-step Troubleshooting",
   subtitle: "روش‌های اصولی تشخیص و رفع مشکل",
+  subtitleEn: "Systematic diagnosis and repair methods",
   icon: "warn",
   c1: "#FF9500", c2: "#FF3B30",
   level: "مقدماتی",
@@ -129,7 +133,9 @@ const LEARNING_PATHS = [
 {
   id: "lp-rf",
   title: "RF و Magnetron",
+  titleEn: "RF & Magnetron",
   subtitle: "سیستم تولید پرتو — تنظیم و عیب‌یابی",
+  subtitleEn: "Beam generation — setup and troubleshooting",
   icon: "target",
   c1: "#FF2D55", c2: "#AF52DE",
   level: "پیشرفته",
@@ -190,7 +196,9 @@ const LEARNING_PATHS = [
 {
   id: "lp-mlc",
   title: "MLC و Agility",
+  titleEn: "MLC & Agility",
   subtitle: "کالیبراسیون و نگهداری سیستم کولیما",
+  subtitleEn: "Collimator calibration and maintenance",
   icon: "grid",
   c1: "#BF5AF2", c2: "#5856D6",
   level: "متوسط",
@@ -286,6 +294,13 @@ function getPathProgress(path){
 /* ═══════════════════════════════════════
    RENDER — Learning Paths list
    ═══════════════════════════════════════ */
+function learnIsEn(){
+  return (typeof getLang === "function" && getLang() === "en");
+}
+function learnText(fa, en){
+  return learnIsEn() && en ? en : (fa || en || "");
+}
+
 function renderLearnPaths(){
   var el = document.getElementById("learnPathsGrid");
   if(!el) return;
@@ -298,8 +313,8 @@ function renderLearnPaths(){
       +   '<div class="learn-card-prog">' + fa(prog.done) + '/' + fa(prog.total) + '</div>'
       + '</div>'
       + '<div class="learn-card-body">'
-      +   '<div class="learn-card-title">' + p.title + '</div>'
-      +   '<div class="learn-card-sub">' + p.subtitle + '</div>'
+      +   '<div class="learn-card-title">' + learnText(p.title, p.titleEn) + '</div>'
+      +   '<div class="learn-card-sub">' + learnText(p.subtitle, p.subtitleEn) + '</div>'
       +   '<div class="learn-card-meta">'
       +     '<span>' + p.level + '</span>'
       +     '<span>·</span>'
@@ -325,7 +340,7 @@ function openLearnPath(pathId){
   var backdrop = document.getElementById("learnSheetBackdrop");
   var title = document.getElementById("learnSheetTitle");
   if(!sheet || !backdrop) return;
-  if(title) title.textContent = p.title;
+  if(title) title.textContent = learnText(p.title, p.titleEn);
 
   renderLearnLessons();
   backdrop.classList.add("show");
@@ -351,8 +366,8 @@ function renderLearnLessons(){
   var prog = getPathProgress(p);
 
   var header = '<div class="learn-sheet-header" style="background:linear-gradient(145deg,' + p.c1 + ' 0%,' + p.c2 + ' 100%)">'
-    + '<div class="learn-sheet-header-title">' + p.title + '</div>'
-    + '<div class="learn-sheet-header-sub">' + p.subtitle + '</div>'
+    + '<div class="learn-sheet-header-title">' + learnText(p.title, p.titleEn) + '</div>'
+    + '<div class="learn-sheet-header-sub">' + learnText(p.subtitle, p.subtitleEn) + '</div>'
     + '<div class="learn-sheet-header-prog">'
     +   '<div class="learn-sheet-header-bar"><div class="learn-sheet-header-fill" style="width:' + prog.pct + '%"></div></div>'
     +   '<div class="learn-sheet-header-txt">' + fa(prog.done) + ' از ' + fa(prog.total) + ' درس انجام شده</div>'
@@ -365,7 +380,7 @@ function renderLearnLessons(){
       return '<button class="learn-lesson ' + (done ? 'done' : '') + '" onclick="openLearnLesson(\'' + l.id + '\')">'
         + '<div class="learn-lesson-num">' + (done ? '✓' : fa(i+1)) + '</div>'
         + '<div class="learn-lesson-body">'
-        +   '<div class="learn-lesson-title">' + l.title + '</div>'
+        +   '<div class="learn-lesson-title">' + learnText(l.title, l.titleEn) + '</div>'
         +   '<div class="learn-lesson-sum">' + l.summary + '</div>'
         +   '<div class="learn-lesson-meta">' + l.duration + '</div>'
         + '</div>'
@@ -392,7 +407,7 @@ function openLearnLesson(lessonId){
   var body = document.getElementById("learnSheetBody");
   var title = document.getElementById("learnSheetTitle");
   if(!body) return;
-  if(title) title.textContent = l.title;
+  if(title) title.textContent = learnText(l.title, l.titleEn);
 
   var done = isLessonDone(l.id);
   var relatedManuals = (l.manuals || []).map(function(mid){
@@ -404,11 +419,11 @@ function openLearnLesson(lessonId){
     '<div class="learn-lesson-detail">'
     +   '<div class="learn-lesson-hero">'
     +     '<div class="learn-lesson-hero-meta">' + l.duration + '</div>'
-    +     '<div class="learn-lesson-hero-title">' + l.title + '</div>'
+    +     '<div class="learn-lesson-hero-title">' + learnText(l.title, l.titleEn) + '</div>'
     +     '<div class="learn-lesson-hero-sum">' + l.summary + '</div>'
     +   '</div>'
 
-    +   '<div class="learn-section-title">نکات کلیدی</div>'
+    +   '<div class="learn-section-title">' + ((typeof i18n==="function")?i18n("learn_key_points","نکات کلیدی"):"نکات کلیدی") + '</div>'
     +   '<div class="learn-points">'
     +     l.points.map(function(pt){
           return '<div class="learn-point"><span class="learn-point-dot"></span>' + pt + '</div>';
@@ -416,7 +431,7 @@ function openLearnLesson(lessonId){
     +   '</div>'
 
     +   (relatedManuals.length ?
-          '<div class="learn-section-title">منوال‌های مرتبط</div>'
+          '<div class="learn-section-title">' + ((typeof i18n==="function")?i18n("learn_related","منوال‌های مرتبط"):"منوال‌های مرتبط") + '</div>'
         + '<div class="learn-manuals">'
         +   relatedManuals.map(function(m){
               return '<button class="learn-manual-btn" onclick="closeLearnSheet(); openManual(\'' + m.id + '\')">'

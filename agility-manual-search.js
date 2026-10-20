@@ -44,8 +44,9 @@
   function matches(q) {
     var tokens = norm(q).split(" ").filter(Boolean);
     if (!tokens.length) return [];
-    return records.map(function(r,i){ return {r:r,i:i,blob:norm([r.code,r.title,r.en,r.ref,r.note].join(" "))}; })
-      .filter(function(x){ return tokens.every(function(t){ return x.blob.indexOf(t)!==-1; }); }).slice(0,12);
+    return records.map(function(r,i){ var title=norm([r.code,r.title,r.en].join(" ")); var blob=norm([r.code,r.title,r.en,r.ref,r.note].join(" ")); var score=0; tokens.forEach(function(t){ if(norm(r.code)===t) score+=100; else if(norm(r.code).indexOf(t)!==-1) score+=35; if(title.indexOf(t)!==-1) score+=12; }); return {r:r,i:i,blob:blob,score:score}; })
+      .filter(function(x){ return tokens.every(function(t){ return x.blob.indexOf(t)!==-1; }); })
+      .sort(function(a,b){ return b.score-a.score || a.i-b.i; }).slice(0,12);
   }
   function render(q) {
     var box = document.getElementById("globalSearchResults");
@@ -58,7 +59,7 @@
     if (empty) empty.style.display = "none";
     var html = '<div class="gs-section" id="agilityManualResults"><div class="gs-section-t">منوال Agility · فهرست سریع ('+found.length+')</div>';
     html += found.map(function(x){
-      return '<button type="button" class="gs-item" onclick="openAgilityManualRecord('+x.i+')"><span class="gs-item-code">'+esc(x.r.code)+'</span><span class="gs-item-title">'+esc(x.r.title)+' <small style="opacity:.7">· '+esc(x.r.ref)+'</small></span></button>';
+      return '<button type="button" class="gs-item" onclick="openAgilityManualRecord('+x.i+')"><span class="gs-item-code" dir="ltr">'+esc(x.r.code)+'</span><span class="gs-item-title">'+esc(x.r.title)+' <small style="opacity:.7">· <bdi dir="ltr">'+esc(x.r.ref)+'</bdi></small></span></button>';
     }).join("");
     html += '</div><div id="agilityManualDetail"></div>';
     box.insertAdjacentHTML("beforeend",html);
@@ -67,7 +68,7 @@
     var r = records[Number(i)];
     var box = document.getElementById("agilityManualDetail");
     if (!r || !box) return;
-    box.innerHTML = '<div class="gs-section"><div class="gs-section-t">'+esc(r.title)+'</div><div style="padding:12px 14px;line-height:1.7"><div><b>English:</b> '+esc(r.en)+'</div><div style="margin-top:6px"><b>مرجع منوال:</b> '+esc(r.ref)+'</div><div style="margin-top:8px">'+esc(r.note)+'</div><div style="margin-top:10px;font-size:12px;opacity:.75">منبع: سند 1014603 05، Rev 05. این خلاصه برای یافتن صفحه است؛ برای هر اقدام، متن و شکل اصلی منوال و روش رسمی Elekta ملاک است.</div></div></div>';
+    box.innerHTML = '<div class="gs-section"><div class="gs-section-t">'+esc(r.title)+'</div><div style="padding:12px 14px;line-height:1.7"><div><b>English:</b> <bdi dir="ltr">'+esc(r.en)+'</bdi></div><div style="margin-top:6px"><b>مرجع منوال:</b> <bdi dir="ltr">'+esc(r.ref)+'</bdi></div><div style="margin-top:8px">'+esc(r.note)+'</div><div style="margin-top:10px;font-size:12px;opacity:.75">منبع: سند 1014603 05، Rev 05. این خلاصه برای یافتن صفحه است؛ برای هر اقدام، متن و شکل اصلی منوال و روش رسمی Elekta ملاک است.</div></div></div>';
   };
   var originalRun = window.runGlobalSearch;
   if (typeof originalRun === "function") {

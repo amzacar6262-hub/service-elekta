@@ -31,6 +31,7 @@
     {code:"8022", title:"خطای حرکت DLG / حرکت کند یا مشکل ترمز", en:"DLG movement error / slow movement or brake issue", ref:"فصل 4.6.4، صفحات 80–84", note:"رکورد خلاصه به حرکت کند یا ترمز اشاره می‌کند؛ تأیید با نمودار و آزمون رسمی لازم است."},
     {code:"—", title:"حرکت برگ در جهت اشتباه یا بدون فرمان", en:"Leaf moves uncontrolled", ref:"فصل 4.6.6، صفحات 89–91", note:"وضعیت بالقوه خطرناک؛ طبق دستورالعمل رسمی دستگاه را ایمن کنید و از ادامه کار درمانی جلوگیری شود."},
     {code:"81xx / 72xx / 73xx / 7800", title:"از دست رفتن تشخیص Leaf Ruby", en:"Lost leaf ruby / missing optical detection", ref:"فصل 4.6.7، صفحات 92–94", note:"برای تشخیص اپتیکی، نمودار فصل 4.6.7 را دنبال کنید؛ کدهای خانواده‌ای نیازمند تطبیق با خطای کامل هستند."},
+    {code:"MLC NOT READY", title:"عبارت MLC NOT READY — مسیرهای مرتبط برای بررسی", en:"MLC NOT READY — related manual paths", ref:"بسته به کد کامل و وضعیت دستگاه؛ مسیرهای مرتبط: 4.6.2، 4.6.5، 4.6.7–4.6.8", note:"این عبارت به‌تنهایی در این فهرست به‌عنوان یک کد عددی مستقل تأیید نشده است. کد عددی کامل، متن دقیق پیام و بانک/برگ درگیر را ثبت کنید؛ سپس مسیر ارتباطات، حرکت برگ یا تشخیص اپتیکی را فقط بر اساس نشانه‌های واقعی و نمودار رسمی انتخاب کنید."},
     {code:"—", title:"Agility — مرجع عیب‌یابی و تعمیرات اصلاحی", en:"Agility corrective maintenance reference", ref:"Elekta Agility Corrective Maintenance Manual، سند 1014603 05، Rev 05، مارس 2017", note:"این فهرست فقط نمایه سریع کد/عنوان/صفحه است؛ جایگزین منوال کامل، تصاویر یا دستورالعمل سرویس مجاز نیست."}
   ];
 
@@ -43,7 +44,7 @@
   function matches(q) {
     var tokens = norm(q).split(" ").filter(Boolean);
     if (!tokens.length) return [];
-    return records.map(function(r,i){ return {r:r,i:i,blob:norm([r.code,r.title,r.en,r.ref,r.note,"agility elekta mlc leaf ruby dlg diaphragm router can"].join(" "))}; })
+    return records.map(function(r,i){ return {r:r,i:i,blob:norm([r.code,r.title,r.en,r.ref,r.note].join(" "))}; })
       .filter(function(x){ return tokens.every(function(t){ return x.blob.indexOf(t)!==-1; }); }).slice(0,12);
   }
   function render(q) {

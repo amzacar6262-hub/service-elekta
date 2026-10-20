@@ -92,9 +92,9 @@
   var fullPageByNumber = Object.create(null);
   function fullNorm(s) {
     return String(s || "").toLowerCase()
-      .replace(/[\\u064a\\u0649]/g, "ی").replace(/\\u0643/g, "ک")
-      .replace(/[\\u200c\\u200f\\u202a-\\u202e]/g, " ")
-      .replace(/[^\\p{L}\\p{N}]+/gu, " ").replace(/\\s+/g, " ").trim();
+      .replace(/[ىي]/g, "ی").replace(/ك/g, "ک")
+      .replace(/[\u200c\u200f\u202a-\u202e]/g, " ")
+      .replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim();
   }
   function loadFullManual() {
     if (fullPages) return Promise.resolve(fullPages);
@@ -124,7 +124,7 @@
     return fullLoadPromise;
   }
   function fullSnippet(text, tokens) {
-    var raw = String(text || "").replace(/\\s+/g, " ").trim();
+    var raw = String(text || "").replace(/\s+/g, " ").trim();
     var n = fullNorm(raw), at = -1;
     for (var i=0;i<tokens.length;i++) {
       var pos = n.indexOf(tokens[i]);

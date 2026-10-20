@@ -148,22 +148,8 @@
         else {
           score += 2;
           if (pos < 180) score += 2;
-          var re = new RegExp(t.replace(/[.*+?^\u007b\u007d()|[\\]\\\\]/g, "\\\\  var originalRun = window.runGlobalSearch;
-  if (typeof originalRun === "function") {
-    window.runGlobalSearch = function(q) {
-      originalRun(q);
-      render(q);
-    };
-  }
-  var originalInput = window.onGlobalSearchInput;
-  window.onGlobalSearchInput = function(val) {
-    if (typeof originalInput === "function") originalInput(val);
-    else window.runGlobalSearch(val);
-  };
-  console.log("Agility manual quick index loaded (" + records.length + " records)");
-})();"), "g");
-          var hits = norm.match(re);
-          score += Math.min(hits ? hits.length : 0, 8);
+          var hits = norm.split(t);
+          score += Math.min(Math.max(0, hits.length - 1), 8);
         }
       });
       return ok ? {page:p.pdf_page, text:p.text || "", score:score} : null;

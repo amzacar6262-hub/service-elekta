@@ -86,7 +86,69 @@
     if (!r || !box) return;
     box.innerHTML = '<div class="gs-section"><div class="gs-section-t">'+esc(r.title)+'</div><div style="padding:12px 14px;line-height:1.7"><div><b>English:</b> <bdi dir="ltr">'+esc(r.en)+'</bdi></div><div style="margin-top:6px"><b>مرجع منوال:</b> <bdi dir="ltr">'+esc(r.ref)+'</bdi></div><div style="margin-top:8px">'+esc(r.note)+'</div><div style="margin-top:10px;font-size:12px;opacity:.75">منبع: سند 1014603 05، Rev 05. این خلاصه برای یافتن صفحه است؛ برای هر اقدام، متن و شکل اصلی منوال و روش رسمی Elekta ملاک است.</div></div></div>';
   };
-  var originalRun = window.runGlobalSearch;
+  /* Full manual text index: all 374 extracted PDF pages, loaded on demand. */
+  var fullPages = null;
+  var fullLoadPromise = null;
+  var fullPageByNumber = Object.create(null);
+  function fullNorm(s) {
+    return String(s || "").toLowerCase()
+      .replace(/[\\u064a\\u0649]/g, "ی").replace(/\\u0643/g, "ک")
+      .replace(/[\\u200c\\u200f\\u202a-\\u202e]/g, " ")
+      .replace(/[^\\p{L}\\p{N}]+/gu, " ").replace(/\\s+/g, " ").trim();
+  }
+  function loadFullManual() {
+    if (fullPages) return Promise.resolve(fullPages);
+    if (fullLoadPromise) return fullLoadPromise;
+    var parts = [1,2,3,4,5,6];
+    fullLoadPromise = Promise.all(parts.map(function(n) {
+      return fetch("./agility-manual-part" + n + ".json").then(function(r) {
+        if (!r.ok) throw new Error("Manual index part " + n + " unavailable");
+        return r.json();
+      });
+    })).then(function(data) {
+      fullPages = [];
+      data.forEach(function(part) {
+        (part.pages || []).forEach(function(p) {
+          fullPages.push(p);
+          fullPageByNumber[String(p.pdf_page)] = p;
+        });
+      });
+      fullPages.sort(function(a,b){return a.pdf_page-b.pdf_page;});
+      console.log("Full Agility text loaded: " + fullPages.length + " pages");
+      return fullPages;
+    }).catch(function(err) {
+      fullLoadPromise = null;
+      console.warn("Full Agility text index could not load", err);
+      return null;
+    });
+    return fullLoadPromise;
+  }
+  function fullSnippet(text, tokens) {
+    var raw = String(text || "").replace(/\\s+/g, " ").trim();
+    var n = fullNorm(raw), at = -1;
+    for (var i=0;i<tokens.length;i++) {
+      var pos = n.indexOf(tokens[i]);
+      if (pos >= 0 && (at < 0 || pos < at)) at = pos;
+    }
+    if (at < 0) at = 0;
+    var start = Math.max(0, at - 160);
+    var end = Math.min(raw.length, start + 620);
+    return (start ? "… " : "") + raw.slice(start,end) + (end < raw.length ? " …" : "");
+  }
+  function fullSearch(q) {
+    if (!fullPages || !q) return [];
+    var tokens = fullNorm(q).split(" ").filter(function(t){return t.length > 1;});
+    if (!tokens.length) return [];
+    return fullPages.map(function(p) {
+      var norm = fullNorm(p.text || "");
+      var score = 0, ok = true;
+      tokens.forEach(function(t) {
+        var pos = norm.indexOf(t);
+        if (pos < 0) ok = false;
+        else {
+          score += 2;
+          if (pos < 180) score += 2;
+          var re = new RegExp(t.replace(/[.*+?^\u007b\u007d()|[\\]\\\\]/g, "\\\\  var originalRun = window.runGlobalSearch;
   if (typeof originalRun === "function") {
     window.runGlobalSearch = function(q) {
       originalRun(q);
@@ -99,4 +161,63 @@
     else window.runGlobalSearch(val);
   };
   console.log("Agility manual quick index loaded (" + records.length + " records)");
+})();"), "g");
+          var hits = norm.match(re);
+          score += Math.min(hits ? hits.length : 0, 8);
+        }
+      });
+      return ok ? {page:p.pdf_page, text:p.text || "", score:score} : null;
+    }).filter(Boolean).sort(function(a,b){return b.score-a.score || a.page-b.page;}).slice(0,12);
+  }
+  function renderFull(q) {
+    var box = document.querySelector(".gs-results");
+    if (!box) return;
+    var old = document.getElementById("agilityFullTextResults");
+    if (old) old.remove();
+    var query = String(q || "").trim();
+    if (!query) return;
+    if (!fullPages) {
+      box.insertAdjacentHTML("beforeend", '<div class="gs-section" id="agilityFullTextResults"><div class="gs-section-t">متن کامل منوال Agility</div><div style="padding:12px 14px;font-size:13px;opacity:.75">در حال آماده‌سازی جستجوی ۳۷۴ صفحه…</div></div>');
+      loadFullManual().then(function(pages) { if (pages) renderFull(q); });
+      return;
+    }
+    var found = fullSearch(query);
+    var html = '<div class="gs-section" id="agilityFullTextResults"><div class="gs-section-t">جستجو در متن کامل منوال · '+found.length+' نتیجه از ۳۷۴ صفحه</div>';
+    if (!found.length) html += '<div style="padding:12px 14px;font-size:13px;opacity:.75">در متن استخراج‌شده نتیجه‌ای با همه واژه‌ها پیدا نشد؛ عبارت کوتاه‌تر یا کد خطا را امتحان کنید.</div>';
+    html += found.map(function(x) {
+      var snippet = fullSnippet(x.text, fullNorm(query).split(" ").filter(function(t){return t.length>1;}));
+      return '<button type="button" class="gs-item" onclick="openAgilityFullPage('+x.page+')"><span class="gs-item-code" dir="ltr">PDF '+x.page+'</span><span class="gs-item-title">'+esc(snippet)+'</span></button>';
+    }).join("");
+    html += '<div style="padding:10px 14px;font-size:11px;opacity:.7">جستجو روی لایه متنی PDF است؛ شکل‌ها و نوشته‌های صرفاً تصویری ممکن است در نتایج نباشند.</div></div>';
+    box.insertAdjacentHTML("beforeend", html);
+  }
+  window.openAgilityFullPage = function(page) {
+    var p = fullPageByNumber[String(page)];
+    var box = document.getElementById("agilityManualDetail");
+    if (!p || !box) {
+      box = document.querySelector(".gs-results");
+      if (!box) return;
+      var old = document.getElementById("agilityManualDetail");
+      if (old) old.remove();
+      box.insertAdjacentHTML("beforeend", '<div id="agilityManualDetail"></div>');
+      box = document.getElementById("agilityManualDetail");
+    }
+    var text = String(p.text || "").trim();
+    box.innerHTML = '<div class="gs-section"><div class="gs-section-t">منوال Agility · PDF '+page+'</div><div style="padding:12px 14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px">'+esc(text)+'</div><div style="padding:10px 14px;font-size:11px;opacity:.75">سند 1014603 05، Rev 05 (2017). متن استخراج‌شده است؛ شکل‌ها و روش‌های اصلی را در نسخه رسمی بررسی کنید. این نتیجه به‌تنهایی مجوز انجام سرویس یا تغییر ایمنی دستگاه نیست.</div></div>';
+    box.scrollIntoView({behavior:"smooth",block:"nearest"});
+  };
+  var originalRun = window.runGlobalSearch;
+  if (typeof originalRun === "function") {
+    window.runGlobalSearch = function(q) {
+      originalRun(q);
+      render(q);
+      renderFull(q);
+    };
+  }
+  var originalInput = window.onGlobalSearchInput;
+  window.onGlobalSearchInput = function(val) {
+    if (typeof originalInput === "function") originalInput(val);
+    else window.runGlobalSearch(val);
+  };
+  console.log("Agility manual quick index loaded (" + records.length + " records); full-text search ready");
 })();

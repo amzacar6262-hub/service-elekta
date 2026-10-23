@@ -86,7 +86,7 @@
     if (!found.length) return;
     var empty = box.querySelector(".gs-empty");
     if (empty) empty.style.display = "none";
-    var html = '<div class="gs-section" id="agilityManualResults"><div class="gs-section-t">منوال Agility · فهرست سریع ('+found.length+')</div>';
+    var html = '<div class="gs-section" id="agilityManualResults"><div class="gs-section-t">۱. راهنمای خطاهای Agility ('+found.length+')</div>';
     html += found.map(function(x){
       return '<button type="button" class="gs-item" onclick="openAgilityManualRecord('+x.i+')"><span class="gs-item-code" dir="ltr">'+esc(x.r.code)+'</span><span class="gs-item-title">'+esc(x.r.title)+' <small style="opacity:.7">· <bdi dir="ltr">'+esc(x.r.ref)+'</bdi></small></span></button>';
     }).join("");
@@ -182,7 +182,7 @@
       return;
     }
     var found = fullSearch(query);
-    var html = '<div class="gs-section" id="agilityFullTextResults"><div class="gs-section-t">جستجو در متن کامل منوال · '+found.length+' نتیجه از ۳۷۴ صفحه</div>';
+    var html = '<div class="gs-section" id="agilityFullTextResults"><div class="gs-section-t">۲. صفحات مرتبط منوال · '+found.length+' نتیجه از ۳۷۴ صفحه</div>';
     if (!found.length) html += '<div style="padding:12px 14px;font-size:13px;opacity:.75">در متن استخراج‌شده نتیجه‌ای با همه واژه‌ها پیدا نشد؛ عبارت کوتاه‌تر یا کد خطا را امتحان کنید.</div>';
     html += found.map(function(x) {
       var snippet = fullSnippet(x.text, fullNorm(query).split(" ").filter(function(t){return t.length>1;}));

@@ -81,6 +81,14 @@
     var box = document.getElementById("globalSearchResults");
     if (!box || !norm(q)) return;
     var found = matches(q);
+    var seenCodes = Object.create(null);
+    found = found.filter(function (item) {
+      var key = norm(item.r.code).replace(/\\s+/g, "");
+      if (!key || key === "—" || key === "workflow" || key === "model scope") return true;
+      if (seenCodes[key]) return false;
+      seenCodes[key] = true;
+      return true;
+    });
     var old = document.getElementById("agilityManualResults");
     if (old) old.remove();
     if (!found.length) return;

@@ -81,12 +81,11 @@
     var box = document.getElementById("globalSearchResults");
     if (!box || !norm(q)) return;
     var found = matches(q);
-    var seenCodes = Object.create(null);
+    var seenRecords = Object.create(null);
     found = found.filter(function (item) {
-      var key = norm(item.r.code).replace(/\\s+/g, "");
-      if (!key || key === "—" || key === "workflow" || key === "model scope") return true;
-      if (seenCodes[key]) return false;
-      seenCodes[key] = true;
+      var key = norm(item.r.code) + "|" + norm(item.r.title);
+      if (seenRecords[key]) return false;
+      seenRecords[key] = true;
       return true;
     });
     var old = document.getElementById("agilityManualResults");

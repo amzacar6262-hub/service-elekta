@@ -127,6 +127,7 @@
         });
       });
       fullPages.sort(function(a,b){return a.pdf_page-b.pdf_page;});
+      fullPages.forEach(function(p) { p._searchText = fullNorm(p.text || ""); });
       console.log("Full Agility text loaded: " + fullPages.length + " pages");
       return fullPages;
     }).catch(function(err) {
@@ -153,7 +154,7 @@
     var tokens = fullNorm(q).split(" ").filter(function(t){return t.length > 1;});
     if (!tokens.length) return [];
     return fullPages.map(function(p) {
-      var norm = fullNorm(p.text || "");
+      var norm = p._searchText || "";
       var score = 0, ok = true;
       tokens.forEach(function(t) {
         var pos = norm.indexOf(t);

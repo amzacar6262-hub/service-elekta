@@ -112,7 +112,7 @@
   function loadFullManual() {
     if (fullPages) return Promise.resolve(fullPages);
     if (fullLoadPromise) return fullLoadPromise;
-    var parts = [1,2,3,4,5,6,7,8,9];
+    var parts = [1,2,3,4,5,6,7,9,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
     fullLoadPromise = Promise.all(parts.map(function(n) {
       return fetch("./agility-manual-part" + n + ".json").then(function(r) {
         if (!r.ok) throw new Error("Manual index part " + n + " unavailable");

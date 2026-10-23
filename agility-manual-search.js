@@ -185,7 +185,13 @@
     if (!query) return;
     if (!fullPages) {
       box.insertAdjacentHTML("beforeend", '<div class="gs-section" id="agilityFullTextResults"><div class="gs-section-t">متن کامل منوال Agility</div><div style="padding:12px 14px;font-size:13px;opacity:.75">در حال آماده‌سازی جستجوی ۳۷۴ صفحه…</div></div>');
-      loadFullManual().then(function(pages) { if (pages) renderFull(q); });
+      loadFullManual().then(function(pages) {
+        if (pages) renderFull(q);
+        else {
+          var failed = document.getElementById("agilityFullTextResults");
+          if (failed) failed.innerHTML = '<div class="gs-section-t">متن کامل منوال Agility</div><div style="padding:12px 14px;font-size:13px">بارگذاری متن منوال ناموفق بود. اتصال اینترنت را بررسی کنید و جستجو را دوباره اجرا کنید.</div>';
+        }
+      });
       return;
     }
     var found = fullSearch(query);
